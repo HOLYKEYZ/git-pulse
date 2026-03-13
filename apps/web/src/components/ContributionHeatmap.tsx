@@ -6,13 +6,13 @@ export default function ContributionHeatmap() {
     const days = 7;
 
     // Generate random dummy data with GitHub green colors
-    const colors = [
-        'bg-[#161b22]', // empty
-        'bg-[#0e4429]', // level 1
-        'bg-[#006d32]', // level 2
-        'bg-[#26a641]', // level 3
-        'bg-[#39d353]'  // highest
-    ];
+const colors = [
+    'bg-git-contribution-0', // empty
+    'bg-git-contribution-1', // level 1
+    'bg-git-contribution-2', // level 2
+    'bg-git-contribution-3', // level 3
+    'bg-git-contribution-4'  // highest
+];
 
     return (
         <div className="w-full overflow-hidden rounded-xl border border-git-border bg-git-card p-4">

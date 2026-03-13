@@ -20,6 +20,20 @@ const config: Config = {
                     text: "#E6EDF3",
                     muted: "#8B949E",
                     notification: "#D29922",
+                    contribution: {
+                        0: "#161B22",
+                        1: "#0e4429",
+                        2: "#006d32",
+                        3: "#26a641",
+                        4: "#39d353"
+                    }
+                }
+            },
+        },
+    },
+    plugins: [],
+};
+                    }
                 }
             },
         },

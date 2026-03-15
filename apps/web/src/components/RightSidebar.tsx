@@ -13,8 +13,8 @@ const TRENDING_REPOS = [
 export default async function RightSidebar() {
     const session = await auth();
 
-    // Fetch some suggested users from the DB (Who to ship with)
-    // In a real app, this would be based on interests/followers
+    console.log("🔥 [RightSidebar] DATABASE_URL TYPE:", typeof process.env.DATABASE_URL, "VAL:", process.env.DATABASE_URL);
+
     const suggestedUsers = await prisma.user.findMany({
         take: 3,
         where: {

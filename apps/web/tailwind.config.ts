@@ -25,19 +25,31 @@ const config: Config = {
                         1: "#0e4429",
                         2: "#006d32",
                         3: "#26a641",
-                        4: "#39d353"
-                    }
-                }
+                        4: "#39d353",
+                    },
+                },
+            },
+            fontFamily: {
+                sans: [
+                    "-apple-system",
+                    "BlinkMacSystemFont",
+                    "Segoe UI",
+                    "Noto Sans",
+                    "Helvetica",
+                    "Arial",
+                    "sans-serif",
+                ],
+                mono: [
+                    "SFMono-Regular",
+                    "Consolas",
+                    "Liberation Mono",
+                    "Menlo",
+                    "monospace",
+                ],
             },
         },
     },
     plugins: [],
 };
-                    }
-                }
-            },
-        },
-    },
-    plugins: [],
-};
+
 export default config;

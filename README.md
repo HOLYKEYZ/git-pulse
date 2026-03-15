@@ -16,7 +16,7 @@ This is a monorepo managed with `pnpm` workspaces.
 ### 1. Prerequisites
 - Node.js >= 18
 - `pnpm` (`npm i -g pnpm`)
-- PostgreSQL locally or via Supabase
+- PostgreSQL locally or NeonDB
 - Redis (Upstash) for feed caching
 
 ### 2. Environment Variables
@@ -49,9 +49,9 @@ pnpm --filter api dev
 
 ## Built With
 - Next.js 15
-- Tailwind CSS (GitHub Dark Mode design system)
+- Tailwind CSS (GitHub like design system)
 - Auth.js (NextAuth v5)
 - Express
 - Prisma
-- Supabase (PostgreSQL + Realtime)
+- NeonDB (PostgreSQL + Realtime)
 - BullMQ

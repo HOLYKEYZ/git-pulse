@@ -35,7 +35,7 @@ app.get('/api/feed/:userId', authenticateToken, (req, res) => {
   const authenticatedUserId = (req as any).user.sub;
   // TODO: Validate userId against authenticatedUserId for additional security
   res.json({ message: 'Algo feed placeholder', user: (req as any).user });
-    // TODO: Feed scoring logic goes here (Dave)
+    // TODO: Feed scoring logic goes here
     res.json({ message: "Algo feed placeholder" });
 });
 

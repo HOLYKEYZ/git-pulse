@@ -14,15 +14,35 @@ export default function ShipItForm() {
     "awesome-repo"
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!repo || !version || !changelog.trim()) return;
+    if (!repo || !version || !changelog.trim() || isSubmitting) return;
     
-    console.log("Shipping:", { repo, version, changelog });
-    // TODO: Connect to backend API
-    setRepo('');
-    setVersion('');
-    setChangelog('');
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          content: `Shipped a new release of ${repo}!`,
+          type: 'ship',
+          shipDetails: { version, changelog }
+        }),
+      });
+
+      if (res.ok) {
+        setRepo('');
+        setVersion('');
+        setChangelog('');
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Failed to ship release", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

@@ -1,8 +1,10 @@
 import { auth } from "@/lib/auth";
 import { getGitHubUser, getGitHubRepos } from "@/lib/github";
+import { prisma } from "@/lib/prisma";
 import Image from "next/image";
 import ContributionHeatmap from "@/components/ContributionHeatmap";
 import RepoCard from "@/components/RepoCard";
+import FollowButton from "@/components/FollowButton";
 
 const LANGUAGE_COLORS: Record<string, string> = {
     TypeScript: "#3178c6",
@@ -37,6 +39,31 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                 <p className="text-sm mt-2">Sign in to view profiles.</p>
             </div>
         );
+    }
+
+    // Check follow status in DB
+    let initialIsFollowing = false;
+    if (session?.user?.login && !isOwnProfile) {
+        const currentUser = await prisma.user.findUnique({
+            where: { username: session.user.login },
+            select: { id: true }
+        });
+        const targetUser = await prisma.user.findUnique({
+            where: { username: username },
+            select: { id: true }
+        });
+
+        if (currentUser && targetUser) {
+            const follow = await prisma.follow.findUnique({
+                where: {
+                    followerId_followingId: {
+                        followerId: currentUser.id,
+                        followingId: targetUser.id
+                    }
+                }
+            });
+            initialIsFollowing = !!follow;
+        }
     }
 
     return (
@@ -77,9 +104,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                 </div>
 
                 {!isOwnProfile && (
-                    <button className="hidden sm:block rounded-md bg-transparent border border-git-border px-4 py-1.5 text-sm font-medium text-git-text hover:bg-git-border transition-colors">
-                        Follow
-                    </button>
+                    <div className="hidden sm:block">
+                        <FollowButton targetUsername={username} initialIsFollowing={initialIsFollowing} />
+                    </div>
                 )}
             </div>
 

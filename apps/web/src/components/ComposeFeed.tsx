@@ -6,13 +6,30 @@ export default function ComposeFeed() {
   const [content, setContent] = useState('');
   const maxLength = 280;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim() || content.length > maxLength) return;
+    if (!content.trim() || content.length > maxLength || isSubmitting) return;
     
-    console.log("Submitting standard post:", content);
-    // TODO: Connect to backend API
-    setContent('');
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content, type: 'standard' }),
+      });
+
+      if (res.ok) {
+        setContent('');
+        // Refresh the page to show new post
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Failed to create post", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

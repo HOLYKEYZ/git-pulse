@@ -53,5 +53,5 @@ pnpm --filter api dev
 - Auth.js (NextAuth v5)
 - Express
 - Prisma
-- Supabase (PostgreSQL + Realtime)
+- NeonDB (PostgreSQL + Realtime)
 - BullMQ

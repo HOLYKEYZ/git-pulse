@@ -13,6 +13,10 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 // console.log("🔥 [Prisma Module Loaded] globalForPrisma.prisma exists?", !!globalForPrisma.prisma);
+console.log("💎 [Prisma Module Audit] DATABASE_URL Key Found?", !!process.env.DATABASE_URL);
+if (process.env.DATABASE_URL) {
+  console.log("💎 [Prisma Module Audit] DATABASE_URL Length:", process.env.DATABASE_URL.length);
+}
 
 const createPrismaClient = () => {
   const connectionString = process.env.DATABASE_URL;

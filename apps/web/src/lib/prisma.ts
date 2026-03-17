@@ -15,15 +15,19 @@ const globalForPrisma = globalThis as unknown as {
 // console.log("🔥 [Prisma Module Loaded] globalForPrisma.prisma exists?", !!globalForPrisma.prisma);
 
 const createPrismaClient = () => {
-  // ⚡ CRITICAL FIX: Next.js Turbopack proxies process.env. We MUST force it to a primitive string.
-  const connectionString = `${process.env.DATABASE_URL}`;
+  const connectionString = process.env.DATABASE_URL;
+
+  console.log("🛠️ [Prisma] Initializing with URL length:", connectionString?.length);
   
-  if (!process.env.DATABASE_URL) {
+  if (!connectionString) {
     throw new Error("❌ DATABASE_URL is missing from process.env. Please check your environment configuration.");
   }
 
+  // 🛡️ [Backend Fortress] Reverting to direct string parsing to test driver-level resilience
   const pool = new Pool({ connectionString });
   const adapter = new PrismaNeon(pool);
+  
+  console.log("🛠️ [Prisma] Client and Adapter created.");
   return new PrismaClient({ adapter });
 };
 

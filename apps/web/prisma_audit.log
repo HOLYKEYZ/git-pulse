@@ -1,0 +1,17 @@
+💎 [Prisma Module Audit] Time: 2026-03-17T19:28:25.994Z | DATABASE_URL defined? true | Length: 126
+🔍 [API DB Test] Time: 2026-03-17T19:28:26.000Z | DATABASE_URL defined? true | Length: 126
+🔍 [API DB Test] Time: 2026-03-17T19:30:33.980Z | DATABASE_URL defined? true | Length: 126
+🛠️ [Prisma Init] Time: 2026-03-17T19:32:57.409Z | Raw Len: 126 | Trimmed Len: 126
+🔍 [API DB Test] Time: 2026-03-17T19:32:57.436Z | DATABASE_URL defined? true | Length: 126
+🛠️ [Prisma Init] Time: 2026-03-17T19:33:31.764Z | Protocol: postgresql: | Host: ep-fragrant-term-am5tzqcv-pooler.c-5.us-east-1.aws.neon.tech | Path: /neondb
+🔍 [API DB Test] Time: 2026-03-17T19:33:31.769Z | DATABASE_URL defined? true | Length: 126
+🛠️ [Prisma Init] Time: 2026-03-17T19:34:18.879Z | Protocol: postgresql: | Host: ep-fragrant-term-am5tzqcv-pooler.c-5.us-east-1.aws.neon.tech | Path: /neondb
+🔍 [API DB Test] Starting raw neon test. URL Len: 126
+✅ [API DB Test] Raw neon success: [{"test":1}]
+🛠️ [Prisma Init] Hyper-explicit config for: ep-fragrant-term-am5tzqcv-pooler.c-5.us-east-1.aws.neon.tech
+🔍 [API DB Test] Starting raw neon test. URL Len: 126
+✅ [API DB Test] Raw neon success: [{"test":1}]
+🔍 [API DB Test] Starting raw neon test. URL Len: 126
+✅ [API DB Test] Raw neon success: [{"test":1}]
+🛠️ [Prisma Init] Hyper-explicit config for: ep-fragrant-term-am5tzqcv-pooler.c-5.us-east-1.aws.neon.tech
+🛠️ [Prisma Init] Isolated config for: ep-fragrant-term-am5tzqcv-pooler.c-5.us-east-1.aws.neon.tech

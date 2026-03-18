@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import Sidebar from "@/components/Sidebar";
@@ -6,6 +7,12 @@ import RightSidebar from "@/components/RightSidebar";
 import BottomNav from "@/components/BottomNav";
 import { SidebarSkeleton } from "@/components/Skeletons";
 import "./globals.css";
+
+const inter = Inter({
+    subsets: ["latin"],
+    display: "swap",
+    variable: "--font-inter",
+});
 
 export const dynamic = "force-dynamic";
 
@@ -52,7 +59,7 @@ export default async function RootLayout({
 
     return (
         <html lang="en">
-            <body className="antialiased min-h-screen bg-git-bg text-git-text overflow-x-hidden">
+            <body className={`${inter.variable} antialiased min-h-screen bg-git-bg text-git-text overflow-x-hidden font-sans`}>
                 <div className="mx-auto max-w-7xl px-0 sm:px-6 lg:px-8 pb-20 lg:pb-0">
                     <div className="flex justify-center gap-0 lg:gap-6 py-0 lg:py-6">
 

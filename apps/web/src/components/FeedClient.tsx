@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import SearchBar from '@/components/SearchBar';
 import ComposeFeed from '@/components/ComposeFeed';
 import ShipItForm from '@/components/ShipItForm';
 import PostCard, { PostProps } from '@/components/PostCard';
@@ -20,17 +21,22 @@ export default function FeedClient({ discoverPosts, followingPosts, userName, us
 
     return (
         <div className="flex flex-col min-h-screen pb-20">
-            {/* Header / Tabs */}
-            <div className="sticky top-0 z-10 bg-git-bg/95 backdrop-blur border-b border-git-border px-4 pt-4 flex gap-6 font-semibold text-sm">
+            {/* Search Bar */}
+            <div className="px-4 pt-4 pb-2">
+                <SearchBar />
+            </div>
+
+            {/* Tabs */}
+            <div className="sticky top-0 z-10 bg-git-bg/95 backdrop-blur border-b border-git-border px-4 flex gap-6 font-semibold text-sm">
                 <button
                     onClick={() => setActiveTab('following')}
-                    className={`pb-3 border-b-2 transition-colors ${activeTab === 'following' ? 'border-[#f78166] text-git-text' : 'border-transparent text-git-muted hover:text-git-text'}`}
+                    className={`py-3 border-b-2 transition-colors ${activeTab === 'following' ? 'border-[#f78166] text-git-text' : 'border-transparent text-git-muted hover:text-git-text'}`}
                 >
                     Following
                 </button>
                 <button
                     onClick={() => setActiveTab('discover')}
-                    className={`pb-3 border-b-2 transition-colors ${activeTab === 'discover' ? 'border-[#f78166] text-git-text' : 'border-transparent text-git-muted hover:text-git-text'}`}
+                    className={`py-3 border-b-2 transition-colors ${activeTab === 'discover' ? 'border-[#f78166] text-git-text' : 'border-transparent text-git-muted hover:text-git-text'}`}
                 >
                     Discover
                 </button>
@@ -57,9 +63,9 @@ export default function FeedClient({ discoverPosts, followingPosts, userName, us
             </div>
 
             {/* Feed List */}
-            <div className="flex flex-col">
+            <div className="flex flex-col stagger-children">
                 {currentPosts.length === 0 && (
-                    <div className="p-8 text-center text-git-muted text-sm border-b border-git-border">
+                    <div className="p-8 text-center text-git-muted text-sm border-b border-git-border animate-fade-in">
                         {activeTab === 'following'
                             ? "No posts from people you follow yet. Switch to Discover to see activity."
                             : "No events to show. Try following some users on GitHub!"}

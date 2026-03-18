@@ -64,7 +64,7 @@ export default function ComposeFeed() {
               disabled={!content.trim() || content.length > maxLength}
               className="rounded-md bg-git-green px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-[#2ea043] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:bg-[#238636] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
-              Comment
+              Post
             </button>
           </div>
         </div>

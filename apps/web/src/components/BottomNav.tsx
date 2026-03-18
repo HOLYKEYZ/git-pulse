@@ -14,7 +14,7 @@ export default function BottomNav({ username }: { username?: string }) {
 
     const navItems = [
         { name: "Home", href: "/", icon: HomeIcon },
-        { name: "Discover", href: "/discover", icon: CompassIcon },
+        { name: "Discover", href: "/", icon: CompassIcon },
         { name: "Notifications", href: "/notifications", icon: BellIcon },
         ...(username ? [{ name: "Profile", href: `/profile/${username}`, icon: UserIcon }] : []),
     ];

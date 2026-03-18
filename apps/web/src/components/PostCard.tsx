@@ -109,7 +109,7 @@ export default function PostCard({ post }: { post: PostProps }) {
 
         {/* Embedded Repo Card */}
         {post.repoEmbed && (
-          <div className="mb-3 max-w-xl">
+          <div className="mb-3 max-w-full">
             <RepoCard {...post.repoEmbed} />
           </div>
         )}

@@ -1,57 +1,58 @@
-# GitPulse
+# GitPulse 🚀
 
-GitHub's Social Layer. Twitter's Feed Format.
+**GitHub's Social Layer. Twitter's Feed Format.**
 
-## Architecture
+GitPulse is a developer-centric social platform built on top of the GitHub ecosystem. It allows developers to share "Ships" (releases), repo updates, and engage in social discussions with a premium, GitHub-inspired dark aesthetic.
 
-This is a monorepo managed with `pnpm` workspaces.
+![GitPulse Mobile Victory](file:///C:/Users/USER/.gemini/antigravity/brain/a37767e1-f6d0-4be3-8da8-348f05421660/mobile_view_victory_1773846641494.png)
 
-- `apps/web`: Next.js 15 App Router frontend (Tailwind + NextAuth v5)
-- `apps/api`: Express.js REST API backend (Node.js)
-- `packages/db`: Prisma ORM and database schema
-- `packages/ui`: Shared shadcn/ui React components
+## Core Features
+- 🧵 **Social Feed**: Real-time updates from your GitHub network.
+- 🚢 **Ship It**: Specialized post types for project releases with automated changelog formatting.
+- 😁 **Reactions & Comments**: GitHub-style emoji reactions and nested comment threads.
+- 📱 **Mobile First**: Fully responsive layout with a dedicated mobile navigation bar.
+- ⚡ **Performance**: Next.js 15 App Router with high-fidelity loading skeletons.
 
-## Local Development Setup
+## Technical Architecture
+- **Framework**: Next.js 15 (App Router, Turbopack)
+- **Database**: Neon (PostgreSQL)
+- **ORM**: Prisma 6.1.0 (Windows-stabilized)
+- **Auth**: NextAuth v5 (GitHub OAuth)
+- **Styling**: Vanilla Tailwind CSS (GitHub Dark Theme)
+
+## Getting Started
 
 ### 1. Prerequisites
 - Node.js >= 18
-- `pnpm` (`npm i -g pnpm`)
-- PostgreSQL locally or NeonDB
-- Redis (Upstash) for feed caching
+- `pnpm` installed (`npm i -g pnpm`)
+- A [Neon.tech](https://neon.tech) database.
 
-### 2. Environment Variables
-Copy the `.env.example` file to `.env.local` at the root, and configure it:
-```bash
-cp .env.example .env.local
+### 2. Environment Setup
+Create `apps/web/.env.local` with the following:
+```env
+# Database
+DATABASE_URL="your-neon-url"
+
+# Auth (GitHub OAuth)
+AUTH_SECRET="your-secret"
+GITHUB_ID="your-id"
+GITHUB_SECRET="your-secret"
 ```
 
-You will need a GitHub OAuth App to run the web interface. See `docs/github_app_setup.md` for instructions.
-
-### 3. Installation
-Install all dependencies across the monorepo:
+### 3. Installation & Run
 ```bash
+# Install dependencies
 pnpm install
+
+# Generate Prisma Client (Stable v6.1.0)
+cd apps/web
+.\node_modules\.bin\prisma generate
+
+# Run Development Server
+pnpm dev
 ```
 
-### 4. Running the Stack
+The application will be available at [http://localhost:3000](http://localhost:3000).
 
-**Run the web app (Frontend):**
-```bash
-pnpm --filter web dev
-```
-The Next.js app will be available at `http://localhost:3000`.
-
-**Run the API (Backend):**
-*(Note: API is pending implementation in Week 1)*
-```bash
-pnpm --filter api dev
-```
-
-## Built With
-- Next.js 15
-- Tailwind CSS (GitHub like design system)
-- Auth.js (NextAuth v5)
-- Express
-- Prisma
-- NeonDB (PostgreSQL + Realtime)
-- BullMQ
+---
+GitPulse | Built by Joseph

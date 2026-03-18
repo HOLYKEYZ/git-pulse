@@ -84,7 +84,7 @@ export default function ShipItForm() {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-git-text">What's new? (Changelog)</label>
+          <label className="text-xs font-semibold text-git-text">What&apos;s new? (Changelog)</label>
           <textarea
             placeholder="- Added dark mode&#10;- Fixed memory leak in auth flow"
             value={changelog}
@@ -95,7 +95,7 @@ export default function ShipItForm() {
         
         <div className="flex items-center justify-between mt-2">
           <div className="text-xs text-git-muted">
-            Releases show up as highlighted "Ship It" cards in the Feed.
+            Releases show up as highlighted &quot;Ship It&quot; cards in the Feed.
           </div>
           
           <button

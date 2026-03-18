@@ -34,7 +34,24 @@ export interface GitHubEvent {
     repo: {
         name: string;
     };
-    payload: Record<string, unknown>;
+    payload: {
+        action?: string;
+        ref?: string;
+        ref_type?: string;
+        commits?: Array<{
+            sha: string;
+            message: string;
+            author: { name: string; email: string };
+        }>;
+        pull_request?: {
+            number: number;
+            title: string;
+        };
+        release?: {
+            tag_name: string;
+            body: string;
+        };
+    };
     created_at: string;
 }
 

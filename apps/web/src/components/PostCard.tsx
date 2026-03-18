@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import RepoCard from './RepoCard';
 import ReactionPicker from './ReactionPicker';
 import CommentSection from './CommentSection';
@@ -72,10 +73,12 @@ export default function PostCard({ post }: { post: PostProps }) {
       
       {/* Left Column: Avatar & Thread Line */}
       <div className="flex flex-col items-center">
-        <img 
+        <Image 
           src={post.author.avatar} 
           alt={post.author.username}
-          className="w-10 h-10 rounded-full border border-git-border bg-git-bg shrink-0"
+          width={40}
+          height={40}
+          className="rounded-full border border-git-border bg-git-bg shrink-0"
         />
         {showComments && <div className="w-[2px] h-full bg-git-border mt-2 rounded-full"></div>}
       </div>

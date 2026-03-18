@@ -10,8 +10,37 @@ import "./globals.css";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-    title: "GitPulse",
-    description: "GitHub's Social Layer",
+    title: {
+        default: "GitPulse | GitHub's Social Layer",
+        template: "%s | GitPulse",
+    },
+    description: "The social network for developers. Share your ships, engage with your network, and pulse with the heartbeat of GitHub.",
+    icons: {
+        icon: "/icon.png",
+        apple: "/icon.png",
+    },
+    manifest: "/manifest.json",
+    openGraph: {
+        title: "GitPulse",
+        description: "GitHub's Social Layer",
+        url: "https://git-pulse.vercel.app",
+        siteName: "GitPulse",
+        images: [
+            {
+                url: "/logo.png",
+                width: 1024,
+                height: 1024,
+            },
+        ],
+        locale: "en_US",
+        type: "website",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "GitPulse",
+        description: "GitHub's Social Layer",
+        images: ["/logo.png"],
+    },
 };
 
 export default async function RootLayout({

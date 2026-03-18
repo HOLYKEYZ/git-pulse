@@ -49,7 +49,7 @@ function mapEventToPost(event: GitHubEvent): PostProps | null {
             return {
                 ...basePost,
                 type: "standard",
-                content: `${event.payload.action === "opened" ? "Opened" : "Updated"} PR #${event.payload.pull_request?.number} in ${event.repo.name}: "${event.payload.pull_request?.title}"`,
+                content: `${event.payload.action === "opened" ? "Opened" : "Updated"} PR #${event.payload.pull_request?.number} in ${event.repo.name}: &quot;${event.payload.pull_request?.title}&quot;`,
             };
         case "ReleaseEvent":
             return {

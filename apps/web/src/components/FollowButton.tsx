@@ -5,9 +5,10 @@ import React, { useState } from 'react';
 interface FollowButtonProps {
     targetUsername: string;
     initialIsFollowing: boolean;
+    className?: string;
 }
 
-export default function FollowButton({ targetUsername, initialIsFollowing }: FollowButtonProps) {
+export default function FollowButton({ targetUsername, initialIsFollowing, className = "" }: FollowButtonProps) {
     const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -37,7 +38,7 @@ export default function FollowButton({ targetUsername, initialIsFollowing }: Fol
                 isFollowing
                     ? 'bg-git-bg border border-git-border text-git-text hover:border-[#f85149] hover:text-[#f85149]'
                     : 'bg-git-card border border-git-border text-git-text hover:bg-git-border'
-            }`}
+            } ${className}`}
         >
             {isLoading ? '...' : isFollowing ? 'Unfollow' : 'Follow'}
         </button>

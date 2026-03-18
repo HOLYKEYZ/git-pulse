@@ -3,12 +3,29 @@ import { getGitHubReceivedEvents, type GitHubEvent } from "@/lib/github";
 import { prisma } from "@/lib/prisma";
 import FeedClient from "@/components/FeedClient";
 import { type PostProps } from "@/components/PostCard";
+import { calculatePostScore } from "@/lib/algo";
+import { hasPassedBadge } from "@/lib/badges";
+import { getRelativeTime } from "@/lib/utils";
+
+// Known bot patterns to filter out
+const BOT_PATTERNS = [
+    /bot$/i, /\[bot\]$/i, /^dependabot/i, /^renovate/i, /^copilot/i,
+    /^github-actions/i, /^dmca/i, /^snyk/i, /^greenkeeper/i, /^imgbot/i,
+    /^codecov/i, /^stale/i, /^mergify/i, /^allcontributors/i,
+];
+
+function isBot(login: string): boolean {
+    return BOT_PATTERNS.some(pattern => pattern.test(login));
+}
 
 /**
- * Smart feed: Filter out noise (stars, forks, minor pushes).
+ * Smart feed: Filter out noise (stars, forks, minor pushes) and bots.
  * Keep meaningful events: PRs, issues, releases, new repos, big pushes.
  */
 function isWorthShowing(event: GitHubEvent): boolean {
+    // Filter bots first
+    if (isBot(event.actor.login)) return false;
+
     switch (event.type) {
         case "PullRequestEvent":
             return event.payload.action === "opened";
@@ -80,56 +97,89 @@ function mapEventToPost(event: GitHubEvent): PostProps | null {
     }
 }
 
+function mapPrismaPostToProps(p: {
+    id: string;
+    type: string;
+    content: string;
+    createdAt: Date;
+    repoEmbed: unknown;
+    shipDetails: unknown;
+    images?: string[];
+    hashtags?: string[];
+    repoUrl?: string | null;
+    author: { username: string; avatar: string | null };
+    _count: { comments: number; reactions: number };
+}): PostProps {
+    let score = 0;
+    
+    // Calculate algorithmic score for the post
+    if (p.repoEmbed) {
+        const r = p.repoEmbed as Record<string, any>;
+        const daysSincePost = Math.max((Date.now() - p.createdAt.getTime()) / (1000 * 60 * 60 * 24), 1);
+        const pushDate = r.lastPush ? new Date(r.lastPush) : p.createdAt;
+        const daysSincePush = Math.max((Date.now() - pushDate.getTime()) / (1000 * 60 * 60 * 24), 0);
+        
+        score = calculatePostScore({
+            language: r.language,
+            stars: r.stars || 0,
+            forks: r.forks || 0,
+            daysSincePush,
+            hasDescription: !!r.description,
+            daysSincePost
+        });
+    } else {
+        // Base score for non-repo posts (images, text) decaying over time
+        const daysSincePost = Math.max((Date.now() - p.createdAt.getTime()) / (1000 * 60 * 60 * 24), 1);
+        score = 15 / Math.pow(daysSincePost, 1.2);
+        
+        // Boost score if has images or hashtags
+        if (p.images && p.images.length > 0) score += 5;
+        if (p.hashtags && p.hashtags.length > 0) score += 2;
+    }
+
+    return {
+        id: p.id,
+        type: p.type as "standard" | "ship",
+        author: {
+            username: p.author.username,
+            avatar: p.author.avatar ?? "",
+        },
+        content: p.content,
+        timestamp: getRelativeTime(p.createdAt),
+        likes: p._count.reactions,
+        comments: p._count.comments,
+        repoEmbed: p.repoEmbed as PostProps["repoEmbed"],
+        shipDetails: p.shipDetails as PostProps["shipDetails"],
+        images: p.images,
+        hashtags: p.hashtags,
+        repoUrl: p.repoUrl,
+        score,
+        passedBadge: hasPassedBadge(score),
+    };
+}
+
 export default async function HomePage() {
     const session = await auth();
 
-    // Fetch real GitHub events — filtered for quality
-    let gitHubPosts: PostProps[] = [];
-    if (session?.user?.login && session.user.accessToken) {
-        const events = await getGitHubReceivedEvents(session.user.login, session.user.accessToken);
-        gitHubPosts = events
-            .filter(isWorthShowing)
-            .map(mapEventToPost)
-            .filter((p): p is PostProps => p !== null)
-            .slice(0, 20);
-    }
-
-    // Fetch ALL DB posts for the feed (not just from followed users)
-    let dbPosts: PostProps[] = [];
+    // ═══════════════════════════════════════════════════════════════════════
+    // DISCOVER: User-created posts ONLY. Scored via Algo.
+    // ═══════════════════════════════════════════════════════════════════════
+    let discoverPosts: PostProps[] = [];
     if (session?.user?.login) {
+        // Fetch a larger pool to score
         const posts = await prisma.post.findMany({
             include: { author: true, _count: { select: { comments: true, reactions: true } } },
             orderBy: { createdAt: "desc" },
-            take: 30,
+            take: 100,
         });
-        dbPosts = posts.map((p) => ({
-            id: p.id,
-            type: p.type as "standard" | "ship",
-            author: {
-                username: p.author.username,
-                avatar: p.author.avatar ?? "",
-            },
-            content: p.content,
-            timestamp: p.createdAt.toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-            }),
-            likes: p._count.reactions,
-            comments: p._count.comments,
-            repoEmbed: p.repoEmbed as PostProps["repoEmbed"],
-            shipDetails: p.shipDetails as PostProps["shipDetails"],
-        }));
+        const mapped = posts.map(mapPrismaPostToProps);
+        // Sort by Algo Score descending, then take top 30
+        discoverPosts = mapped.sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 30);
     }
 
-    // Merge DB posts into Discover tab too, so user-created content is always visible
-    const discoverPosts = [...dbPosts, ...gitHubPosts]
-        .sort((a, b) => {
-            // Sort by timestamp descending (rough)
-            return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
-        })
-        .slice(0, 30);
-
-    // Following tab: only posts from people you follow + your own
+    // ═══════════════════════════════════════════════════════════════════════
+    // FOLLOWING: Posts from people you follow + your own posts
+    // ═══════════════════════════════════════════════════════════════════════
     let followingPosts: PostProps[] = [];
     if (session?.user?.login) {
         const dbUser = await prisma.user.findUnique({
@@ -142,42 +192,34 @@ export default async function HomePage() {
                 select: { followingId: true },
             });
             const ids = [dbUser.id, ...followedIds.map((f) => f.followingId)];
-            followingPosts = dbPosts.filter((p) => {
-                // Keep posts by the user or by users they follow
-                return ids.length > 0;
-            });
-
-            // Re-query with proper filter
             const filteredPosts = await prisma.post.findMany({
                 where: { authorId: { in: ids } },
                 include: { author: true, _count: { select: { comments: true, reactions: true } } },
                 orderBy: { createdAt: "desc" },
                 take: 20,
             });
-            followingPosts = filteredPosts.map((p) => ({
-                id: p.id,
-                type: p.type as "standard" | "ship",
-                author: {
-                    username: p.author.username,
-                    avatar: p.author.avatar ?? "",
-                },
-                content: p.content,
-                timestamp: p.createdAt.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                }),
-                likes: p._count.reactions,
-                comments: p._count.comments,
-                repoEmbed: p.repoEmbed as PostProps["repoEmbed"],
-                shipDetails: p.shipDetails as PostProps["shipDetails"],
-            }));
+            followingPosts = filteredPosts.map(mapPrismaPostToProps);
         }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // ACTIVITY: Real GitHub events, BOT-FILTERED, from followed users
+    // ═══════════════════════════════════════════════════════════════════════
+    let activityPosts: PostProps[] = [];
+    if (session?.user?.login && session.user.accessToken) {
+        const events = await getGitHubReceivedEvents(session.user.login, session.user.accessToken);
+        activityPosts = events
+            .filter(isWorthShowing)
+            .map(mapEventToPost)
+            .filter((p): p is PostProps => p !== null)
+            .slice(0, 20);
     }
 
     return (
         <FeedClient
             discoverPosts={discoverPosts}
             followingPosts={followingPosts}
+            activityPosts={activityPosts}
             userName={session?.user?.name ?? ""}
             userAvatar={session?.user?.image ?? ""}
         />

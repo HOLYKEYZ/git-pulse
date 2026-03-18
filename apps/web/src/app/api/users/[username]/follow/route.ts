@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request, { params }: { params: Promise<{ username: string }> }) {
     const session = await auth();
-    if (!session?.user?.login) {
+    if (!session?.user?.login || !session.user.accessToken) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -40,20 +40,39 @@ export async function POST(req: Request, { params }: { params: Promise<{ usernam
         });
 
         if (existingFollow) {
-            // Unfollow
-            await prisma.follow.delete({
-                where: { id: existingFollow.id },
-            });
+            // Unfollow — sync to GitHub + local DB
+            await Promise.all([
+                prisma.follow.delete({ where: { id: existingFollow.id } }),
+                // Sync unfollow to GitHub (best-effort, don't fail if it errors)
+                fetch(`https://api.github.com/user/following/${targetUsername}`, {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${session.user.accessToken}`,
+                        Accept: "application/vnd.github.v3+json",
+                    },
+                }).catch((err) => console.error("GitHub unfollow sync failed:", err)),
+            ]);
             return NextResponse.json({ success: true, action: "unfollowed" });
         }
 
-        // Follow
-        const follow = await prisma.follow.create({
-            data: {
-                followerId: currentUser.id,
-                followingId: targetUser.id,
-            },
-        });
+        // Follow — sync to GitHub + local DB
+        const [follow] = await Promise.all([
+            prisma.follow.create({
+                data: {
+                    followerId: currentUser.id,
+                    followingId: targetUser.id,
+                },
+            }),
+            // Sync follow to GitHub (best-effort)
+            fetch(`https://api.github.com/user/following/${targetUsername}`, {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${session.user.accessToken}`,
+                    Accept: "application/vnd.github.v3+json",
+                    "Content-Length": "0",
+                },
+            }).catch((err) => console.error("GitHub follow sync failed:", err)),
+        ]);
 
         return NextResponse.json({ success: true, action: "followed", follow });
     } catch (error) {

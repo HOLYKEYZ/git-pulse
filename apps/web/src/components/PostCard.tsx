@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import RepoCard from './RepoCard';
 import ReactionPicker from './ReactionPicker';
 import CommentSection from './CommentSection';
@@ -21,6 +23,11 @@ export interface PostProps {
   likes: number;
   comments: number;
   reactions?: { emoji: string; count: number; hasReacted: boolean }[];
+  images?: string[];
+  hashtags?: string[];
+  repoUrl?: string | null;
+  score?: number;
+  passedBadge?: boolean;
   // Repo embed for standard posts, or Ship details for ship posts
   repoEmbed?: {
     name: string;
@@ -86,11 +93,22 @@ export default function PostCard({ post }: { post: PostProps }) {
 
       {/* Right Column: Content */}
       <div className="flex-1 flex flex-col min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          <Link href={`/profile/${post.author.username}`} className="font-semibold text-git-text hover:text-git-blue transition-colors truncate">
-            {post.author.username}
-          </Link>
-          {post.type === 'ship' && (
+          {/* Header */}
+          <div className="flex items-center gap-2 mb-2 w-full">
+            <Link href={`/profile/${post.author.username}`} className="font-semibold text-git-text hover:text-git-blue transition-colors text-[15px]">
+              {post.author.username}
+            </Link>
+            {post.passedBadge && (
+                <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-git-green/10 border border-git-green/20 text-git-green text-[10px] font-bold uppercase tracking-wider select-none shrink-0" title="Score passed quality threshold">
+                    <svg aria-hidden="true" height="12" viewBox="0 0 16 16" width="12" className="fill-current">
+                        <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
+                    </svg>
+                    Passed
+                </div>
+            )}
+            
+            {/* Badges */}
+            {post.type === 'ship' && (
             <span className="text-[10px] bg-git-green text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
               Shipped {post.shipDetails?.version}
             </span>
@@ -113,10 +131,40 @@ export default function PostCard({ post }: { post: PostProps }) {
           <span className="text-xs text-git-muted shrink-0 ml-auto">{post.timestamp}</span>
         </div>
 
-        {/* Text Content */}
-        <div className="text-sm text-git-text mb-3 leading-relaxed break-words whitespace-pre-wrap">
-          {post.content}
+        {/* Text Content (Markdown rendered) */}
+        <div className="text-sm text-git-text mb-3 leading-relaxed break-words whitespace-pre-wrap markdown-body" style={{ background: 'transparent', padding: 0 }}>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+                a: ({ href, children }) => {
+                    // Turn mentions into profile links if it's not a real URL
+                    if (href?.startsWith('@')) {
+                        return <Link href={`/profile/${href.substring(1)}`} className="text-git-blue hover:underline">{children}</Link>;
+                    }
+                    if (href?.startsWith('#')) {
+                        return <Link href={`/explore/tags/${href.substring(1)}`} className="text-git-blue hover:underline">{children}</Link>;
+                    }
+                    return <a href={href} className="text-git-blue hover:underline" target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{children}</a>;
+                },
+                p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>
+            }}
+          >
+            {/* Simple pre-processor for #tags and @mentions to turn them into markdown links if not already */}
+            {post.content.replace(/(^|\s)(#[\w-]+)/g, '$1[$2]($2)').replace(/(^|\s)(@[\w-]+)/g, '$1[$2]($2)')}
+          </ReactMarkdown>
         </div>
+
+        {/* Images */}
+        {post.images && post.images.length > 0 && (
+          <div className={`mb-3 grid gap-2 ${post.images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+            {post.images.map((img, i) => (
+              <div key={i} className="relative aspect-video w-full overflow-hidden rounded-lg border border-git-border">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={img} alt="Post attachment" className="object-cover w-full h-full" loading="lazy" />
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Ship Changelog (if applicable) */}
         {post.type === 'ship' && post.shipDetails && (
@@ -134,10 +182,11 @@ export default function PostCard({ post }: { post: PostProps }) {
         )}
 
         {/* Action Bar */}
-        <div className="flex items-center gap-6 mt-1">
+        <div className="flex items-center gap-6 mt-1 w-full relative">
           <button 
             onClick={() => setShowComments(!showComments)}
             className={`flex items-center gap-1.5 text-git-muted hover:text-git-blue transition-colors group ${showComments ? 'text-git-blue' : ''}`}
+            title="Comments"
           >
             <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" className="fill-current group-hover:bg-git-blue/10 rounded pb-0.5 px-0.5">
               <path d="M1.75 1.5a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25H1.75ZM0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25v-9.5Z"></path>
@@ -150,6 +199,31 @@ export default function PostCard({ post }: { post: PostProps }) {
             onReact={handleReact} 
             currentReactions={localReactions}
           />
+
+          <div className="flex-1 flex justify-end gap-5">
+            <button
+                onClick={(e) => {
+                    e.preventDefault();
+                    navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
+                    // Optional toast here
+                }}
+                className="flex items-center gap-1.5 text-git-muted hover:text-git-blue transition-colors group"
+                title="Share link"
+            >
+                <svg aria-hidden="true" height="16" viewBox="0 0 16 16" width="16" className="fill-current group-hover:bg-git-blue/10 rounded pb-0.5 px-0.5">
+                    <path d="M10.75 1a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V2.56L6.53 6.03a1.75 1.75 0 1 0 2.47 2.47l3.47-3.47v.72a.75.75 0 0 1 1.5 0v3.5a.75.75 0 0 1-1.5 0v-1.5l-3.47 3.47a3.25 3.25 0 1 1-4.6-4.6l3.47-3.47v-.72a.75.75 0 0 1 1.5 0v1.5l-3.47 3.47a1.75 1.75 0 1 0 2.47 2.47l3.47-3.47v.72a.75.75 0 0 1 1.5 0v-1.5Z"></path>
+                    <path d="M11 2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0V3.707l-3.146 3.147a.5.5 0 0 1-.708-.708L13.293 3H11.5a.5.5 0 0 1-.5-.5Z"></path>
+                </svg>
+            </button>
+            <button
+                className="flex items-center gap-1.5 text-git-muted hover:text-git-blue transition-colors group"
+                title="Bookmark"
+            >
+                <svg aria-hidden="true" height="16" viewBox="0 0 16 16" width="16" className="fill-current group-hover:bg-git-blue/10 rounded pb-0.5 px-0.5">
+                    <path d="M3 2.75C3 1.784 3.784 1 4.75 1h6.5c.966 0 1.75.784 1.75 1.75v11.5a.75.75 0 0 1-1.227.579L8 11.722l-3.773 3.107A.751.751 0 0 1 3 14.25Z"></path>
+                </svg>
+            </button>
+          </div>
         </div>
 
         {/* Expandable Comments */}

@@ -37,6 +37,11 @@ model Post {
   repoEmbed   Json?    // { name, description, language, languageColor, stars, forks }
   shipDetails Json?    // { version, changelog }
 
+  // Enhanced post fields
+  images      String[] @default([])
+  hashtags    String[] @default([])
+  repoUrl     String?
+
   comments    Comment[]
   reactions   Reaction[]
 

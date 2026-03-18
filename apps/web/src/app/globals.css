@@ -152,6 +152,34 @@ body {
 .markdown-body img {
   max-width: 100%;
   border-radius: 6px;
+  height: auto;
+}
+
+/* GitHub-style alignment attributes */
+.markdown-body [align="center"] {
+  text-align: center;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.markdown-body [align="right"] {
+  text-align: right;
+}
+
+/* Handle <picture> and <source> elements */
+.markdown-body picture {
+  display: block;
+}
+.markdown-body picture img {
+  display: inline-block;
+}
+
+/* Contain wide content (stats cards, badges) */
+.markdown-body p {
+  overflow-wrap: break-word;
+}
+.markdown-body p img {
+  vertical-align: middle;
 }
 
 .markdown-body table {

@@ -4,6 +4,8 @@
  * Uses GraphQL API for contribution calendar + pinned repos (not available via REST).
  */
 
+import { withCache } from "./cache";
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export interface GitHubUser {
@@ -113,45 +115,68 @@ const GITHUB_GRAPHQL_URL = "https://api.github.com/graphql";
 // ─── Core Fetchers ───────────────────────────────────────────────────────────
 
 async function fetchWithAuth(endpoint: string, token: string) {
-    const res = await fetch(`${GITHUB_API_URL}${endpoint}`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/vnd.github.v3+json",
-        },
-        next: { revalidate: 60 },
+    const cacheKey = `rest:${token.slice(-10)}:${endpoint}`;
+    
+    return withCache(cacheKey, async () => {
+        const res = await fetch(`${GITHUB_API_URL}${endpoint}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: "application/vnd.github.v3+json",
+            },
+            next: { revalidate: 60 },
+        });
+
+        if (!res.ok) {
+            if (res.status === 403 || res.status === 429) {
+                console.error(`GitHub API Rate Limited on ${endpoint}. Rate limit info:`, {
+                    limit: res.headers.get('x-ratelimit-limit'),
+                    remaining: res.headers.get('x-ratelimit-remaining'),
+                    reset: res.headers.get('x-ratelimit-reset')
+                });
+            } else {
+                console.error(`GitHub REST error [${res.status}]: ${res.statusText} for ${endpoint}`);
+            }
+            return null;
+        }
+
+        return res.json();
     });
-
-    if (!res.ok) {
-        console.error(`GitHub REST error [${res.status}]: ${res.statusText} for ${endpoint}`);
-        return null;
-    }
-
-    return res.json();
 }
 
 async function fetchGraphQL(query: string, variables: Record<string, unknown>, token: string) {
-    const res = await fetch(GITHUB_GRAPHQL_URL, {
-        method: "POST",
-        headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ query, variables }),
-        next: { revalidate: 120 },
+    // Stringify variables to make a predictable cache key
+    const cacheKey = `gql:${token.slice(-10)}:${query.slice(0, 20)}:${JSON.stringify(variables)}`;
+    
+    return withCache(cacheKey, async () => {
+        const res = await fetch(GITHUB_GRAPHQL_URL, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ query, variables }),
+            next: { revalidate: 120 },
+        });
+
+        if (!res.ok) {
+            if (res.status === 403 || res.status === 429) {
+                console.error(`GitHub GraphQL Rate Limited. Headers:`, {
+                    remaining: res.headers.get('x-ratelimit-remaining')
+                });
+            } else {
+                console.error(`GitHub GraphQL error [${res.status}]: ${res.statusText}`);
+            }
+            return null;
+        }
+
+        const json = await res.json();
+        if (json.errors) {
+            console.error("GitHub GraphQL errors:", json.errors);
+            return null;
+        }
+
+        return json.data;
     });
-
-    if (!res.ok) {
-        console.error(`GitHub GraphQL error [${res.status}]: ${res.statusText}`);
-        return null;
-    }
-
-    const json = await res.json();
-    if (json.errors) {
-        console.error("GitHub GraphQL errors:", json.errors);
-        return null;
-    }
-
-    return json.data;
 }
 
 // ─── REST Functions ──────────────────────────────────────────────────────────
@@ -286,4 +311,165 @@ export async function getGitHubPinnedRepos(username: string, token: string): Pro
     if (!data?.user?.pinnedItems?.nodes) return [];
 
     return data.user.pinnedItems.nodes;
+}
+
+// ─── Contribution Activity ───────────────────────────────────────────────────
+
+export interface MonthlyActivity {
+    month: string; // e.g. "March 2026"
+    commits: number;
+    commitRepos: Set<string> | number;
+    prsOpened: number;
+    issuesOpened: number;
+    reposCreated: string[];
+}
+
+/**
+ * Fetch user events and aggregate into monthly contribution activity.
+ * GitHub API returns max 300 events (10 pages × 30).
+ */
+export async function getContributionActivity(
+    username: string,
+    token: string,
+    pages = 3
+): Promise<MonthlyActivity[]> {
+    const allEvents: GitHubEvent[] = [];
+
+    for (let page = 1; page <= pages; page++) {
+        const events = await fetchWithAuth(
+            `/users/${username}/events?per_page=100&page=${page}`,
+            token
+        );
+        if (!events || events.length === 0) break;
+        allEvents.push(...events);
+    }
+
+    // Aggregate by month
+    const monthMap = new Map<string, {
+        commits: number;
+        commitRepos: Set<string>;
+        prsOpened: number;
+        issuesOpened: number;
+        reposCreated: string[];
+    }>();
+
+    for (const event of allEvents) {
+        const date = new Date(event.created_at);
+        const key = date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+
+        if (!monthMap.has(key)) {
+            monthMap.set(key, {
+                commits: 0,
+                commitRepos: new Set(),
+                prsOpened: 0,
+                issuesOpened: 0,
+                reposCreated: [],
+            });
+        }
+        const month = monthMap.get(key)!;
+
+        switch (event.type) {
+            case "PushEvent":
+                month.commits += event.payload.commits?.length ?? 0;
+                month.commitRepos.add(event.repo.name);
+                break;
+            case "PullRequestEvent":
+                if (event.payload.action === "opened") month.prsOpened++;
+                break;
+            case "IssuesEvent":
+                if (event.payload.action === "opened") month.issuesOpened++;
+                break;
+            case "CreateEvent":
+                if (event.payload.ref_type === "repository") {
+                    month.reposCreated.push(event.repo.name);
+                }
+                break;
+        }
+    }
+
+    // Convert to array, serializable (Sets → numbers)
+    return Array.from(monthMap.entries()).map(([monthLabel, data]) => ({
+        month: monthLabel,
+        commits: data.commits,
+        commitRepos: data.commitRepos.size,
+        prsOpened: data.prsOpened,
+        issuesOpened: data.issuesOpened,
+        reposCreated: data.reposCreated,
+    }));
+}
+
+// ─── Followers / Following ──────────────────────────────────────────────────
+
+export interface GitHubFollowUser {
+    login: string;
+    avatar_url: string;
+    html_url: string;
+    bio: string | null;
+    name: string | null;
+}
+
+export async function getGitHubFollowers(username: string, token: string): Promise<GitHubFollowUser[]> {
+    const users = await fetchWithAuth(`/users/${username}/followers?per_page=50`, token);
+    return users || [];
+}
+
+export async function getGitHubFollowing(username: string, token: string): Promise<GitHubFollowUser[]> {
+    const users = await fetchWithAuth(`/users/${username}/following?per_page=50`, token);
+    return users || [];
+}
+
+// ─── User Stats (for Achievements) ──────────────────────────────────────────
+
+const USER_STATS_QUERY = `
+query($username: String!) {
+  user(login: $username) {
+    pullRequests(states: MERGED) { totalCount }
+    issues { totalCount }
+    repositories(first: 100, ownerAffiliations: OWNER) {
+      totalCount
+      nodes {
+        stargazerCount
+        name
+      }
+    }
+    repositoriesContributedTo(contributionTypes: [COMMIT, PULL_REQUEST]) {
+      totalCount
+    }
+    followers { totalCount }
+    organizations(first: 10) {
+      nodes {
+        login
+        avatarUrl
+        name
+      }
+    }
+  }
+}`;
+
+export interface UserStats {
+    mergedPRs: number;
+    totalIssues: number;
+    totalRepos: number;
+    contributedToRepos: number;
+    totalFollowers: number;
+    starredRepos: { name: string; stars: number }[];
+    organizations: { login: string; avatarUrl: string; name: string | null }[];
+}
+
+export async function getUserStats(username: string, token: string): Promise<UserStats | null> {
+    const data = await fetchGraphQL(USER_STATS_QUERY, { username }, token);
+    if (!data?.user) return null;
+
+    const user = data.user;
+    return {
+        mergedPRs: user.pullRequests?.totalCount ?? 0,
+        totalIssues: user.issues?.totalCount ?? 0,
+        totalRepos: user.repositories?.totalCount ?? 0,
+        contributedToRepos: user.repositoriesContributedTo?.totalCount ?? 0,
+        totalFollowers: user.followers?.totalCount ?? 0,
+        starredRepos: (user.repositories?.nodes ?? [])
+            .filter((r: { stargazerCount: number }) => r.stargazerCount > 0)
+            .map((r: { name: string; stargazerCount: number }) => ({ name: r.name, stars: r.stargazerCount })),
+        organizations: user.organizations?.nodes ?? [],
+    };
 }

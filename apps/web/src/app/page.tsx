@@ -27,16 +27,26 @@ function isWorthShowing(event: GitHubEvent): boolean {
     if (isBot(event.actor.login)) return false;
 
     switch (event.type) {
-        case "PullRequestEvent":
-            return event.payload.action === "opened";
-        case "IssuesEvent":
-            return event.payload.action === "opened";
+        case "PullRequestEvent": {
+            if (event.payload.action === "opened") return true;
+            const comments = (event.payload.pull_request as any)?.comments ?? 0;
+            return comments >= 40;
+        }
+        case "IssuesEvent": {
+            if (event.payload.action === "opened") return true;
+            const comments = event.payload.issue?.comments ?? 0;
+            return comments >= 40;
+        }
+        case "DiscussionEvent": {
+            const comments = (event.payload as any).discussion?.comments ?? 0;
+            return comments >= 25;
+        }
         case "ReleaseEvent":
             return true;
         case "CreateEvent":
             return event.payload.ref_type === "repository";
         case "PushEvent":
-            return (event.payload.size ?? event.payload.commits?.length ?? 0) >= 3;
+            return (event.payload.size ?? event.payload.commits?.length ?? 0) >= 10;
         default:
             return false;
     }
@@ -57,6 +67,13 @@ function mapEventToPost(event: GitHubEvent): PostProps | null {
         comments: 0,
     };
 
+    let isTrending = false;
+    if (event.type === "PullRequestEvent" && ((event.payload.pull_request as any)?.comments >= 40)) isTrending = true;
+    if (event.type === "IssuesEvent" && (event.payload.issue?.comments ?? 0) >= 40) isTrending = true;
+    if (event.type === "DiscussionEvent" && ((event.payload as any).discussion?.comments >= 25)) isTrending = true;
+
+    const trendingTag = isTrending ? "\n\n#trending" : "";
+
     switch (event.type) {
         case "PushEvent":
             return {
@@ -71,16 +88,24 @@ function mapEventToPost(event: GitHubEvent): PostProps | null {
                 content: `🚀 Created new repository ${event.repo.name}`,
             };
         case "PullRequestEvent":
+            const action = event.payload.action === "opened" ? "Opened" : "Updated";
             return {
                 ...basePost,
                 type: "standard",
-                content: `Opened PR #${event.payload.pull_request?.number}: ${event.payload.pull_request?.title ?? "Untitled"} in ${event.repo.name}`,
+                content: `${action} PR #${event.payload.pull_request?.number}: ${event.payload.pull_request?.title ?? "Untitled"} in ${event.repo.name}${trendingTag}`,
             };
         case "IssuesEvent":
+            const issueAction = event.payload.action === "opened" ? "Opened" : "Updated";
             return {
                 ...basePost,
                 type: "standard",
-                content: `Opened issue #${event.payload.issue?.number}: ${event.payload.issue?.title ?? "Untitled"} in ${event.repo.name}`,
+                content: `${issueAction} issue #${event.payload.issue?.number}: ${event.payload.issue?.title ?? "Untitled"} in ${event.repo.name}${trendingTag}`,
+            };
+        case "DiscussionEvent":
+            return {
+                ...basePost,
+                type: "standard",
+                content: `Active discussion: ${(event.payload as any).discussion?.title ?? "Untitled"} in ${event.repo.name}${trendingTag}`,
             };
         case "ReleaseEvent":
             return {

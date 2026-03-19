@@ -160,13 +160,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                 <div className="flex-1 flex flex-col gap-6 min-w-0">
                     {/* ── Profile README ────────────────────────────────────── */}
                     {readme && (
-                        <div className="w-full rounded-xl border border-git-border bg-[#0d1117] overflow-hidden">
-                            <div className="px-4 py-3 border-b border-git-border text-xs font-semibold text-git-text uppercase tracking-wider bg-git-bg flex items-center justify-between">
-                                <span>README.md</span>
-                                <svg height="16" viewBox="0 0 16 16" width="16" className="fill-git-muted"><path d="M10.68 11.74a6 6 0 0 1-7.922-8.982 6 6 0 0 1 8.982 7.922l3.04 3.04a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215ZM11.5 7a4.499 4.499 0 1 0-8.997 0A4.499 4.499 0 0 0 11.5 7Z"></path></svg>
-                            </div>
-                            <ProfileReadme content={readme} username={username} />
-                        </div>
+                        <ProfileReadme content={readme} username={username} />
                     )}
 
                     {/* ── Pinned Repos (only if user has pinned) ────────────── */}

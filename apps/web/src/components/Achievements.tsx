@@ -16,7 +16,7 @@ interface Achievement {
     description: string;
     tier: number; // 0 = none, 1 = bronze, 2 = silver, 3 = gold
     tierLabel: string;
-    icon: string; // Emoji fallback
+    imageUrl: string; 
     color: string;
 }
 
@@ -31,7 +31,7 @@ function calculateAchievements(stats: UserStats): Achievement[] {
             description: `${stats.mergedPRs} pull requests merged`,
             tier,
             tierLabel: tier > 1 ? `x${tier === 3 ? 3 : 2}` : "",
-            icon: "🦈",
+            imageUrl: "https://github.githubassets.com/images/modules/profile/achievements/pull-shark-default.png",
             color: tier === 3 ? "#ffd700" : tier === 2 ? "#c0c0c0" : "#cd7f32",
         });
     }
@@ -48,7 +48,7 @@ function calculateAchievements(stats: UserStats): Achievement[] {
             description: `Created a repository with ${maxStarRepo.stars} stars`,
             tier,
             tierLabel: tier > 1 ? `x${tier === 3 ? 3 : 2}` : "",
-            icon: "🌟",
+            imageUrl: "https://github.githubassets.com/images/modules/profile/achievements/starstruck-default.png",
             color: tier === 3 ? "#ffd700" : tier === 2 ? "#c0c0c0" : "#cd7f32",
         });
     }
@@ -61,7 +61,7 @@ function calculateAchievements(stats: UserStats): Achievement[] {
             description: `Contributed to ${stats.contributedToRepos} repositories`,
             tier,
             tierLabel: tier > 1 ? `x${tier === 3 ? 3 : 2}` : "",
-            icon: "👥",
+            imageUrl: "https://github.githubassets.com/images/modules/profile/achievements/pair-extraordinaire-default.png",
             color: tier === 3 ? "#ffd700" : tier === 2 ? "#c0c0c0" : "#cd7f32",
         });
     }
@@ -73,7 +73,7 @@ function calculateAchievements(stats: UserStats): Achievement[] {
             description: "Contributed to the 2020 GitHub Archive Program",
             tier: 1,
             tierLabel: "",
-            icon: "🏔️",
+            imageUrl: "https://github.githubassets.com/images/modules/profile/achievements/arctic-code-vault-contributor-default.png",
             color: "#58a6ff",
         });
     }
@@ -93,24 +93,30 @@ export default function Achievements({ stats }: AchievementsProps) {
                 {achievements.map((ach) => (
                     <div
                         key={ach.name}
-                        className="group relative flex items-center gap-2 px-3 py-2 rounded-lg border border-git-border bg-git-card hover:border-git-muted transition-colors cursor-default"
+                        className="group relative flex items-center justify-center w-16 h-16 rounded-full border border-git-border bg-git-bg hover:border-git-muted transition-colors cursor-default overflow-visible"
                     >
-                        <span className="text-xl">{ach.icon}</span>
-                        <div className="flex flex-col">
-                            <span className="text-xs font-semibold text-git-text">{ach.name}</span>
-                            {ach.tierLabel && (
-                                <span
-                                    className="text-[10px] font-bold"
-                                    style={{ color: ach.color }}
-                                >
-                                    {ach.tierLabel}
-                                </span>
-                            )}
-                        </div>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img 
+                            src={`/api/image-proxy?url=${encodeURIComponent(ach.imageUrl)}`} 
+                            alt={ach.name} 
+                            className="w-14 h-14 object-contain drop-shadow-md"
+                        />
+
+                        {/* Tier multiplier overlay */}
+                        {ach.tierLabel && (
+                            <div className="absolute -bottom-1 -right-1 flex items-center justify-center px-1.5 py-0.5 rounded-full border border-git-border text-[10px] font-bold shadow-sm"
+                                style={{ backgroundColor: '#161b22', color: ach.color }}
+                            >
+                                {ach.tierLabel}
+                            </div>
+                        )}
 
                         {/* Tooltip */}
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-lg bg-[#1c2128] border border-git-border text-[11px] text-git-muted whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg z-10">
-                            {ach.description}
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-[200px] px-3 py-2 rounded-lg bg-[#1c2128] border border-git-border shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 text-center">
+                            <strong className="block text-xs text-git-text mb-1">{ach.name}</strong>
+                            <span className="block text-[11px] text-git-muted whitespace-normal leading-tight">{ach.description}</span>
+                            {/* Tooltip caret */}
+                            <svg className="absolute text-git-border h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255" xmlSpace="preserve"><polygon className="fill-[#1c2128]" points="0,0 127.5,127.5 255,0"/></svg>
                         </div>
                     </div>
                 ))}

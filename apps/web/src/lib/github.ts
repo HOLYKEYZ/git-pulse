@@ -87,6 +87,7 @@ export interface ContributionDay {
     contributionCount: number;
     contributionLevel: "NONE" | "FIRST_QUARTER" | "SECOND_QUARTER" | "THIRD_QUARTER" | "FOURTH_QUARTER";
     date: string;
+    weekday: number;
 }
 
 export interface ContributionWeek {
@@ -265,6 +266,7 @@ query($username: String!) {
             contributionCount
             contributionLevel
             date
+            weekday
           }
         }
       }
@@ -318,7 +320,7 @@ export async function getGitHubPinnedRepos(username: string, token: string): Pro
 export interface MonthlyActivity {
     month: string; // e.g. "March 2026"
     commits: number;
-    commitRepos: Set<string> | number;
+    commitRepos: { name: string; count: number }[];
     prsOpened: number;
     issuesOpened: number;
     reposCreated: string[];
@@ -347,7 +349,7 @@ export async function getContributionActivity(
     // Aggregate by month
     const monthMap = new Map<string, {
         commits: number;
-        commitRepos: Set<string>;
+        commitRepos: Map<string, number>;
         prsOpened: number;
         issuesOpened: number;
         reposCreated: string[];
@@ -360,7 +362,7 @@ export async function getContributionActivity(
         if (!monthMap.has(key)) {
             monthMap.set(key, {
                 commits: 0,
-                commitRepos: new Set(),
+                commitRepos: new Map(),
                 prsOpened: 0,
                 issuesOpened: 0,
                 reposCreated: [],
@@ -370,8 +372,10 @@ export async function getContributionActivity(
 
         switch (event.type) {
             case "PushEvent":
-                month.commits += event.payload.commits?.length ?? 0;
-                month.commitRepos.add(event.repo.name);
+                const count = event.payload.commits?.length ?? 0;
+                month.commits += count;
+                const currentCount = month.commitRepos.get(event.repo.name) || 0;
+                month.commitRepos.set(event.repo.name, currentCount + count);
                 break;
             case "PullRequestEvent":
                 if (event.payload.action === "opened") month.prsOpened++;
@@ -387,11 +391,13 @@ export async function getContributionActivity(
         }
     }
 
-    // Convert to array, serializable (Sets → numbers)
+    // Convert to array, serializable
     return Array.from(monthMap.entries()).map(([monthLabel, data]) => ({
         month: monthLabel,
         commits: data.commits,
-        commitRepos: data.commitRepos.size,
+        commitRepos: Array.from(data.commitRepos.entries())
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count), // Highest commits first
         prsOpened: data.prsOpened,
         issuesOpened: data.issuesOpened,
         reposCreated: data.reposCreated,

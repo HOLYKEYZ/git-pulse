@@ -25,17 +25,36 @@ export default function ContributionActivity({ activity }: ContributionActivityP
 
                         <div className="space-y-2">
                             {/* Commits */}
-                            {month.commits > 0 && (
+                            {month.commits > 0 && Array.isArray(month.commitRepos) && (
                                 <div className="flex items-start gap-3">
                                     <div className="mt-0.5 shrink-0">
                                         <svg height="16" viewBox="0 0 16 16" width="16" className="fill-git-muted">
                                             <path d="M11.93 8.5a4.002 4.002 0 0 1-7.86 0H.75a.75.75 0 0 1 0-1.5h3.32a4.002 4.002 0 0 1 7.86 0h3.32a.75.75 0 0 1 0 1.5Zm-1.43-.75a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z"/>
                                         </svg>
                                     </div>
-                                    <p className="text-sm text-git-text">
-                                        Created <strong>{month.commits.toLocaleString()}</strong> commits in{" "}
-                                        <strong>{typeof month.commitRepos === "number" ? month.commitRepos : 0}</strong> repositories
-                                    </p>
+                                    <div className="flex-1 mb-4">
+                                        <p className="text-sm text-git-text border-b border-git-border border-solid pb-1 mb-2">
+                                            Created <strong>{month.commits.toLocaleString()}</strong> commits in{" "}
+                                            <strong>{month.commitRepos.length}</strong> repositor{month.commitRepos.length !== 1 ? 'ies' : 'y'}
+                                        </p>
+                                        <ul className="flex flex-col gap-1.5">
+                                            {month.commitRepos.slice(0, 5).map((repo) => (
+                                                <li key={repo.name} className="flex items-center justify-between text-[13px]">
+                                                    <Link href={`https://github.com/${repo.name}`} target="_blank" rel="noopener noreferrer" className="text-git-blue font-semibold hover:underline truncate mr-2">
+                                                        {repo.name}
+                                                    </Link>
+                                                    <span className="text-git-muted shrink-0 text-xs">
+                                                        {repo.count} commit{repo.count !== 1 ? "s" : ""}
+                                                    </span>
+                                                </li>
+                                            ))}
+                                            {month.commitRepos.length > 5 && (
+                                                <li className="text-[13px] text-git-muted italic mt-1">
+                                                    And {month.commitRepos.length - 5} more...
+                                                </li>
+                                            )}
+                                        </ul>
+                                    </div>
                                 </div>
                             )}
 

@@ -12,39 +12,21 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: "Missing url parameter" }, { status: 400 });
     }
 
-    // Validate URL — only allow known image hosts
-    const allowedHosts = [
-        "camo.githubusercontent.com",
-        "raw.githubusercontent.com",
-        "img.shields.io",
-        "github-readme-stats.vercel.app",
-        "github-readme-streak-stats.herokuapp.com",
-        "github-profile-trophy.vercel.app",
-        "komarev.com",
-        "readme-typing-svg.demolab.com",
-        "skillicons.dev",
-        "techstack-generator.vercel.app",
-        "avatars.githubusercontent.com",
-        "user-images.githubusercontent.com",
-        "github.githubassets.com",
-        "streak-stats.demolab.com",
-        "github-readme-activity-graph.vercel.app",
-        "capsule-render.vercel.app",
-    ];
-
     try {
         const parsedUrl = new URL(url);
-        const isAllowed = allowedHosts.some(host => parsedUrl.hostname === host || parsedUrl.hostname.endsWith(`.${host}`));
-
-        if (!isAllowed) {
-            return NextResponse.json({ error: "Host not allowed" }, { status: 403 });
+        
+        // Prevent obvious SSRF to local IP space
+        if (["127.0.0.1", "localhost", "::1"].includes(parsedUrl.hostname) || parsedUrl.hostname.startsWith("10.") || parsedUrl.hostname.startsWith("192.168.")) {
+             return NextResponse.json({ error: "SSRF prevention" }, { status: 403 });
         }
 
         const response = await fetch(url, {
             headers: {
-                "User-Agent": "GitPulse/1.0",
-                "Accept": "image/*,*/*",
+                "User-Agent": "GitPulse-Proxy/1.0",
+                "Accept": "image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
             },
+            // Allow redirects but keep a fast timeout
+            redirect: "follow",
             signal: AbortSignal.timeout(10000),
         });
 
@@ -52,18 +34,25 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Failed to fetch image" }, { status: response.status });
         }
 
-        const buffer = await response.arrayBuffer();
-        const contentType = response.headers.get("content-type") || "image/png";
+        const contentType = response.headers.get("content-type") || "";
+        
+        // Strictly only proxy things that are images or vectors
+        if (!contentType.startsWith("image/") && !contentType.includes("xml")) {
+             return NextResponse.json({ error: "Invalid content type" }, { status: 403 });
+        }
 
+        const buffer = await response.arrayBuffer();
+
+        // Forward caching aggressively
         return new NextResponse(buffer, {
             status: 200,
             headers: {
-                "Content-Type": contentType,
-                "Cache-Control": "public, max-age=3600, s-maxage=3600",
+                "Content-Type": contentType || "image/png",
+                "Cache-Control": "public, max-age=86400, s-maxage=86400",
                 "Access-Control-Allow-Origin": "*",
             },
         });
-    } catch {
+    } catch (e) {
         return NextResponse.json({ error: "Proxy error" }, { status: 500 });
     }
 }

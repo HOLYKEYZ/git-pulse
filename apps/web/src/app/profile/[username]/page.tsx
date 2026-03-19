@@ -68,17 +68,25 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     return (
         <div className="max-w-[1280px] mx-auto p-4 sm:p-6 lg:p-8 animate-slide-up">
             <div className="flex flex-col md:flex-row gap-8">
-                {/* ── Left Sidebar (Avatar, Bio, Achievements) ───────────────── */}
-                <div className="w-full md:w-[296px] shrink-0 flex flex-col gap-4">
-                    <div className="relative w-[296px] h-[296px] max-w-[80vw] max-h-[80vw] mx-auto md:mx-0 shrink-0">
-                        <Image
-                            src={ghUser.avatar_url}
-                            alt={ghUser.login}
-                            fill
-                            className="rounded-full border border-git-border bg-git-bg object-cover"
-                            priority
-                        />
-                    </div>
+                {/* ── Left Sidebar (User Info) ──────────────────────────── */}
+                <div className="w-full md:w-[296px] shrink-0">
+                    <div className="flex flex-col gap-4">
+                        <div className="relative">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                                src={ghUser.avatarUrl}
+                                alt={ghUser.login}
+                                className="w-[296px] h-[296px] rounded-full border border-git-border object-cover bg-git-card z-10 relative"
+                            />
+                            {ghUser.status && (
+                                <div className="absolute bottom-12 right-4 bg-[#0d1117] border border-git-border rounded-full px-3 py-2 flex items-center gap-2 text-sm z-20 shadow-sm">
+                                    <span className="text-base leading-none">{ghUser.status.emoji}</span>
+                                    <span className="text-git-text max-w-[120px] truncate" title={ghUser.status.message || ""}>
+                                        {ghUser.status.message}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
 
                     <div className="flex flex-col py-3">
                         <h1 className="text-[26px] font-semibold text-git-text leading-tight tracking-tight">

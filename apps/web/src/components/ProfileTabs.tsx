@@ -17,8 +17,8 @@ const TABS = [
 
 export default function ProfileTabs({ username, activeTab, repoCount }: ProfileTabsProps) {
     return (
-        <nav className="border-b border-git-border mb-6">
-            <div className="flex gap-0 overflow-x-auto">
+        <nav className="mb-6 border-b border-git-border/50">
+            <div className="flex gap-4 overflow-x-auto">
                 {TABS.map((tab) => {
                     const isActive = tab.key === activeTab;
                     const href = tab.key === "overview"
@@ -29,10 +29,10 @@ export default function ProfileTabs({ username, activeTab, repoCount }: ProfileT
                         <Link
                             key={tab.key}
                             href={href}
-                            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                            className={`flex items-center gap-2 pb-3 pt-2 text-sm font-medium border-b-[3px] transition-colors whitespace-nowrap outline-none ${
                                 isActive
                                     ? "border-[#f78166] text-git-text"
-                                    : "border-transparent text-git-muted hover:text-git-text hover:border-git-border"
+                                    : "border-transparent text-git-muted hover:text-git-text hover:border-git-border/50"
                             }`}
                         >
                             <svg height="16" viewBox="0 0 16 16" width="16" className="fill-current">

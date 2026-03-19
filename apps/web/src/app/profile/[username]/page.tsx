@@ -67,16 +67,17 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     const joinDate = new Date(ghUser.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" });
 
     return (
-        <div className="max-w-[1280px] mx-auto p-4 sm:p-6 lg:p-8 animate-slide-up">
-            <div className="flex flex-col md:flex-row gap-8">
-                {/* ── Left Sidebar (User Info) ──────────────────────────── */}
-                <div className="w-full md:w-[296px] shrink-0 flex flex-col gap-4 md:sticky md:top-8 md:self-start">
-                    <div className="relative">
+        <div className="w-full max-w-[1280px] mx-auto p-4 sm:p-6 lg:p-10 animate-fade-in">
+            <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
+                {/* ── Left Sidebar (User Info - 260px sleek) ──────────────── */}
+                <div className="w-full md:w-[260px] shrink-0 flex flex-col gap-5 md:sticky md:top-8 md:self-start">
+                    <div className="relative group mx-auto md:mx-0">
+                        <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-[#3fb950]/20 to-[#a371f7]/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                             src={ghUser.avatar_url}
                             alt={ghUser.login}
-                            className="w-[296px] h-[296px] rounded-full border border-git-border object-cover bg-git-card"
+                            className="relative w-48 h-48 md:w-[260px] md:h-[260px] rounded-full border border-git-border/50 shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.4)] object-cover bg-[#0d1117] transition-transform duration-500 group-hover:scale-[1.02]"
                         />
                     </div>
 
@@ -92,11 +93,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                     )}
 
                     {/* Action buttons */}
-                    <div className="mt-2 w-full">
+                    <div className="mt-1 w-full flex flex-col gap-2">
                         {!isOwnProfile ? (
-                            <FollowButton targetUsername={username} initialIsFollowing={initialIsFollowing} className="w-full" />
+                            <FollowButton targetUsername={username} initialIsFollowing={initialIsFollowing} className="w-full shadow-sm hover:shadow-md transition-shadow" />
                         ) : (
-                            <div className="w-full py-1.5 bg-git-card border border-git-border rounded-md text-center text-sm font-semibold text-git-muted hover:bg-git-bg hover:text-git-text transition-colors cursor-pointer">
+                            <div className="w-full py-1.5 bg-[#21262d] border border-git-border/80 rounded-md text-center text-sm font-semibold text-[#c9d1d9] hover:bg-[#30363d] hover:border-[#8b949e] hover:text-white transition-all duration-200 shadow-sm cursor-pointer ring-1 ring-inset ring-white/5">
                                 Edit profile
                             </div>
                         )}
@@ -157,12 +158,15 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                 </div>
 
                 {/* ── Right Content Area ────────────────────────────────────── */}
-                <div className="flex-1 flex flex-col gap-6 min-w-0">
+                <div className="flex-1 flex flex-col gap-8 min-w-0">
                     {/* ── Profile Tabs ──────────────────────────────────────── */}
                     <ProfileTabs username={username} activeTab="overview" repoCount={ghUser.public_repos} />
+                    
                     {/* ── Profile README ────────────────────────────────────── */}
                     {readme && (
-                        <ProfileReadme content={readme} username={username} />
+                        <div className="w-full mb-2">
+                            <ProfileReadme content={readme} username={username} />
+                        </div>
                     )}
 
                     {/* ── Pinned Repos (only if user has pinned) ────────────── */}

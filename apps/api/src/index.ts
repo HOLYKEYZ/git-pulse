@@ -26,19 +26,19 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-// Example: How to extract the user's GitHub session
-// The frontend Next.js app passes the NextAuth session token (or JWT)
-// Your middleware here should verify the session to ensure the user is logged in
+// example: how to extract the user's GitHub session
+// the frontend Next.js app passes the NextAuth session token (or JWT)
+// the middleware here should verify the session to ensure the user is logged in
 app.get('/api/feed/:userId', authenticateToken, (req, res) => {
-  // Example of accessing authenticated user's payload
+  // example of accessing authenticated user's payload
   const userId = req.params.userId;
   const authenticatedUserId = (req as any).user.sub;
   // TODO: Validate userId against authenticatedUserId for additional security
   res.json({ message: 'Algo feed placeholder', user: (req as any).user });
-    // TODO: Feed scoring logic goes here
-    res.json({ message: "Algo feed placeholder" });
+  // TODO: Feed scoring logic goes here
+  res.json({ message: "Algo feed placeholder" });
 });
 
 app.listen(port, () => {
-    console.log(`GitPulse API listening on port ${port}`);
+  console.log(`GitPulse API listening on port ${port}`);
 });

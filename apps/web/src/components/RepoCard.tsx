@@ -34,11 +34,11 @@ export default function RepoCard({
 
     const CardContent = (
         <>
-            <div className="flex items-center justify-between mb-2">
-                <h3 className="text-git-blue font-semibold text-sm hover:underline break-words break-all truncate">
+            <div className="flex items-center justify-between mb-3">
+                <h3 className="text-git-blue font-semibold text-[15px] hover:underline break-words break-all truncate">
                     {name}
                 </h3>
-                <span className="rounded-full border border-git-border px-2 py-0.5 text-[10px] text-git-muted font-medium whitespace-nowrap ml-2">
+                <span className="rounded-full border border-git-border/60 px-2.5 py-0.5 text-[10px] text-git-muted font-medium whitespace-nowrap ml-2 bg-[#161b22]/50">
                     Public
                 </span>
             </div>
@@ -81,7 +81,7 @@ export default function RepoCard({
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col rounded-lg border border-git-border bg-git-card p-4 hover:border-git-muted transition-all"
+                className="flex flex-col h-full rounded-xl border border-white/5 bg-[#0d1117]/80 hover:bg-[#161b22] hover:border-white/10 p-5 shadow-sm hover:shadow-md transition-all backdrop-blur-sm"
             >
                 {CardContent}
             </a>
@@ -89,7 +89,7 @@ export default function RepoCard({
     }
 
     return (
-        <div className="flex flex-col rounded-lg border border-git-border bg-git-card p-4 hover:border-git-muted transition-all cursor-pointer">
+        <div className="flex flex-col h-full rounded-xl border border-white/5 bg-[#0d1117]/80 hover:bg-[#161b22] hover:border-white/10 p-5 shadow-sm hover:shadow-md transition-all backdrop-blur-sm cursor-pointer">
             {CardContent}
         </div>
     );

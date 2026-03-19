@@ -300,7 +300,10 @@ query($username: String!) {
  */
 export async function getContributionData(username: string, token: string): Promise<ContributionData | null> {
     const data = await fetchGraphQL(CONTRIBUTION_QUERY, { username }, token);
-    if (!data?.user?.contributionsCollection?.contributionCalendar) return null;
+    if (!data?.user?.contributionsCollection?.contributionCalendar) {
+        console.error(`[getContributionData] No contribution data returned for ${username}. Response:`, JSON.stringify(data)?.slice(0, 200));
+        return null;
+    }
 
     return data.user.contributionsCollection.contributionCalendar;
 }
@@ -464,7 +467,10 @@ export interface UserStats {
 
 export async function getUserStats(username: string, token: string): Promise<UserStats | null> {
     const data = await fetchGraphQL(USER_STATS_QUERY, { username }, token);
-    if (!data?.user) return null;
+    if (!data?.user) {
+        console.error(`[getUserStats] No user stats returned for ${username}. Response:`, JSON.stringify(data)?.slice(0, 200));
+        return null;
+    }
 
     const user = data.user;
     return {

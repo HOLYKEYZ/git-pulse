@@ -66,18 +66,6 @@ function calculateAchievements(stats: UserStats): Achievement[] {
         });
     }
 
-    // Arctic Code Vault: Just check if they have repos
-    if (stats.totalRepos >= 1) {
-        achievements.push({
-            name: "Arctic Code Vault",
-            description: "Contributed to the 2020 GitHub Archive Program",
-            tier: 1,
-            tierLabel: "",
-            imageUrl: "https://github.githubassets.com/images/modules/profile/achievements/arctic-code-vault-contributor-default.png",
-            color: "#58a6ff",
-        });
-    }
-
     return achievements;
 }
 

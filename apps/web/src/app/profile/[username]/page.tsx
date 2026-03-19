@@ -18,6 +18,7 @@ import PinnedRepos from "@/components/PinnedRepos";
 import Achievements from "@/components/Achievements";
 import RepoCard from "@/components/RepoCard";
 import FollowButton from "@/components/FollowButton";
+import ProfileTabs from "@/components/ProfileTabs";
 
 export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
     const session = await auth();
@@ -69,23 +70,15 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         <div className="max-w-[1280px] mx-auto p-4 sm:p-6 lg:p-8 animate-slide-up">
             <div className="flex flex-col md:flex-row gap-8">
                 {/* ── Left Sidebar (User Info) ──────────────────────────── */}
-                <div className="w-full md:w-[296px] shrink-0 flex flex-col gap-4">
+                <div className="w-full md:w-[296px] shrink-0 flex flex-col gap-4 md:sticky md:top-8 md:self-start">
                     <div className="relative">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                                src={ghUser.avatarUrl}
-                                alt={ghUser.login}
-                                className="w-[296px] h-[296px] rounded-full border border-git-border object-cover bg-git-card z-10 relative"
-                            />
-                            {ghUser.status && (
-                                <div className="absolute bottom-12 right-4 bg-[#0d1117] border border-git-border rounded-full px-3 py-2 flex items-center gap-2 text-sm z-20 shadow-sm">
-                                    <span className="text-base leading-none">{ghUser.status.emoji}</span>
-                                    <span className="text-git-text max-w-[120px] truncate" title={ghUser.status.message || ""}>
-                                        {ghUser.status.message}
-                                    </span>
-                                </div>
-                            )}
-                        </div>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                            src={ghUser.avatar_url}
+                            alt={ghUser.login}
+                            className="w-[296px] h-[296px] rounded-full border border-git-border object-cover bg-git-card"
+                        />
+                    </div>
 
                     <div className="flex flex-col py-3">
                         <h1 className="text-[26px] font-semibold text-git-text leading-tight tracking-tight">
@@ -165,6 +158,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
                 {/* ── Right Content Area ────────────────────────────────────── */}
                 <div className="flex-1 flex flex-col gap-6 min-w-0">
+                    {/* ── Profile Tabs ──────────────────────────────────────── */}
+                    <ProfileTabs username={username} activeTab="overview" repoCount={ghUser.public_repos} />
                     {/* ── Profile README ────────────────────────────────────── */}
                     {readme && (
                         <ProfileReadme content={readme} username={username} />
@@ -173,17 +168,12 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                     {/* ── Pinned Repos (only if user has pinned) ────────────── */}
                     {pinnedRepos.length > 0 && <PinnedRepos repos={pinnedRepos} />}
 
-                    {/* ── Distribution of Contributions ─────────────────────── */}
+                    {/* ── Contribution Graph ──────────────────────────────── */}
                     {contributions && (
-                        <div className="flex flex-col gap-3">
-                            <h2 className="text-base font-normal text-git-text">
-                                {contributions.totalContributions.toLocaleString()} contributions in the last year
-                            </h2>
-                            <ContributionHeatmap
-                                weeks={contributions.weeks}
-                                totalContributions={contributions.totalContributions}
-                            />
-                        </div>
+                        <ContributionHeatmap
+                            weeks={contributions.weeks}
+                            totalContributions={contributions.totalContributions}
+                        />
                     )}
 
                     {/* ── Contribution Activity ────────────────────────────── */}

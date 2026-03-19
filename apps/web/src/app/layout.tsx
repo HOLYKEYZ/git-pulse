@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import Sidebar from "@/components/Sidebar";
-import RightSidebar from "@/components/RightSidebar";
 import BottomNav from "@/components/BottomNav";
 import { SidebarSkeleton } from "@/components/Skeletons";
 import "./globals.css";
@@ -68,15 +67,8 @@ export default async function RootLayout({
                             <Sidebar />
                         </Suspense>
 
-                        {/* Center Feed (600px Max) */}
-                        <main className="flex-1 w-full max-w-[600px] border-x border-b lg:border border-git-border lg:rounded-xl bg-git-card min-h-[80vh]">
-                            {children}
-                        </main>
-
-                        {/* Right Sidebar — async, wrapped in Suspense */}
-                        <Suspense fallback={<div className="hidden w-[300px] shrink-0 lg:block"><SidebarSkeleton /></div>}>
-                            <RightSidebar />
-                        </Suspense>
+                        {/* Main Content Area — Pages dictate their own width and right sidebars */}
+                        {children}
                     </div>
                 </div>
 

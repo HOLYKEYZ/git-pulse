@@ -6,6 +6,9 @@ import { type PostProps } from "@/components/PostCard";
 import { calculatePostScore } from "@/lib/algo";
 import { hasPassedBadge } from "@/lib/badges";
 import { getRelativeTime } from "@/lib/utils";
+import RightSidebar from "@/components/RightSidebar";
+import { Suspense } from "react";
+import { SidebarSkeleton } from "@/components/Skeletons";
 
 // Known bot patterns to filter out
 const BOT_PATTERNS = [
@@ -241,12 +244,20 @@ export default async function HomePage() {
     }
 
     return (
-        <FeedClient
-            discoverPosts={discoverPosts}
-            followingPosts={followingPosts}
-            activityPosts={activityPosts}
-            userName={session?.user?.name ?? ""}
-            userAvatar={session?.user?.image ?? ""}
-        />
+        <>
+            <main className="flex-1 w-full max-w-[600px] border-x border-b lg:border border-git-border lg:rounded-xl bg-git-card min-h-[80vh]">
+                <FeedClient
+                    discoverPosts={discoverPosts}
+                    followingPosts={followingPosts}
+                    activityPosts={activityPosts}
+                    userName={session?.user?.name ?? ""}
+                    userAvatar={session?.user?.image ?? ""}
+                />
+            </main>
+            {/* Right Sidebar — async, wrapped in Suspense */}
+            <Suspense fallback={<div className="hidden w-[300px] shrink-0 lg:block"><SidebarSkeleton /></div>}>
+                <RightSidebar />
+            </Suspense>
+        </>
     );
 }

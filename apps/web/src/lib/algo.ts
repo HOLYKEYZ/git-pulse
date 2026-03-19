@@ -27,7 +27,7 @@ export function calculatePostScore(factors: ScoreFactors): number {
         }
     }
 
-    // 2. Base Quality (Stars & Forks)
+    // 2. base Quality (Stars & Forks)
     // we want to reward SOME traction, but with diminishing returns so big repos don't dominate
     const starScore = Math.min(factors.stars * 0.5, 30); // Max 30 pts from stars
     const forkScore = Math.min(factors.forks * 1.0, 20); // Max 20 pts from forks

@@ -3,6 +3,7 @@ import Image from "next/image";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getGitHubTrendingRepos } from "@/lib/github";
+import CollabWidget from "./CollabWidget";
 
 export default async function RightSidebar() {
     const session = await auth();
@@ -67,6 +68,9 @@ export default async function RightSidebar() {
                         )}
                     </div>
                 </div>
+
+                {/* Collab Matching — Developers Like You */}
+                {session?.user && <CollabWidget />}
 
                 {/* Who to ship with */}
                 <div className="rounded-xl border border-git-border bg-git-card p-4 animate-fade-in">

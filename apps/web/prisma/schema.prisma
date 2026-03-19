@@ -24,6 +24,8 @@ model User {
   reactions Reaction[]
   followers Follow[]  @relation("following") // users who follow this user
   following Follow[]  @relation("follower")  // users this user follows
+  notifications Notification[]
+  apiKey    String?  @unique  // Hashed API key for programmatic access
 }
 
 model Post {
@@ -97,4 +99,19 @@ model Follow {
   @@unique([followerId, followingId]) // can't follow the same person twice
   @@index([followerId])
   @@index([followingId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // "TRENDING", "BADGE", "FOLLOW", "SYSTEM"
+  message   String
+  read      Boolean  @default(false)
+  linkUrl   String?  // Optional URL to navigate to when clicked
+  
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
 }

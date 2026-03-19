@@ -6,13 +6,14 @@ import { hasPassedBadge } from "@/lib/badges";
 import { getRelativeTime } from "@/lib/utils";
 
 interface PageProps {
-    params: { tag: string };
+    params: Promise<{ tag: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps) {
+    const { tag } = await params;
     return {
-        title: `#${params.tag} | GitPulse`,
-        description: `Explore posts tagged with #${params.tag}`,
+        title: `#${tag} | GitPulse`,
+        description: `Explore posts tagged with #${tag}`,
     };
 }
 
@@ -64,7 +65,7 @@ function mapPrismaPostToProps(p: any): PostProps {
 }
 
 export default async function TagFeedPage({ params }: PageProps) {
-    const rawTag = params.tag; // from URL path
+    const { tag: rawTag } = await params;
     const normalizedTag = `#${rawTag.toLowerCase()}`;
     
     // Fetch posts that contain this exact tag (case insensitive through Prisma)

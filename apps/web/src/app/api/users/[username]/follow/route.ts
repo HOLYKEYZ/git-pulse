@@ -74,6 +74,16 @@ export async function POST(req: Request, { params }: { params: Promise<{ usernam
             }).catch((err) => console.error("GitHub follow sync failed:", err)),
         ]);
 
+        // Create a FOLLOW notification for the target user (fire-and-forget)
+        prisma.notification.create({
+            data: {
+                userId: targetUser.id,
+                type: "FOLLOW",
+                message: `@${session.user.login} started following you`,
+                linkUrl: `/profile/${session.user.login}`,
+            },
+        }).catch((err) => console.error("Notification creation failed:", err));
+
         return NextResponse.json({ success: true, action: "followed", follow });
     } catch (error) {
         console.error("Error toggling follow:", error);

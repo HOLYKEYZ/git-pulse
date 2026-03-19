@@ -6,6 +6,7 @@ import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import RepoCard from './RepoCard';
+import AiSummary from './AiSummary';
 import ReactionPicker from './ReactionPicker';
 import CommentSection from './CommentSection';
 
@@ -178,6 +179,9 @@ export default function PostCard({ post }: { post: PostProps }) {
         {post.repoEmbed && (
           <div className="mb-3 max-w-full">
             <RepoCard {...post.repoEmbed} />
+            {post.repoEmbed.name && (
+              <AiSummary owner={post.author.username} repoName={post.repoEmbed.name} />
+            )}
           </div>
         )}
 

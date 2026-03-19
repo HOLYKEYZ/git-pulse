@@ -72,9 +72,8 @@ Write exactly 2 sentences. The first sentence should explain WHAT the project do
     return text;
 }
 
-/**
- * Heuristic fallback — no LLM needed
- */
+// heuristic fallback — no LLM needed(only if LLMs fail, dont wanna use heuristics at all)
+
 function heuristicPitch(repo: RepoContext): string {
     const lang = repo.language || "multi-language";
     const desc = repo.description || `A ${lang} project`;

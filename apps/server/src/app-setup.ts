@@ -7,7 +7,7 @@ export default async function buildServer(): Promise<FastifyInstance> {
     pluginTimeout: 30000,
   });
 
-  //Register swagger ui for proper documentation
+  //register swagger ui for proper documentation
   await app.register(swagger, {
     openapi: {
       openapi: "3.1.0",
@@ -36,7 +36,7 @@ export default async function buildServer(): Promise<FastifyInstance> {
     },
   });
 
-  //Healt check endpoint
+  //health check endpoint
   app.get("/api/v1/health", async (_req, reply: FastifyReply) => {
     const startTime = Date.now();
     try {

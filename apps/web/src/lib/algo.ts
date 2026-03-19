@@ -15,20 +15,20 @@ export interface ScoreFactors {
 export function calculatePostScore(factors: ScoreFactors): number {
     let score = 0;
 
-    // 1. Tech Stack Novelty (Reward less common, high-interest languages)
-    const noveltyLanguages = ["Rust", "Zig", "Elixir", "Go", "Gleam", "Ocaml", "Haskell", "F#"];
-    const commonLanguages = ["JavaScript", "TypeScript", "Python", "Java", "C++", "C#", "PHP", "Ruby"];
+    // 1. Tech Stack Novelty (reward less common, high-interest languages & frameworks)
+    const noveltyLanguages = ["Rust", "Zig", "Elixir", "Go", "Gleam", "Ocaml", "Haskell", "F#", "HolyC", "Vue", "Angular", "Svelte"];
+    const commonLanguages = ["JavaScript", "TypeScript", "Python", "Java", "C++", "C#", "PHP", "Ruby", "C", "React", "NextJs", "NodeJs", "Express",];
 
     if (factors.language) {
         if (noveltyLanguages.includes(factors.language)) {
-            score += 25; // Big boost for novel tech
+            score += 25; // big boost for novel tech
         } else if (!commonLanguages.includes(factors.language)) {
-            score += 10; // Slight boost for niche
+            score += 10; // slight boost for niche
         }
     }
 
     // 2. Base Quality (Stars & Forks)
-    // We want to reward SOME traction, but with diminishing returns so big repos don't dominate
+    // we want to reward SOME traction, but with diminishing returns so big repos don't dominate
     const starScore = Math.min(factors.stars * 0.5, 30); // Max 30 pts from stars
     const forkScore = Math.min(factors.forks * 1.0, 20); // Max 20 pts from forks
     score += starScore + forkScore;

@@ -69,9 +69,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         <div className="max-w-[1280px] mx-auto p-4 sm:p-6 lg:p-8 animate-slide-up">
             <div className="flex flex-col md:flex-row gap-8">
                 {/* ── Left Sidebar (User Info) ──────────────────────────── */}
-                <div className="w-full md:w-[296px] shrink-0">
-                    <div className="flex flex-col gap-4">
-                        <div className="relative">
+                <div className="w-full md:w-[296px] shrink-0 flex flex-col gap-4">
+                    <div className="relative">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                                 src={ghUser.avatarUrl}

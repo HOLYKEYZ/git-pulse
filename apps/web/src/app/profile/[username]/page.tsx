@@ -71,13 +71,13 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
             <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
                 {/* ── Left Sidebar (User Info - 260px sleek) ──────────────── */}
                 <div className="w-full md:w-[260px] shrink-0 flex flex-col gap-5 md:sticky md:top-8 md:self-start">
-                    <div className="relative group mx-auto md:mx-0">
-                        <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-[#3fb950]/20 to-[#a371f7]/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div className="relative group mx-auto md:mx-0 w-48 h-48 md:w-56 md:h-56">
+                        <div className="absolute -inset-1.5 rounded-full bg-gradient-to-tr from-[#3fb950] to-[#a371f7] blur-xl opacity-20 animate-pulse transition-opacity duration-500"></div>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                             src={ghUser.avatar_url}
                             alt={ghUser.login}
-                            className="relative w-48 h-48 md:w-[260px] md:h-[260px] rounded-full border border-git-border/50 shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.4)] object-cover bg-[#0d1117] transition-transform duration-500 group-hover:scale-[1.02]"
+                            className="relative w-full h-full rounded-full border-2 border-[#1f2328] shadow-[0_8px_32px_rgba(0,0,0,0.6)] object-cover bg-[#0d1117] transition-transform duration-500 group-hover:scale-[1.03]"
                         />
                     </div>
 

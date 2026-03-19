@@ -160,19 +160,18 @@ async function fetchGraphQL(query: string, variables: Record<string, unknown>, t
         });
 
         if (!res.ok) {
-            if (res.status === 403 || res.status === 429) {
-                console.error(`GitHub GraphQL Rate Limited. Headers:`, {
-                    remaining: res.headers.get('x-ratelimit-remaining')
-                });
-            } else {
-                console.error(`GitHub GraphQL error [${res.status}]: ${res.statusText}`);
-            }
+            const body = await res.text().catch(() => "");
+            console.error(`[GraphQL] HTTP ${res.status}: ${res.statusText}. Token ending: ...${token.slice(-6)}. Body: ${body.slice(0, 300)}`);
             return null;
         }
 
         const json = await res.json();
         if (json.errors) {
-            console.error("GitHub GraphQL errors:", json.errors);
+            console.error("[GraphQL] Errors:", JSON.stringify(json.errors, null, 2));
+            // Return data even if there are some errors (partial responses)
+            if (json.data) {
+                return json.data;
+            }
             return null;
         }
 

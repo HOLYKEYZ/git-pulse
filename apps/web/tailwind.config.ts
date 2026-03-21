@@ -12,13 +12,13 @@ const config: Config = {
                 background: "var(--background)",
                 foreground: "var(--foreground)",
                 git: {
-                    bg: "#0D1117",
-                    card: "#161B22",
-                    border: "#30363D",
+                    bg: "#000000", /* Pure black X background */
+                    card: "#0d1117", /* GitHub dark gray for cards */
+                    border: "#2f3336", /* Sleek X hairline border */
                     green: "#238636",
-                    blue: "#1F6FEB",
-                    text: "#E6EDF3",
-                    muted: "#8B949E",
+                    blue: "#1d9bf0", /* X vibrant blue */
+                    text: "#e7e9ea", /* X crisp white */
+                    muted: "#71767b", /* X perfect gray */
                     notification: "#D29922",
                     contribution: {
                         0: "#161B22",

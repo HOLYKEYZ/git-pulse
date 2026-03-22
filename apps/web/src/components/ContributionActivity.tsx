@@ -59,58 +59,98 @@ export default function ContributionActivity({ activity }: ContributionActivityP
                             )}
 
                             {/* PRs */}
-                            {month.prsOpened > 0 && (
+                            {month.prsOpened.length > 0 && (
                                 <div className="flex items-start gap-3">
                                     <div className="mt-0.5 shrink-0">
                                         <svg height="16" viewBox="0 0 16 16" width="16" className="fill-[#a371f7]">
                                             <path d="M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm5.677-.177L9.573.677A.25.25 0 0 1 10 .854V2.5h1A2.5 2.5 0 0 1 13.5 5v5.628a2.251 2.251 0 1 1-1.5 0V5a1 1 0 0 0-1-1h-1v1.646a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354ZM3.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm0 9.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm8.25.75a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Z"/>
                                         </svg>
                                     </div>
-                                    <p className="text-sm text-git-text">
-                                        Opened <strong>{month.prsOpened}</strong> pull request{month.prsOpened !== 1 ? "s" : ""}
-                                    </p>
+                                    <div className="text-sm text-git-text">
+                                        <p>Opened <strong>{month.prsOpened.length}</strong> pull request{month.prsOpened.length !== 1 ? "s" : ""}</p>
+                                        <div className="mt-1 space-y-1">
+                                            {month.prsOpened.map((pr, idx) => (
+                                                <div key={idx} className="flex flex-col mb-1 text-xs">
+                                                    <Link href={pr.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-git-accent hover:underline">
+                                                        {pr.title}
+                                                    </Link>
+                                                    <span className="text-git-muted truncate">{pr.repo}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             )}
 
                             {/* Issues */}
-                            {month.issuesOpened > 0 && (
+                            {month.issuesOpened.length > 0 && (
                                 <div className="flex items-start gap-3">
                                     <div className="mt-0.5 shrink-0">
                                         <svg height="16" viewBox="0 0 16 16" width="16" className="fill-[#3fb950]">
                                             <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/>
                                         </svg>
                                     </div>
-                                    <p className="text-sm text-git-text">
-                                        Opened <strong>{month.issuesOpened}</strong> issue{month.issuesOpened !== 1 ? "s" : ""}
-                                    </p>
+                                    <div className="text-sm text-git-text">
+                                        <p>Opened <strong>{month.issuesOpened.length}</strong> issue{month.issuesOpened.length !== 1 ? "s" : ""}</p>
+                                        <div className="mt-1 space-y-1">
+                                            {month.issuesOpened.map((issue, idx) => (
+                                                <div key={idx} className="flex flex-col mb-1 text-xs">
+                                                    <Link href={issue.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-git-accent hover:underline">
+                                                        {issue.title}
+                                                    </Link>
+                                                    <span className="text-git-muted truncate">{issue.repo}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             )}
 
                             {/* Issue Comments */}
-                            {month.issueComments > 0 && (
+                            {month.issueComments.length > 0 && (
                                 <div className="flex items-start gap-3">
                                     <div className="mt-0.5 shrink-0">
                                         <svg height="16" viewBox="0 0 16 16" width="16" className="fill-git-muted">
                                             <path d="M1.75 1h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 13H8.061l-2.574 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25v-8.5C0 1.784.784 1 1.75 1ZM1.5 2.75v8.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25H1.75a.25.25 0 0 0-.25.25Z"/>
                                         </svg>
                                     </div>
-                                    <p className="text-sm text-git-text">
-                                        Commented on <strong>{month.issueComments}</strong> issue{month.issueComments !== 1 ? "s" : ""}
-                                    </p>
+                                    <div className="text-sm text-git-text">
+                                        <p>Commented on <strong>{month.issueComments.length}</strong> issue{month.issueComments.length !== 1 ? "s" : ""}</p>
+                                        <div className="mt-1 space-y-1">
+                                            {month.issueComments.map((comment, idx) => (
+                                                <div key={idx} className="flex flex-col mb-1 text-xs">
+                                                    <Link href={comment.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-git-accent hover:underline">
+                                                        {comment.title}
+                                                    </Link>
+                                                    <span className="text-git-muted truncate">{comment.repo}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             )}
 
                             {/* PR Reviews */}
-                            {month.prReviews > 0 && (
+                            {month.prReviews.length > 0 && (
                                 <div className="flex items-start gap-3">
                                     <div className="mt-0.5 shrink-0">
                                         <svg height="16" viewBox="0 0 16 16" width="16" className="fill-[#8957e5]">
                                             <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm9.78-2.03-4.5 4.5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 0 1 1.06-1.06L6.25 8.94l3.97-3.97a.75.75 0 0 1 1.06 1.06Z"/>
                                         </svg>
                                     </div>
-                                    <p className="text-sm text-git-text">
-                                        Reviewed <strong>{month.prReviews}</strong> pull request{month.prReviews !== 1 ? "s" : ""}
-                                    </p>
+                                    <div className="text-sm text-git-text">
+                                        <p>Reviewed <strong>{month.prReviews.length}</strong> pull request{month.prReviews.length !== 1 ? "s" : ""}</p>
+                                        <div className="mt-1 space-y-1">
+                                            {month.prReviews.map((review, idx) => (
+                                                <div key={idx} className="flex flex-col mb-1 text-xs">
+                                                    <Link href={review.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-git-accent hover:underline">
+                                                        {review.title}
+                                                    </Link>
+                                                    <span className="text-git-muted truncate">{review.repo}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             )}
 

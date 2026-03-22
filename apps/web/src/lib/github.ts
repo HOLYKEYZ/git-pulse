@@ -325,15 +325,22 @@ export async function getGitHubPinnedRepos(username: string, token: string): Pro
 
 // ─── Contribution Activity ───────────────────────────────────────────────────
 
+export interface PRDetail {
+    title: string;
+    number: number;
+    url: string;
+    repo: string;
+}
+
 export interface MonthlyActivity {
-    month: string; // e.g. "March 2026"
+    month: string;
     commits: number;
     commitRepos: { name: string; count: number }[];
-    prsOpened: number;
-    issuesOpened: number;
+    prsOpened: PRDetail[];
+    issuesOpened: PRDetail[];
     reposCreated: string[];
-    prReviews: number;
-    issueComments: number;
+    prReviews: PRDetail[];
+    issueComments: PRDetail[];
 }
 
 /**
@@ -360,11 +367,11 @@ export async function getContributionActivity(
     const monthMap = new Map<string, {
         commits: number;
         commitRepos: Map<string, number>;
-        prsOpened: number;
-        issuesOpened: number;
+        prsOpened: PRDetail[];
+        issuesOpened: PRDetail[];
         reposCreated: string[];
-        prReviews: number;
-        issueComments: number;
+        prReviews: PRDetail[];
+        issueComments: PRDetail[];
     }>();
 
     for (const event of allEvents) {
@@ -375,11 +382,11 @@ export async function getContributionActivity(
             monthMap.set(key, {
                 commits: 0,
                 commitRepos: new Map(),
-                prsOpened: 0,
-                issuesOpened: 0,
+                prsOpened: [],
+                issuesOpened: [],
                 reposCreated: [],
-                prReviews: 0,
-                issueComments: 0,
+                prReviews: [],
+                issueComments: [],
             });
         }
         const month = monthMap.get(key)!;
@@ -392,17 +399,45 @@ export async function getContributionActivity(
                 month.commitRepos.set(event.repo.name, currentCount + count);
                 break;
             case "PullRequestEvent":
-                if (event.payload.action === "opened") month.prsOpened++;
+                if (event.payload.action === "opened" && event.payload.pull_request) {
+                    month.prsOpened.push({
+                        title: event.payload.pull_request.title || `PR #${event.payload.pull_request.number}`,
+                        number: event.payload.pull_request.number,
+                        url: event.payload.pull_request.html_url || `https://github.com/${event.repo.name}/pull/${event.payload.pull_request.number}`,
+                        repo: event.repo.name
+                    });
+                }
                 break;
             case "IssuesEvent":
-                if (event.payload.action === "opened") month.issuesOpened++;
+                if (event.payload.action === "opened" && event.payload.issue) {
+                    month.issuesOpened.push({
+                        title: event.payload.issue.title || `Issue #${event.payload.issue.number}`,
+                        number: event.payload.issue.number,
+                        url: event.payload.issue.html_url || `https://github.com/${event.repo.name}/issues/${event.payload.issue.number}`,
+                        repo: event.repo.name
+                    });
+                }
                 break;
             case "IssueCommentEvent":
-                month.issueComments++;
+                if (event.payload.issue) {
+                    month.issueComments.push({
+                        title: event.payload.issue.title || `Issue #${event.payload.issue.number}`,
+                        number: event.payload.issue.number,
+                        url: event.payload.issue.html_url || `https://github.com/${event.repo.name}/issues/${event.payload.issue.number}`,
+                        repo: event.repo.name
+                    });
+                }
                 break;
             case "PullRequestReviewEvent":
             case "PullRequestReviewCommentEvent":
-                month.prReviews++;
+                if (event.payload.pull_request) {
+                    month.prReviews.push({
+                        title: event.payload.pull_request.title || `PR #${event.payload.pull_request.number}`,
+                        number: event.payload.pull_request.number,
+                        url: event.payload.pull_request.html_url || `https://github.com/${event.repo.name}/pull/${event.payload.pull_request.number}`,
+                        repo: event.repo.name
+                    });
+                }
                 break;
             case "CreateEvent":
                 if (event.payload.ref_type === "repository") {

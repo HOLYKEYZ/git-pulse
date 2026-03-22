@@ -16,22 +16,35 @@ export default function NotificationBell() {
     const [unreadCount, setUnreadCount] = useState(0);
 
     useEffect(() => {
-        const fetchUnread = async () => {
-            try {
-                const res = await fetch("/api/notifications");
-                if (res.ok) {
-                    const data: Notification[] = await res.json();
-                    setUnreadCount(data.filter((n) => !n.read).length);
+        let eventSource: EventSource | null = null;
+        
+        try {
+            eventSource = new EventSource("/api/notifications/stream");
+            
+            eventSource.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (typeof data.unreadCount === "number") {
+                        setUnreadCount(data.unreadCount);
+                    }
+                } catch {
+                    // Ignore parse errors
                 }
-            } catch {
-                // silently fail
+            };
+            
+            eventSource.onerror = () => {
+                // Close and rely on browser or logic to reconnect if needed, or just fail silently
+                eventSource?.close();
+            };
+        } catch {
+             // Silently ignore if EventSource fails
+        }
+
+        return () => {
+            if (eventSource) {
+                eventSource.close();
             }
         };
-
-        fetchUnread();
-        // poll every 30 seconds
-        const interval = setInterval(fetchUnread, 30000);
-        return () => clearInterval(interval);
     }, []);
 
     return (

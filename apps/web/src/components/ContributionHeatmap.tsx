@@ -59,10 +59,10 @@ export default function ContributionHeatmap({ weeks, totalContributions }: Contr
             
             <div className="rounded-xl border border-git-border bg-git-card p-3 sm:p-4 shadow-sm w-full max-w-full overflow-hidden">
                 {/* Scrollable Container so the graph isn't squished */}
-                <div className="overflow-x-auto pb-2 custom-scrollbar max-w-full">
-                <div className="inline-flex flex-col min-w-max">
+                <div className="overflow-x-auto pb-4 custom-scrollbar max-w-full">
+                <div className="inline-flex flex-col min-w-max pt-8 px-4">
                     {/* Month labels row */}
-                    <div className="relative h-[15px] mb-1 pl-8">
+                    <div className="relative h-[15px] mb-1 pl-6">
                         {monthPositions.map((m, i) => (
                             <span
                                 key={i}
@@ -112,10 +112,10 @@ export default function ContributionHeatmap({ weeks, totalContributions }: Contr
                                                 }}
                                             >
                                                 {/* Tooltip */}
-                                                <div className="absolute hidden group-hover:block bottom-full left-1/2 -translate-x-1/2 mb-1 z-10 px-2 py-1 bg-git-muted text-git-bg text-[10px] font-medium leading-tight whitespace-nowrap rounded whitespace-nowrap opacity-90 shadow-md">
+                                                <div className="absolute hidden group-hover:block bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 px-2.5 py-1.5 bg-git-muted text-git-bg text-[11px] font-medium leading-tight whitespace-nowrap rounded shadow-lg pointer-events-none">
                                                     {day.contributionCount === 0 ? "No" : day.contributionCount} contribution{day.contributionCount !== 1 ? "s" : ""} on {new Date(day.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                                                     {/* Tooltip caret */}
-                                                    <svg className="absolute text-git-muted h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255" xmlSpace="preserve"><polygon className="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                                                    <svg className="absolute text-git-muted h-1.5 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255" xmlSpace="preserve"><polygon className="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
                                                 </div>
                                             </div>
                                         ))}

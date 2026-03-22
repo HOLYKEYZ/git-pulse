@@ -37,13 +37,18 @@ const applyAlign = (node: any, Tag: any, props: any) => {
         return (
             <Tag 
                 {...props} 
-                className={`${props.className || ""} text-center flex flex-col items-center justify-center mx-auto`}
-                align={undefined}
+                style={{
+                    ...(props.style || {}),
+                    textAlign: "center",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center"
+                }}
             />
         );
     }
     if (align === "right") {
-        return <Tag {...props} className={`${props.className || ""} text-right`} align={undefined} />;
+        return <Tag {...props} style={{ ...(props.style || {}), textAlign: "right", float: "right" }} />;
     }
     return <Tag {...props} />;
 };
@@ -64,10 +69,13 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
         div: ({ node, ...props }) => applyAlign(node, "div", props),
         img: ({ node, ...props }: any) => {
              const align = node?.properties?.align || props.align;
+             let style: any = { maxWidth: "100%", height: "auto", ...(props.style || {}) };
              if (align === "center") {
-                 return <img src={proxyImageUrl(String(props.src || ""), username)} alt={props.alt || ""} loading="lazy" style={{ maxWidth: "100%", height: "auto", display: "block", margin: "0 auto" }} />;
+                 style = { ...style, display: "block", marginLeft: "auto", marginRight: "auto" };
+             } else if (align === "right") {
+                 style = { ...style, float: "right" };
              }
-             return <img src={proxyImageUrl(String(props.src || ""), username)} alt={props.alt || ""} loading="lazy" style={{ maxWidth: "100%", height: "auto" }} />;
+             return <img src={proxyImageUrl(String(props.src || ""), username)} alt={props.alt || ""} loading="lazy" style={style} />;
         },
         h1: ({ node, ...props }) => applyAlign(node, "h1", props),
         h2: ({ node, ...props }) => applyAlign(node, "h2", props),

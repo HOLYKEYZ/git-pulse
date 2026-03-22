@@ -145,8 +145,8 @@ async function fetchWithAuth(endpoint: string, token: string) {
 }
 
 async function fetchGraphQL(query: string, variables: Record<string, unknown>, token: string) {
-    // Stringify variables to make a predictable cache key
-    const cacheKey = `gql:${token.slice(-10)}:${query.slice(0, 20)}:${JSON.stringify(variables)}`;
+    // Use a hash or enough of the query to guarantee uniqueness across different queries 
+    const cacheKey = `gql:${token.slice(-10)}:${query.slice(0, 150).replace(/\s+/g, '')}:${JSON.stringify(variables)}`;
     
     return withCache(cacheKey, async () => {
         const res = await fetch(GITHUB_GRAPHQL_URL, {

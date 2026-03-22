@@ -31,17 +31,25 @@ function proxyImageUrl(src: string, username: string): string {
     return src;
 }
 
+const applyAlign = (node: any, Tag: any, props: any) => {
+    const align = node?.properties?.align || props.align;
+    if (align === "center") {
+        return (
+            <Tag 
+                {...props} 
+                className={`${props.className || ""} text-center flex flex-col items-center justify-center mx-auto`}
+                align={undefined}
+            />
+        );
+    }
+    if (align === "right") {
+        return <Tag {...props} className={`${props.className || ""} text-right`} align={undefined} />;
+    }
+    return <Tag {...props} />;
+};
+
 export default function ProfileReadme({ content, username }: ProfileReadmeProps) {
     const components: Components = {
-        img: ({ src, alt }) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-                src={proxyImageUrl(String(src || ""), username)}
-                alt={alt || ""}
-                loading="lazy"
-                style={{ maxWidth: "100%", height: "auto" }}
-            />
-        ),
         // Fix <a> targets for external links
         a: ({ href, children }) => (
             <a
@@ -52,6 +60,19 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
                 {children}
             </a>
         ),
+        p: ({ node, ...props }) => applyAlign(node, "p", props),
+        div: ({ node, ...props }) => applyAlign(node, "div", props),
+        img: ({ node, ...props }: any) => {
+             const align = node?.properties?.align || props.align;
+             if (align === "center") {
+                 return <img src={proxyImageUrl(String(props.src || ""), username)} alt={props.alt || ""} loading="lazy" style={{ maxWidth: "100%", height: "auto", display: "block", margin: "0 auto" }} />;
+             }
+             return <img src={proxyImageUrl(String(props.src || ""), username)} alt={props.alt || ""} loading="lazy" style={{ maxWidth: "100%", height: "auto" }} />;
+        },
+        h1: ({ node, ...props }) => applyAlign(node, "h1", props),
+        h2: ({ node, ...props }) => applyAlign(node, "h2", props),
+        h3: ({ node, ...props }) => applyAlign(node, "h3", props),
+        section: ({ node, ...props }) => applyAlign(node, "section", props),
     };
 
     return (

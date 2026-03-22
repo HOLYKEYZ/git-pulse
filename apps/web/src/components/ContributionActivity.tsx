@@ -86,6 +86,34 @@ export default function ContributionActivity({ activity }: ContributionActivityP
                                 </div>
                             )}
 
+                            {/* Issue Comments */}
+                            {month.issueComments > 0 && (
+                                <div className="flex items-start gap-3">
+                                    <div className="mt-0.5 shrink-0">
+                                        <svg height="16" viewBox="0 0 16 16" width="16" className="fill-git-muted">
+                                            <path d="M1.75 1h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 13H8.061l-2.574 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25v-8.5C0 1.784.784 1 1.75 1ZM1.5 2.75v8.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25H1.75a.25.25 0 0 0-.25.25Z"/>
+                                        </svg>
+                                    </div>
+                                    <p className="text-sm text-git-text">
+                                        Commented on <strong>{month.issueComments}</strong> issue{month.issueComments !== 1 ? "s" : ""}
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* PR Reviews */}
+                            {month.prReviews > 0 && (
+                                <div className="flex items-start gap-3">
+                                    <div className="mt-0.5 shrink-0">
+                                        <svg height="16" viewBox="0 0 16 16" width="16" className="fill-[#8957e5]">
+                                            <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm9.78-2.03-4.5 4.5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 0 1 1.06-1.06L6.25 8.94l3.97-3.97a.75.75 0 0 1 1.06 1.06Z"/>
+                                        </svg>
+                                    </div>
+                                    <p className="text-sm text-git-text">
+                                        Reviewed <strong>{month.prReviews}</strong> pull request{month.prReviews !== 1 ? "s" : ""}
+                                    </p>
+                                </div>
+                            )}
+
                             {/* Repos created */}
                             {month.reposCreated.length > 0 && (
                                 <div className="flex items-start gap-3">

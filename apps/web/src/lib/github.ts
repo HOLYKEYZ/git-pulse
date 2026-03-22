@@ -332,6 +332,8 @@ export interface MonthlyActivity {
     prsOpened: number;
     issuesOpened: number;
     reposCreated: string[];
+    prReviews: number;
+    issueComments: number;
 }
 
 /**
@@ -361,6 +363,8 @@ export async function getContributionActivity(
         prsOpened: number;
         issuesOpened: number;
         reposCreated: string[];
+        prReviews: number;
+        issueComments: number;
     }>();
 
     for (const event of allEvents) {
@@ -374,6 +378,8 @@ export async function getContributionActivity(
                 prsOpened: 0,
                 issuesOpened: 0,
                 reposCreated: [],
+                prReviews: 0,
+                issueComments: 0,
             });
         }
         const month = monthMap.get(key)!;
@@ -390,6 +396,13 @@ export async function getContributionActivity(
                 break;
             case "IssuesEvent":
                 if (event.payload.action === "opened") month.issuesOpened++;
+                break;
+            case "IssueCommentEvent":
+                month.issueComments++;
+                break;
+            case "PullRequestReviewEvent":
+            case "PullRequestReviewCommentEvent":
+                month.prReviews++;
                 break;
             case "CreateEvent":
                 if (event.payload.ref_type === "repository") {
@@ -409,6 +422,8 @@ export async function getContributionActivity(
         prsOpened: data.prsOpened,
         issuesOpened: data.issuesOpened,
         reposCreated: data.reposCreated,
+        prReviews: data.prReviews,
+        issueComments: data.issueComments,
     }));
 }
 
@@ -450,13 +465,6 @@ query($username: String!) {
       totalCount
     }
     followers { totalCount }
-    organizations(first: 10) {
-      nodes {
-        login
-        avatarUrl
-        name
-      }
-    }
   }
 }`;
 
@@ -478,15 +486,31 @@ export async function getUserStats(username: string, token: string): Promise<Use
     }
 
     const user = data.user;
+    const starredRepos = (user.repositories?.nodes ?? [])
+        .filter((r: { stargazerCount: number }) => r.stargazerCount > 0)
+        .map((r: { name: string; stargazerCount: number }) => ({ name: r.name, stars: r.stargazerCount }));
+
+    let organizations: { login: string; avatarUrl: string; name: string | null }[] = [];
+    try {
+        const orgsData = await fetchWithAuth(`/users/${username}/orgs`, token);
+        if (Array.isArray(orgsData)) {
+            organizations = orgsData.map(org => ({
+                login: org.login,
+                avatarUrl: org.avatar_url,
+                name: org.description || null
+            }));
+        }
+    } catch {
+        console.error(`Failed to fetch REST orgs for ${username}`);
+    }
+
     return {
         mergedPRs: user.pullRequests?.totalCount ?? 0,
         totalIssues: user.issues?.totalCount ?? 0,
         totalRepos: user.repositories?.totalCount ?? 0,
         contributedToRepos: user.repositoriesContributedTo?.totalCount ?? 0,
         totalFollowers: user.followers?.totalCount ?? 0,
-        starredRepos: (user.repositories?.nodes ?? [])
-            .filter((r: { stargazerCount: number }) => r.stargazerCount > 0)
-            .map((r: { name: string; stargazerCount: number }) => ({ name: r.name, stars: r.stargazerCount })),
-        organizations: user.organizations?.nodes ?? [],
+        starredRepos,
+        organizations,
     };
 }

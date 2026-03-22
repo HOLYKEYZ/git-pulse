@@ -50,16 +50,16 @@ export default function ContributionHeatmap({ weeks, totalContributions }: Contr
     });
 
     return (
-        <div className="w-full animate-fade-in relative">
+        <div className="w-full max-w-full animate-fade-in relative">
             <div className="flex items-center justify-between mb-2">
                 <h2 className="text-sm font-normal text-git-text">
                     {totalContributions.toLocaleString()} contributions in the last year
                 </h2>
             </div>
             
-            <div className="rounded-xl border border-git-border bg-git-card p-3 sm:p-4 shadow-sm w-full overflow-hidden">
+            <div className="rounded-xl border border-git-border bg-git-card p-3 sm:p-4 shadow-sm w-full max-w-full overflow-hidden">
                 {/* Scrollable Container so the graph isn't squished */}
-                <div className="w-full overflow-x-auto pb-2 custom-scrollbar">
+                <div className="overflow-x-auto pb-2 custom-scrollbar max-w-full">
                 <div className="inline-flex flex-col min-w-max">
                     {/* Month labels row */}
                     <div className="relative h-[15px] mb-1 pl-8">

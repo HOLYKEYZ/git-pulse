@@ -24,7 +24,7 @@ export default async function ReposPage({ params }: { params: Promise<{ username
         <div className="flex flex-col gap-4 p-4 sm:p-6 animate-slide-up">
             {/* Header */}
             <div className="flex items-center gap-3">
-                <Link href={`/profile/${username}`} className="text-git-muted hover:text-git-blue transition-colors">
+                <Link href={`/profile/${username}`} className="text-git-muted hover:text-git-accent transition-colors">
                     <svg height="20" viewBox="0 0 16 16" width="20" className="fill-current">
                         <path d="M7.78 12.53a.75.75 0 0 1-1.06 0L2.47 8.28a.75.75 0 0 1 0-1.06l4.25-4.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042L4.81 7h7.44a.75.75 0 0 1 0 1.5H4.81l2.97 2.97a.75.75 0 0 1 0 1.06Z"/>
                     </svg>
@@ -40,7 +40,7 @@ export default async function ReposPage({ params }: { params: Promise<{ username
                     {languages.map((lang) => (
                         <span
                             key={lang}
-                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-git-border text-[11px] text-git-muted hover:border-git-blue hover:text-git-blue cursor-pointer transition-colors"
+                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-git-border text-[11px] text-git-muted hover:border-git-accent hover:text-git-accent cursor-pointer transition-colors"
                         >
                             <span
                                 className="w-2 h-2 rounded-full"

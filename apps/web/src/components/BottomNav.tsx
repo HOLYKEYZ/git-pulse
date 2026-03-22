@@ -30,7 +30,7 @@ export default function BottomNav({ username }: { username?: string }) {
                             key={item.name} 
                             href={item.href}
                             className={`flex flex-col items-center gap-1 transition-colors ${
-                                isActive ? "text-git-blue" : "text-git-muted hover:text-git-text"
+                                isActive ? "text-git-accent" : "text-git-muted hover:text-git-text"
                             }`}
                         >
                             <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />

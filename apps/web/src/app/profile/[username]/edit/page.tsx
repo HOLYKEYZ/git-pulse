@@ -153,7 +153,7 @@ export default function EditProfilePage({ params }: { params: Promise<{ username
                         value={name}
                         onChange={e => setName(e.target.value)}
                         placeholder="Your display name"
-                        className="w-full px-3 py-2 rounded-md border border-git-border bg-git-bg text-git-text text-sm placeholder:text-git-muted focus:outline-none focus:border-git-blue focus:ring-1 focus:ring-git-blue transition-colors"
+                        className="w-full px-3 py-2 rounded-md border border-git-border bg-git-bg text-git-text text-sm placeholder:text-git-muted focus:outline-none focus:border-git-accent focus:ring-1 focus:ring-git-accent transition-colors"
                     />
                 </div>
 
@@ -165,7 +165,7 @@ export default function EditProfilePage({ params }: { params: Promise<{ username
                         onChange={e => setBio(e.target.value)}
                         placeholder="Tell the world about yourself"
                         rows={3}
-                        className="w-full px-3 py-2 rounded-md border border-git-border bg-git-bg text-git-text text-sm placeholder:text-git-muted focus:outline-none focus:border-git-blue focus:ring-1 focus:ring-git-blue transition-colors resize-y"
+                        className="w-full px-3 py-2 rounded-md border border-git-border bg-git-bg text-git-text text-sm placeholder:text-git-muted focus:outline-none focus:border-git-accent focus:ring-1 focus:ring-git-accent transition-colors resize-y"
                     />
                 </div>
 
@@ -177,7 +177,7 @@ export default function EditProfilePage({ params }: { params: Promise<{ username
                         value={blog}
                         onChange={e => setBlog(e.target.value)}
                         placeholder="https://yoursite.com"
-                        className="w-full px-3 py-2 rounded-md border border-git-border bg-git-bg text-git-text text-sm placeholder:text-git-muted focus:outline-none focus:border-git-blue focus:ring-1 focus:ring-git-blue transition-colors"
+                        className="w-full px-3 py-2 rounded-md border border-git-border bg-git-bg text-git-text text-sm placeholder:text-git-muted focus:outline-none focus:border-git-accent focus:ring-1 focus:ring-git-accent transition-colors"
                     />
                 </div>
 
@@ -189,7 +189,7 @@ export default function EditProfilePage({ params }: { params: Promise<{ username
                         value={location}
                         onChange={e => setLocation(e.target.value)}
                         placeholder="City, Country"
-                        className="w-full px-3 py-2 rounded-md border border-git-border bg-git-bg text-git-text text-sm placeholder:text-git-muted focus:outline-none focus:border-git-blue focus:ring-1 focus:ring-git-blue transition-colors"
+                        className="w-full px-3 py-2 rounded-md border border-git-border bg-git-bg text-git-text text-sm placeholder:text-git-muted focus:outline-none focus:border-git-accent focus:ring-1 focus:ring-git-accent transition-colors"
                     />
                 </div>
 
@@ -201,7 +201,7 @@ export default function EditProfilePage({ params }: { params: Promise<{ username
                         value={company}
                         onChange={e => setCompany(e.target.value)}
                         placeholder="@company or Company Name"
-                        className="w-full px-3 py-2 rounded-md border border-git-border bg-git-bg text-git-text text-sm placeholder:text-git-muted focus:outline-none focus:border-git-blue focus:ring-1 focus:ring-git-blue transition-colors"
+                        className="w-full px-3 py-2 rounded-md border border-git-border bg-git-bg text-git-text text-sm placeholder:text-git-muted focus:outline-none focus:border-git-accent focus:ring-1 focus:ring-git-accent transition-colors"
                     />
                 </div>
 
@@ -215,7 +215,7 @@ export default function EditProfilePage({ params }: { params: Promise<{ username
                             value={twitterUsername}
                             onChange={e => setTwitterUsername(e.target.value)}
                             placeholder="username"
-                            className="flex-1 px-3 py-2 rounded-r-md border border-git-border bg-git-bg text-git-text text-sm placeholder:text-git-muted focus:outline-none focus:border-git-blue focus:ring-1 focus:ring-git-blue transition-colors"
+                            className="flex-1 px-3 py-2 rounded-r-md border border-git-border bg-git-bg text-git-text text-sm placeholder:text-git-muted focus:outline-none focus:border-git-accent focus:ring-1 focus:ring-git-accent transition-colors"
                         />
                     </div>
                 </div>
@@ -225,7 +225,7 @@ export default function EditProfilePage({ params }: { params: Promise<{ username
                     <button
                         onClick={handleSave}
                         disabled={saving}
-                        className="px-4 py-2 rounded-md bg-git-blue text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+                        className="px-4 py-2 rounded-md bg-git-accent text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
                     >
                         {saving ? "saving..." : "save changes"}
                     </button>

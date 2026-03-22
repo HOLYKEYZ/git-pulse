@@ -69,7 +69,7 @@ export default function ComposeFeed() {
         <button 
             type="button"
             onClick={() => setPreviewMode(false)}
-            className={`pb-1 -mb-2 transition-colors ${!previewMode ? 'text-git-text border-b-2 border-git-blue' : 'text-git-muted hover:text-git-text border-b-2 border-transparent'}`}
+            className={`pb-1 -mb-2 transition-colors ${!previewMode ? 'text-git-text border-b-2 border-git-accent' : 'text-git-muted hover:text-git-text border-b-2 border-transparent'}`}
         >
             Write
         </button>
@@ -77,7 +77,7 @@ export default function ComposeFeed() {
             type="button"
             disabled={!content.trim()}
             onClick={() => setPreviewMode(true)}
-            className={`pb-1 -mb-2 transition-colors ${previewMode ? 'text-git-text border-b-2 border-git-blue' : 'text-git-muted hover:text-git-text border-b-2 border-transparent disabled:opacity-50 disabled:cursor-not-allowed'}`}
+            className={`pb-1 -mb-2 transition-colors ${previewMode ? 'text-git-text border-b-2 border-git-accent' : 'text-git-muted hover:text-git-text border-b-2 border-transparent disabled:opacity-50 disabled:cursor-not-allowed'}`}
         >
             Preview
         </button>
@@ -89,7 +89,7 @@ export default function ComposeFeed() {
               placeholder="What's happening? (Supports Markdown, #hashtags, @mentions)"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="w-full min-h-[100px] resize-y bg-git-bg text-git-text font-mono text-sm p-3 rounded-md border border-git-border focus:outline-none focus:ring-2 focus:ring-git-blue focus:border-transparent placeholder:text-git-muted custom-scrollbar"
+              className="w-full min-h-[100px] resize-y bg-git-bg text-git-text font-mono text-sm p-3 rounded-md border border-git-border focus:outline-none focus:ring-2 focus:ring-git-accent focus:border-transparent placeholder:text-git-muted custom-scrollbar"
             />
         ) : (
             <div className="w-full min-h-[100px] bg-git-bg text-git-text text-sm p-3 rounded-md border border-git-border overflow-y-auto custom-scrollbar markdown-body" style={{ background: '#010409', padding: '12px' }}>
@@ -132,7 +132,7 @@ export default function ComposeFeed() {
             <button 
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="p-1.5 rounded-md hover:bg-git-card transition-colors text-git-blue flex items-center gap-1.5"
+                className="p-1.5 rounded-md hover:bg-git-card transition-colors text-git-accent flex items-center gap-1.5"
                 title="Attach picture"
             >
                 <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" className="fill-current">

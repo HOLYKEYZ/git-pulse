@@ -38,7 +38,7 @@ export default function AiSummary({ owner, repoName }: AiSummaryProps) {
         <div className="mt-2">
             <button
                 onClick={fetchPitch}
-                className="flex items-center gap-1.5 text-[11px] text-git-muted hover:text-git-blue transition-colors"
+                className="flex items-center gap-1.5 text-[11px] text-git-muted hover:text-git-accent transition-colors"
             >
                 <svg height="14" viewBox="0 0 16 16" width="14" className="fill-current">
                     <path d="M7.998 0a8 8 0 1 1 0 16 8 8 0 0 1 0-16ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm7.25-3.25v2.992l2.028.812a.75.75 0 0 1-.557 1.392l-2.5-1A.751.751 0 0 1 7.25 8.25v-3.5a.75.75 0 0 1 1.5 0Z" />
@@ -46,7 +46,7 @@ export default function AiSummary({ owner, repoName }: AiSummaryProps) {
                 {visible ? "Hide AI Summary" : "✨ AI Summary"}
             </button>
             {visible && (
-                <div className="mt-1.5 px-3 py-2 rounded-md bg-git-blue/5 border border-git-blue/10 text-xs text-git-text/80 leading-relaxed italic animate-fade-in">
+                <div className="mt-1.5 px-3 py-2 rounded-md bg-git-accent/5 border border-git-accent/10 text-xs text-git-text/80 leading-relaxed italic animate-fade-in">
                     {loading ? (
                         <span className="text-git-muted">Generating pitch...</span>
                     ) : (

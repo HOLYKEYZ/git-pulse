@@ -51,7 +51,7 @@ export default function DigestPage() {
                 <button
                     onClick={generate}
                     disabled={loading}
-                    className="px-4 py-2 rounded-md bg-git-blue text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+                    className="px-4 py-2 rounded-md bg-git-accent text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
                     {loading ? "Generating..." : "Generate Digest"}
                 </button>
@@ -103,7 +103,7 @@ export default function DigestPage() {
                                         <td className="px-3 py-2 text-git-muted">{i + 1}</td>
                                         <td className="px-3 py-2 text-git-text">@{p.author}</td>
                                         <td className="px-3 py-2 text-git-muted truncate max-w-[200px]">{p.contentPreview}</td>
-                                        <td className="px-3 py-2 text-right font-mono text-git-blue">{p.score.toFixed(1)}</td>
+                                        <td className="px-3 py-2 text-right font-mono text-git-accent">{p.score.toFixed(1)}</td>
                                     </tr>
                                 ))}
                             </tbody>

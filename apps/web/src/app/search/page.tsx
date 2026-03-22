@@ -81,7 +81,7 @@ export default function SearchPage() {
                             onClick={() => setActiveTab("repos")}
                             className={`pb-2 -mb-px px-1 text-sm font-medium transition-colors ${
                                 activeTab === "repos"
-                                    ? "text-git-text border-b-2 border-git-blue"
+                                    ? "text-git-text border-b-2 border-git-accent"
                                     : "text-git-muted hover:text-git-text border-b-2 border-transparent"
                             }`}
                         >
@@ -91,7 +91,7 @@ export default function SearchPage() {
                             onClick={() => setActiveTab("users")}
                             className={`pb-2 -mb-px px-1 text-sm font-medium transition-colors ${
                                 activeTab === "users"
-                                    ? "text-git-text border-b-2 border-git-blue"
+                                    ? "text-git-text border-b-2 border-git-accent"
                                     : "text-git-muted hover:text-git-text border-b-2 border-transparent"
                             }`}
                         >
@@ -101,7 +101,7 @@ export default function SearchPage() {
                             onClick={() => setActiveTab("posts")}
                             className={`pb-2 -mb-px px-1 text-sm font-medium transition-colors ${
                                 activeTab === "posts"
-                                    ? "text-git-text border-b-2 border-git-blue"
+                                    ? "text-git-text border-b-2 border-git-accent"
                                     : "text-git-muted hover:text-git-text border-b-2 border-transparent"
                             }`}
                         >
@@ -114,7 +114,7 @@ export default function SearchPage() {
             <div className="p-4 sm:p-6">
                 {isLoading && (
                     <div className="flex justify-center p-8">
-                        <div className="w-6 h-6 border-2 border-git-muted border-t-git-blue rounded-full animate-spin" />
+                        <div className="w-6 h-6 border-2 border-git-muted border-t-git-accent rounded-full animate-spin" />
                     </div>
                 )}
 
@@ -164,7 +164,7 @@ export default function SearchPage() {
                                             />
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-baseline gap-2">
-                                                    <span className="text-base font-semibold text-git-text hover:text-git-blue transition-colors">{user.name || user.username}</span>
+                                                    <span className="text-base font-semibold text-git-text hover:text-git-accent transition-colors">{user.name || user.username}</span>
                                                     <span className="text-sm text-git-muted">{user.username}</span>
                                                 </div>
                                                 {user.bio && <p className="text-sm text-git-muted mt-1 truncate">{user.bio}</p>}

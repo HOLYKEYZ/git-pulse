@@ -87,7 +87,7 @@ export default async function TagFeedPage({ params }: PageProps) {
     return (
         <div className="flex flex-col animate-slide-up pb-12 w-full max-w-2xl mx-auto border-x border-git-border min-h-screen pt-[73px] md:pt-0">
             <div className="px-4 py-4 border-b border-git-border bg-[#0d1117] sticky top-0 z-10 flex items-center gap-4">
-                <Link href="/explore/tags" className="text-git-muted hover:text-git-blue transition-colors p-2 -ml-2 rounded-full hover:bg-git-card">
+                <Link href="/explore/tags" className="text-git-muted hover:text-git-accent transition-colors p-2 -ml-2 rounded-full hover:bg-git-card">
                     <svg aria-hidden="true" height="16" viewBox="0 0 16 16" width="16" className="fill-current">
                         <path d="M7.78 12.53a.75.75 0 0 1-1.06 0L2.47 8.28a.75.75 0 0 1 0-1.06l4.25-4.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042L4.81 7.25h9.44a.75.75 0 0 1 0 1.5H4.81l2.97 2.97a.75.75 0 0 1 0 1.06Z"></path>
                     </svg>

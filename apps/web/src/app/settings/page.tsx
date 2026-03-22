@@ -94,7 +94,7 @@ export default function SettingsPage() {
                         onClick={() => setActiveTab(tab.key)}
                         className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
                             activeTab === tab.key
-                                ? "text-git-text border-git-blue"
+                                ? "text-git-text border-git-accent"
                                 : "text-git-muted border-transparent hover:text-git-text hover:border-git-border"
                         }`}
                     >
@@ -117,7 +117,7 @@ export default function SettingsPage() {
                                 onClick={() => setTheme("github")}
                                 className={`relative flex flex-col items-center p-4 rounded-lg border-2 transition-all ${
                                     theme === "github"
-                                        ? "border-git-blue bg-git-blue/5"
+                                        ? "border-git-accent bg-git-accent/5"
                                         : "border-git-border hover:border-git-muted"
                                 }`}
                             >
@@ -135,7 +135,7 @@ export default function SettingsPage() {
                                 <span className="text-sm font-medium text-git-text">GitHub Dark</span>
                                 <span className="text-[11px] text-git-muted">default experience</span>
                                 {theme === "github" && (
-                                    <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-git-blue flex items-center justify-center">
+                                    <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-git-accent flex items-center justify-center">
                                         <svg width="12" height="12" viewBox="0 0 16 16" className="fill-white"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"/></svg>
                                     </div>
                                 )}
@@ -146,7 +146,7 @@ export default function SettingsPage() {
                                 onClick={() => setTheme("midnight")}
                                 className={`relative flex flex-col items-center p-4 rounded-lg border-2 transition-all ${
                                     theme === "midnight"
-                                        ? "border-git-blue bg-git-blue/5"
+                                        ? "border-git-accent bg-git-accent/5"
                                         : "border-git-border hover:border-git-muted"
                                 }`}
                             >
@@ -163,7 +163,7 @@ export default function SettingsPage() {
                                 <span className="text-sm font-medium text-git-text">Midnight</span>
                                 <span className="text-[11px] text-git-muted">pure black, X-style</span>
                                 {theme === "midnight" && (
-                                    <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-git-blue flex items-center justify-center">
+                                    <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-git-accent flex items-center justify-center">
                                         <svg width="12" height="12" viewBox="0 0 16 16" className="fill-white"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"/></svg>
                                     </div>
                                 )}
@@ -180,7 +180,12 @@ export default function SettingsPage() {
                         <h2 className="text-base font-semibold text-git-text mb-1">connected account</h2>
                         <p className="text-xs text-git-muted mb-4">your linked GitHub account.</p>
                         <div className="flex items-center gap-3 p-3 rounded-lg border border-git-border bg-git-bg">
-                            <svg height="24" viewBox="0 0 16 16" width="24" className="fill-git-text shrink-0"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>
+                            <svg height="24" viewBox="0 0 16 16" width="24" className="fill-git-text shrink-0">
+                                <g transform="scale(-1, 1) translate(-16, 0)">
+                                    <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/>
+                                </g>
+                                <line x1="12" y1="10" x2="16" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                            </svg>
                             <div className="flex flex-col">
                                 <span className="text-sm font-medium text-git-text">GitHub</span>
                                 <span className="text-xs text-git-muted">authenticated via OAuth</span>
@@ -214,7 +219,7 @@ export default function SettingsPage() {
                                 </div>
                                 <button
                                     onClick={() => setShowActivity(!showActivity)}
-                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${showActivity ? "bg-git-blue" : "bg-git-border"}`}
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${showActivity ? "bg-git-accent" : "bg-git-border"}`}
                                 >
                                     <span className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${showActivity ? "translate-x-6" : "translate-x-1"}`} />
                                 </button>
@@ -229,7 +234,7 @@ export default function SettingsPage() {
                                 </div>
                                 <button
                                     onClick={() => setShowContributions(!showContributions)}
-                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${showContributions ? "bg-git-blue" : "bg-git-border"}`}
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${showContributions ? "bg-git-accent" : "bg-git-border"}`}
                                 >
                                     <span className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${showContributions ? "translate-x-6" : "translate-x-1"}`} />
                                 </button>
@@ -287,7 +292,7 @@ export default function SettingsPage() {
                                 <div className="flex gap-2">
                                     <button
                                         onClick={generateKey}
-                                        className="px-3 py-1.5 rounded-md bg-git-blue text-white text-xs font-medium hover:opacity-90 transition-opacity"
+                                        className="px-3 py-1.5 rounded-md bg-git-accent text-white text-xs font-medium hover:opacity-90 transition-opacity"
                                     >
                                         {hasKey ? "Regenerate Key" : "Generate Key"}
                                     </button>
@@ -328,7 +333,7 @@ export default function SettingsPage() {
                             </pre>
                         </div>
 
-                        <div className="mt-4 p-3 bg-git-blue/5 border border-git-blue/10 rounded-lg text-xs text-git-muted leading-relaxed">
+                        <div className="mt-4 p-3 bg-git-accent/5 border border-git-accent/10 rounded-lg text-xs text-git-muted leading-relaxed">
                             <strong className="text-git-text">setup:</strong>
                             <ol className="list-decimal ml-4 mt-1 space-y-1">
                                 <li>generate an API key above</li>

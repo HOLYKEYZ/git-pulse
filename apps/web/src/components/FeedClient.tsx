@@ -61,7 +61,7 @@ export default function FeedClient({ discoverPosts, followingPosts, activityPost
                     >
                         {tab.label}
                         {activeTab === tab.key && (
-                            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-1 rounded-full bg-git-blue" />
+                            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-1 rounded-full bg-git-accent" />
                         )}
                     </button>
                 ))}

@@ -48,7 +48,7 @@ export default async function FollowersPage({ params }: { params: Promise<{ user
                             />
                         </Link>
                         <div className="flex-1 min-w-0">
-                            <Link href={`/profile/${user.login}`} className="text-sm font-semibold text-git-text hover:text-git-blue transition-colors">
+                            <Link href={`/profile/${user.login}`} className="text-sm font-semibold text-git-text hover:text-git-accent transition-colors">
                                 {user.name || user.login}
                             </Link>
                             <p className="text-xs text-git-muted">{user.login}</p>

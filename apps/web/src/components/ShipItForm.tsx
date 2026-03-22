@@ -62,7 +62,7 @@ export default function ShipItForm() {
             <select 
               value={repo}
               onChange={(e) => setRepo(e.target.value)}
-              className="w-full bg-git-bg text-git-text text-sm p-2 rounded-md border border-git-border focus:outline-none focus:ring-2 focus:ring-git-blue focus:border-transparent appearance-none"
+              className="w-full bg-git-bg text-git-text text-sm p-2 rounded-md border border-git-border focus:outline-none focus:ring-2 focus:ring-git-accent focus:border-transparent appearance-none"
             >
               <option value="" disabled>Select a repository...</option>
               {mockRepos.map(r => (
@@ -78,7 +78,7 @@ export default function ShipItForm() {
               placeholder="e.g. v1.0.0"
               value={version}
               onChange={(e) => setVersion(e.target.value)}
-              className="w-full bg-git-bg text-git-text font-mono text-sm p-2 rounded-md border border-git-border focus:outline-none focus:ring-2 focus:ring-git-blue focus:border-transparent placeholder:text-git-muted"
+              className="w-full bg-git-bg text-git-text font-mono text-sm p-2 rounded-md border border-git-border focus:outline-none focus:ring-2 focus:ring-git-accent focus:border-transparent placeholder:text-git-muted"
             />
           </div>
         </div>
@@ -89,7 +89,7 @@ export default function ShipItForm() {
             placeholder="- Added dark mode&#10;- Fixed memory leak in auth flow"
             value={changelog}
             onChange={(e) => setChangelog(e.target.value)}
-            className="w-full min-h-[100px] resize-y bg-git-bg text-git-text font-mono text-sm p-3 rounded-md border border-git-border focus:outline-none focus:ring-2 focus:ring-git-blue focus:border-transparent placeholder:text-git-muted custom-scrollbar"
+            className="w-full min-h-[100px] resize-y bg-git-bg text-git-text font-mono text-sm p-3 rounded-md border border-git-border focus:outline-none focus:ring-2 focus:ring-git-accent focus:border-transparent placeholder:text-git-muted custom-scrollbar"
           />
         </div>
         

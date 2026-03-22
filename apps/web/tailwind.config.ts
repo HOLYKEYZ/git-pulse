@@ -16,7 +16,7 @@ const config: Config = {
                     card: "var(--card)",
                     border: "var(--border)",
                     green: "var(--green)",
-                    blue: "var(--accent)",
+                    accent: "var(--accent)",
                     text: "var(--text)",
                     muted: "var(--muted)",
                     notification: "var(--notification)",

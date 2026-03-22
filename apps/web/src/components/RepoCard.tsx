@@ -35,7 +35,7 @@ export default function RepoCard({
     const CardContent = (
         <>
             <div className="flex items-center justify-between mb-3">
-                <h3 className="text-git-blue font-semibold text-[15px] hover:underline break-words break-all truncate">
+                <h3 className="text-git-accent font-semibold text-[15px] hover:underline break-words break-all truncate">
                     {name}
                 </h3>
                 <span className="rounded-full border border-git-border/60 px-2.5 py-0.5 text-[10px] text-git-muted font-medium whitespace-nowrap ml-2 bg-[#161b22]/50">
@@ -55,7 +55,7 @@ export default function RepoCard({
                     </div>
                 )}
                 {stars > 0 && (
-                    <div className="flex items-center gap-1 hover:text-git-blue">
+                    <div className="flex items-center gap-1 hover:text-git-accent">
                         <svg height="16" viewBox="0 0 16 16" width="16" className="fill-current w-3 h-3">
                             <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/>
                         </svg>
@@ -63,7 +63,7 @@ export default function RepoCard({
                     </div>
                 )}
                 {forks > 0 && (
-                    <div className="flex items-center gap-1 hover:text-git-blue">
+                    <div className="flex items-center gap-1 hover:text-git-accent">
                         <svg height="16" viewBox="0 0 16 16" width="16" className="fill-current w-3 h-3">
                             <path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878A2.25 2.25 0 1 1 12.5 8v1.25a2.25 2.25 0 0 1-2.25 2.25h-1.5v1.128a2.251 2.251 0 1 1-1.5 0V10.25H5.75A2.25 2.25 0 0 1 3.5 8V5.372a2.25 2.25 0 1 1 1.5 0ZM11 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm-8 0a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm5.5 12a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"/>
                         </svg>

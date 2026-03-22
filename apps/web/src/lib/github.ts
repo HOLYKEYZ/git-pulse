@@ -166,6 +166,12 @@ async function fetchGraphQL(query: string, variables: Record<string, unknown>, t
         }
 
         const json = await res.json();
+        
+        // Debug logging for pinned repos query
+        if (query.includes("pinnedItems")) {
+            console.log(`[GraphQL Pinned Repos for ${variables?.username}] Response:`, JSON.stringify(json, null, 2));
+        }
+
         if (json.errors) {
             console.error("[GraphQL] Errors:", JSON.stringify(json.errors, null, 2));
             // Return data even if there are some errors (partial responses)
@@ -276,7 +282,7 @@ query($username: String!) {
 const PINNED_REPOS_QUERY = `
 query($username: String!) {
   user(login: $username) {
-    pinnedItems(first: 6, types: REPOSITORY) {
+    pinnedItems(first: 6, types: [REPOSITORY, GIST]) {
       nodes {
         ... on Repository {
           name

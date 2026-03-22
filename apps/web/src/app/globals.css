@@ -10,7 +10,7 @@
   --bg: #0d1117;
   --card: #161b22;
   --border: #30363d;
-  --accent: #1f6feb;
+  --accent: #238636;
   --text: #e6edf3;
   --muted: #8b949e;
   --green: #238636;
@@ -182,10 +182,14 @@ body {
   height: auto;
 }
 
-/* github-style alignment attributes */
-.markdown-body [align="center"] {
-  text-align: center;
-  display: block;
+.markdown-body [align="center"],
+.markdown-body div[align="center"],
+.markdown-body p[align="center"] {
+  text-align: center !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
   margin-left: auto;
   margin-right: auto;
 }

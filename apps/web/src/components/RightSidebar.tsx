@@ -53,7 +53,7 @@ export default async function RightSidebar() {
                                 <div className="flex items-center gap-3 text-[13px] text-git-muted">
                                     {repo.language && (
                                         <span className="flex items-center gap-1">
-                                            <span className="w-3 h-3 rounded-full bg-git-blue" />
+                                            <span className="w-3 h-3 rounded-full bg-git-accent" />
                                             {repo.language}
                                         </span>
                                     )}

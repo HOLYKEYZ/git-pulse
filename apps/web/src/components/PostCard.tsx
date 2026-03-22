@@ -96,7 +96,7 @@ export default function PostCard({ post }: { post: PostProps }) {
       <div className="flex-1 flex flex-col min-w-0">
           {/* Header */}
           <div className="flex items-center gap-2 mb-2 w-full">
-            <Link href={`/profile/${post.author.username}`} className="font-semibold text-git-text hover:text-git-blue transition-colors text-[15px]">
+            <Link href={`/profile/${post.author.username}`} className="font-semibold text-git-text hover:text-git-accent transition-colors text-[15px]">
               {post.author.username}
             </Link>
             {post.passedBadge && (
@@ -140,12 +140,12 @@ export default function PostCard({ post }: { post: PostProps }) {
                 a: ({ href, children }) => {
                     // Turn mentions into profile links if it's not a real URL
                     if (href?.startsWith('@')) {
-                        return <Link href={`/profile/${href.substring(1)}`} className="text-git-blue hover:underline">{children}</Link>;
+                        return <Link href={`/profile/${href.substring(1)}`} className="text-git-accent hover:underline">{children}</Link>;
                     }
                     if (href?.startsWith('#')) {
-                        return <Link href={`/explore/tags/${href.substring(1)}`} className="text-git-blue hover:underline">{children}</Link>;
+                        return <Link href={`/explore/tags/${href.substring(1)}`} className="text-git-accent hover:underline">{children}</Link>;
                     }
-                    return <a href={href} className="text-git-blue hover:underline" target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{children}</a>;
+                    return <a href={href} className="text-git-accent hover:underline" target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{children}</a>;
                 },
                 p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>
             }}
@@ -189,10 +189,10 @@ export default function PostCard({ post }: { post: PostProps }) {
         <div className="flex items-center gap-6 mt-1 w-full relative">
           <button 
             onClick={() => setShowComments(!showComments)}
-            className={`flex items-center gap-1.5 text-git-muted hover:text-git-blue transition-colors group ${showComments ? 'text-git-blue' : ''}`}
+            className={`flex items-center gap-1.5 text-git-muted hover:text-git-accent transition-colors group ${showComments ? 'text-git-accent' : ''}`}
             title="Comments"
           >
-            <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" className="fill-current group-hover:bg-git-blue/10 rounded pb-0.5 px-0.5">
+            <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" className="fill-current group-hover:bg-git-accent/10 rounded pb-0.5 px-0.5">
               <path d="M1.75 1.5a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25H1.75ZM0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25v-9.5Z"></path>
             </svg>
             <span className="text-xs">{post.comments > 0 ? post.comments : ''}</span>
@@ -211,19 +211,19 @@ export default function PostCard({ post }: { post: PostProps }) {
                     navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
                     // Optional toast here
                 }}
-                className="flex items-center gap-1.5 text-git-muted hover:text-git-blue transition-colors group"
+                className="flex items-center gap-1.5 text-git-muted hover:text-git-accent transition-colors group"
                 title="Share link"
             >
-                <svg aria-hidden="true" height="16" viewBox="0 0 16 16" width="16" className="fill-current group-hover:bg-git-blue/10 rounded pb-0.5 px-0.5">
+                <svg aria-hidden="true" height="16" viewBox="0 0 16 16" width="16" className="fill-current group-hover:bg-git-accent/10 rounded pb-0.5 px-0.5">
                     <path d="M10.75 1a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V2.56L6.53 6.03a1.75 1.75 0 1 0 2.47 2.47l3.47-3.47v.72a.75.75 0 0 1 1.5 0v3.5a.75.75 0 0 1-1.5 0v-1.5l-3.47 3.47a3.25 3.25 0 1 1-4.6-4.6l3.47-3.47v-.72a.75.75 0 0 1 1.5 0v1.5l-3.47 3.47a1.75 1.75 0 1 0 2.47 2.47l3.47-3.47v.72a.75.75 0 0 1 1.5 0v-1.5Z"></path>
                     <path d="M11 2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0V3.707l-3.146 3.147a.5.5 0 0 1-.708-.708L13.293 3H11.5a.5.5 0 0 1-.5-.5Z"></path>
                 </svg>
             </button>
             <button
-                className="flex items-center gap-1.5 text-git-muted hover:text-git-blue transition-colors group"
+                className="flex items-center gap-1.5 text-git-muted hover:text-git-accent transition-colors group"
                 title="Bookmark"
             >
-                <svg aria-hidden="true" height="16" viewBox="0 0 16 16" width="16" className="fill-current group-hover:bg-git-blue/10 rounded pb-0.5 px-0.5">
+                <svg aria-hidden="true" height="16" viewBox="0 0 16 16" width="16" className="fill-current group-hover:bg-git-accent/10 rounded pb-0.5 px-0.5">
                     <path d="M3 2.75C3 1.784 3.784 1 4.75 1h6.5c.966 0 1.75.784 1.75 1.75v11.5a.75.75 0 0 1-1.227.579L8 11.722l-3.773 3.107A.751.751 0 0 1 3 14.25Z"></path>
                 </svg>
             </button>

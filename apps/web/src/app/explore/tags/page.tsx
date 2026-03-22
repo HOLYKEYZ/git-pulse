@@ -49,19 +49,19 @@ export default async function TagsPage() {
                             <Link 
                                 key={tag} 
                                 href={`/explore/tags/${tag.replace('#', '')}`}
-                                className="flex items-center justify-between p-4 bg-git-bg border border-git-border hover:border-git-blue rounded-xl transition-all hover:shadow-[0_0_10px_rgba(88,166,255,0.1)] group"
+                                className="flex items-center justify-between p-4 bg-git-bg border border-git-border hover:border-git-accent rounded-xl transition-all hover:shadow-[0_0_10px_rgba(88,166,255,0.1)] group"
                             >
                                 <div className="flex flex-col min-w-0">
-                                    <span className="text-sm font-semibold text-git-text group-hover:text-git-blue transition-colors truncate">
+                                    <span className="text-sm font-semibold text-git-text group-hover:text-git-accent transition-colors truncate">
                                         {tag.startsWith('#') ? tag : `#${tag}`}
                                     </span>
                                     {index < 3 && (
-                                        <span className="text-[10px] text-git-blue font-bold uppercase tracking-wider mt-1">
+                                        <span className="text-[10px] text-git-accent font-bold uppercase tracking-wider mt-1">
                                             Trending
                                         </span>
                                     )}
                                 </div>
-                                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-git-card border border-git-border text-xs font-mono text-git-muted group-hover:bg-git-blue/10 group-hover:border-git-blue/30 group-hover:text-git-blue transition-colors">
+                                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-git-card border border-git-border text-xs font-mono text-git-muted group-hover:bg-git-accent/10 group-hover:border-git-accent/30 group-hover:text-git-accent transition-colors">
                                     {count}
                                 </div>
                             </Link>

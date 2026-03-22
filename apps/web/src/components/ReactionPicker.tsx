@@ -54,7 +54,7 @@ export default function ReactionPicker({ postId, onReact, currentReactions = [] 
                             onClick={() => onReact(r.emoji)}
                             className={`flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] transition-colors ${
                                 r.hasReacted 
-                                    ? 'bg-git-blue/10 border-git-blue/30 text-git-blue' 
+                                    ? 'bg-git-accent/10 border-git-accent/30 text-git-accent' 
                                     : 'bg-git-bg border-git-border text-git-muted hover:border-git-muted'
                             }`}
                         >

@@ -112,16 +112,16 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                         </svg>
                         <Link
                             href={`/profile/${username}/followers`}
-                            className="hover:text-git-blue transition-colors group"
+                            className="hover:text-git-accent transition-colors group"
                         >
-                            <span className="text-git-text font-semibold group-hover:text-git-blue">{ghUser.followers.toLocaleString()}</span> followers
+                            <span className="text-git-text font-semibold group-hover:text-git-accent">{ghUser.followers.toLocaleString()}</span> followers
                         </Link>
                         <span>·</span>
                         <Link
                             href={`/profile/${username}/following`}
-                            className="hover:text-git-blue transition-colors group"
+                            className="hover:text-git-accent transition-colors group"
                         >
-                            <span className="text-git-text font-semibold group-hover:text-git-blue">{ghUser.following.toLocaleString()}</span> following
+                            <span className="text-git-text font-semibold group-hover:text-git-accent">{ghUser.following.toLocaleString()}</span> following
                         </Link>
                     </div>
 
@@ -140,13 +140,13 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                             </span>
                         )}
                         {ghUser.blog && (
-                            <a href={ghUser.blog.startsWith("http") ? ghUser.blog : `https://${ghUser.blog}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-git-blue hover:underline">
+                            <a href={ghUser.blog.startsWith("http") ? ghUser.blog : `https://${ghUser.blog}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-git-accent hover:underline">
                                 <svg height="16" viewBox="0 0 16 16" width="16" className="fill-current text-git-muted"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"/></svg>
                                 <span className="truncate">{ghUser.blog}</span>
                             </a>
                         )}
                         {ghUser.twitter_username && (
-                            <a href={`https://x.com/${ghUser.twitter_username}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-git-blue hover:underline">
+                            <a href={`https://x.com/${ghUser.twitter_username}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-git-accent hover:underline">
                                 <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" className="text-git-muted"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.008 5.96H5.078z"></path></svg>
                                 @{ghUser.twitter_username}
                             </a>
@@ -213,7 +213,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                     <div className="flex justify-start mt-4">
                         <Link
                             href={`/profile/${username}/repos`}
-                            className="text-xs text-git-blue hover:underline"
+                            className="text-xs text-git-accent hover:underline"
                         >
                             View all repositories →
                         </Link>

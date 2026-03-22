@@ -40,7 +40,7 @@ export default function ContributionActivity({ activity }: ContributionActivityP
                                         <ul className="flex flex-col gap-1.5">
                                             {month.commitRepos.slice(0, 5).map((repo) => (
                                                 <li key={repo.name} className="flex items-center justify-between text-[13px]">
-                                                    <Link href={`https://github.com/${repo.name}`} target="_blank" rel="noopener noreferrer" className="text-git-blue font-semibold hover:underline truncate mr-2">
+                                                    <Link href={`https://github.com/${repo.name}`} target="_blank" rel="noopener noreferrer" className="text-git-accent font-semibold hover:underline truncate mr-2">
                                                         {repo.name}
                                                     </Link>
                                                     <span className="text-git-muted shrink-0 text-xs">
@@ -103,7 +103,7 @@ export default function ContributionActivity({ activity }: ContributionActivityP
                                                     href={`https://github.com/${repo}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="block text-xs text-git-blue hover:underline"
+                                                    className="block text-xs text-git-accent hover:underline"
                                                 >
                                                     {repo}
                                                 </Link>

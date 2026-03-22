@@ -119,28 +119,33 @@ async function fetchWithAuth(endpoint: string, token: string) {
     const cacheKey = `rest:${token.slice(-10)}:${endpoint}`;
     
     return withCache(cacheKey, async () => {
-        const res = await fetch(`${GITHUB_API_URL}${endpoint}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Accept: "application/vnd.github.v3+json",
-            },
-            next: { revalidate: 60 },
-        });
+        try {
+            const res = await fetch(`${GITHUB_API_URL}${endpoint}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/vnd.github.v3+json",
+                },
+                next: { revalidate: 60 },
+            });
 
-        if (!res.ok) {
-            if (res.status === 403 || res.status === 429) {
-                console.error(`GitHub API Rate Limited on ${endpoint}. Rate limit info:`, {
-                    limit: res.headers.get('x-ratelimit-limit'),
-                    remaining: res.headers.get('x-ratelimit-remaining'),
-                    reset: res.headers.get('x-ratelimit-reset')
-                });
-            } else {
-                console.error(`GitHub REST error [${res.status}]: ${res.statusText} for ${endpoint}`);
+            if (!res.ok) {
+                if (res.status === 403 || res.status === 429) {
+                    console.error(`GitHub API Rate Limited on ${endpoint}. Rate limit info:`, {
+                        limit: res.headers.get('x-ratelimit-limit'),
+                        remaining: res.headers.get('x-ratelimit-remaining'),
+                        reset: res.headers.get('x-ratelimit-reset')
+                    });
+                } else {
+                    console.error(`GitHub REST error [${res.status}]: ${res.statusText} for ${endpoint}`);
+                }
+                return null;
             }
+
+            return await res.json();
+        } catch (error) {
+            console.error(`[fetchWithAuth] Network/Fetch error for ${endpoint}:`, error);
             return null;
         }
-
-        return res.json();
     });
 }
 
@@ -149,39 +154,44 @@ async function fetchGraphQL(query: string, variables: Record<string, unknown>, t
     const cacheKey = `gql:${token.slice(-10)}:${query.slice(0, 150).replace(/\s+/g, '')}:${JSON.stringify(variables)}`;
     
     return withCache(cacheKey, async () => {
-        const res = await fetch(GITHUB_GRAPHQL_URL, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ query, variables }),
-            next: { revalidate: 120 },
-        });
+        try {
+            const res = await fetch(GITHUB_GRAPHQL_URL, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ query, variables }),
+                next: { revalidate: 120 },
+            });
 
-        if (!res.ok) {
-            const body = await res.text().catch(() => "");
-            console.error(`[GraphQL] HTTP ${res.status}: ${res.statusText}. Token ending: ...${token.slice(-6)}. Body: ${body.slice(0, 300)}`);
-            return null;
-        }
-
-        const json = await res.json();
-        
-        // Debug logging for pinned repos query
-        if (query.includes("pinnedItems")) {
-            console.log(`[GraphQL Pinned Repos for ${variables?.username}] Response:`, JSON.stringify(json, null, 2));
-        }
-
-        if (json.errors) {
-            console.error("[GraphQL] Errors:", JSON.stringify(json.errors, null, 2));
-            // Return data even if there are some errors (partial responses)
-            if (json.data) {
-                return json.data;
+            if (!res.ok) {
+                const body = await res.text().catch(() => "");
+                console.error(`[GraphQL] HTTP ${res.status}: ${res.statusText}. Token ending: ...${token.slice(-6)}. Body: ${body.slice(0, 300)}`);
+                return null;
             }
+
+            const json = await res.json();
+            
+            // Debug logging for pinned repos query
+            if (query.includes("pinnedItems")) {
+                console.log(`[GraphQL Pinned Repos for ${variables?.username}] Response:`, JSON.stringify(json, null, 2));
+            }
+
+            if (json.errors) {
+                console.error("[GraphQL] Errors:", JSON.stringify(json.errors, null, 2));
+                // Return data even if there are some errors (partial responses)
+                if (json.data) {
+                    return json.data;
+                }
+                return null;
+            }
+
+            return json.data;
+        } catch (error) {
+            console.error(`[fetchGraphQL] Network/Fetch error:`, error);
             return null;
         }
-
-        return json.data;
     });
 }
 

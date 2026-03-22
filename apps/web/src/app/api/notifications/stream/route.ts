@@ -21,11 +21,17 @@ export async function GET(req: Request) {
     const stream = new ReadableStream({
         async start(controller) {
             const sendCount = async () => {
-                const unreadCount = await prisma.notification.count({
-                    where: { userId, read: false },
-                });
-                const data = `data: ${JSON.stringify({ unreadCount })}\n\n`;
-                controller.enqueue(new TextEncoder().encode(data));
+                try {
+                    const unreadCount = await prisma.notification.count({
+                        where: { userId, read: false },
+                    });
+                    const data = `data: ${JSON.stringify({ unreadCount })}\n\n`;
+                    controller.enqueue(new TextEncoder().encode(data));
+                } catch (error) {
+                    console.error("[SSE] Error sending notification count:", error);
+                    clearInterval(interval);
+                    try { controller.close(); } catch {}
+                }
             };
 
             // Send initial count immediately

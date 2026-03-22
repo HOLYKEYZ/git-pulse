@@ -19,7 +19,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
                 // Upsert user in DB on every login - only runs on Server
                 try {
-                    await prisma.user.upsert({
+                    const user = await prisma.user.upsert({
                         where: { githubId: account.providerAccountId },
                         update: {
                             username: (profile as any).login,
@@ -37,6 +37,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                             bio: (profile as any).bio ?? null,
                         },
                     });
+                    token.dbId = user.id;
                 } catch (error) {
                     console.error("❌ [Auth] Failed to upsert user:", error);
                 }

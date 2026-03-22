@@ -25,6 +25,8 @@ export const authConfig = {
                 session.user.githubId = token.githubId as string;
                 // @ts-ignore
                 session.user.login = token.login as string;
+                // @ts-ignore
+                session.user.id = token.dbId as string;
             }
             return session;
         },

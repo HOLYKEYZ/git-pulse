@@ -138,6 +138,11 @@ body {
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
+.markdown-body img {
+  display: inline-block;
+  max-width: 100%;
+}
+
 .markdown-body pre {
   padding: 16px;
   overflow: auto;

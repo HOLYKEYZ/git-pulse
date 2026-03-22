@@ -15,7 +15,6 @@ import ContributionHeatmap from "@/components/ContributionHeatmap";
 import ContributionActivity from "@/components/ContributionActivity";
 import ProfileReadme from "@/components/ProfileReadme";
 import PinnedRepos from "@/components/PinnedRepos";
-import Achievements from "@/components/Achievements";
 import RepoCard from "@/components/RepoCard";
 import FollowButton from "@/components/FollowButton";
 import ProfileTabs from "@/components/ProfileTabs";
@@ -154,8 +153,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                     </div>
 
                     <div className="border-t border-git-border border-solid mt-4 pt-4 text-xs text-git-muted flex flex-col gap-4">
-                        {/* ── Achievements & Organizations ───────────────────────── */}
-                        {userStats && <Achievements stats={userStats} />}
+                        {/* Organizations will go here if needed */}
                     </div>
                 </div>
 

@@ -9,17 +9,18 @@ const config: Config = {
     theme: {
         extend: {
             colors: {
-                background: "var(--background)",
-                foreground: "var(--foreground)",
+                background: "var(--bg)",
+                foreground: "var(--text)",
                 git: {
-                    bg: "#000000", /* Pure black X background */
-                    card: "#0d1117", /* GitHub dark gray for cards */
-                    border: "#2f3336", /* Sleek X hairline border */
-                    green: "#238636",
-                    blue: "#1d9bf0", /* X vibrant blue */
-                    text: "#e7e9ea", /* X crisp white */
-                    muted: "#71767b", /* X perfect gray */
-                    notification: "#D29922",
+                    bg: "var(--bg)",
+                    card: "var(--card)",
+                    border: "var(--border)",
+                    green: "var(--green)",
+                    blue: "var(--accent)",
+                    text: "var(--text)",
+                    muted: "var(--muted)",
+                    notification: "var(--notification)",
+                    hover: "var(--hover)",
                     contribution: {
                         0: "#161B22",
                         1: "#0e4429",
@@ -31,6 +32,7 @@ const config: Config = {
             },
             fontFamily: {
                 sans: [
+                    "Inter",
                     "-apple-system",
                     "BlinkMacSystemFont",
                     "Segoe UI",

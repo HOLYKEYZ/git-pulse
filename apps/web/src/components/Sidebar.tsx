@@ -26,7 +26,7 @@ export default async function Sidebar() {
                 {/* Nav Links */}
                 <div className="flex flex-col gap-1 w-full mt-2">
                     <Link href="/" className="group flex items-center w-fit">
-                        <div className="flex items-center gap-5 px-4 py-3 rounded-full hover:bg-[#181818] transition-colors">
+                        <div className="flex items-center gap-5 px-4 py-3 rounded-full hover:bg-git-hover transition-colors">
                             <svg height="26" viewBox="0 0 16 16" width="26" className="fill-current"><path d="M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z"/></svg>
                             <span className="text-xl font-medium text-git-text">Home</span>
                         </div>
@@ -40,7 +40,7 @@ export default async function Sidebar() {
                     
                     {session?.user?.login && (
                         <Link href={`/profile/${session.user.login}`} className="group flex items-center w-fit">
-                            <div className="flex items-center gap-5 px-4 py-3 rounded-full hover:bg-[#181818] transition-colors">
+                            <div className="flex items-center gap-5 px-4 py-3 rounded-full hover:bg-git-hover transition-colors">
                                 <svg height="26" viewBox="0 0 16 16" width="26" className="fill-current"><path d="M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z"/></svg>
                                 <span className="text-xl font-medium text-git-text">Profile</span>
                             </div>
@@ -49,7 +49,7 @@ export default async function Sidebar() {
                     
                     {session?.user && (
                         <Link href="/settings" className="group flex items-center w-fit">
-                            <div className="flex items-center gap-5 px-4 py-3 rounded-full hover:bg-[#181818] transition-colors">
+                            <div className="flex items-center gap-5 px-4 py-3 rounded-full hover:bg-git-hover transition-colors">
                                 <svg height="26" viewBox="0 0 16 16" width="26" className="fill-current"><path d="M8 0a8.2 8.2 0 0 1 .701.031C9.444.095 9.99.645 10.16 1.29l.288 1.107c.018.066.079.158.212.224.231.114.454.243.668.386.123.082.233.09.299.071l1.103-.303c.644-.176 1.392.021 1.82.63.27.386.506.798.704 1.23.315.69.1 1.457-.468 1.878l-.856.614a.254.254 0 0 0-.068.296 6.3 6.3 0 0 1 0 1.146.254.254 0 0 0 .068.296l.856.614c.568.42.783 1.188.468 1.878a8.28 8.28 0 0 1-.704 1.23c-.428.609-1.176.806-1.82.63l-1.103-.303c-.066-.019-.176-.011-.299.071a5.973 5.973 0 0 1-.668.386c-.133.066-.194.158-.212.224l-.288 1.107c-.17.645-.667 1.186-1.46 1.259a8.09 8.09 0 0 1-1.402 0c-.793-.073-1.29-.614-1.46-1.259l-.288-1.107a.254.254 0 0 0-.212-.224 5.975 5.975 0 0 1-.668-.386c-.123-.082-.233-.09-.299-.071l-1.103.303c-.644.176-1.392-.021-1.82-.63a8.279 8.279 0 0 1-.704-1.23c-.315-.69-.1-1.457.468-1.878l.856-.614a.254.254 0 0 0 .068-.296 6.3 6.3 0 0 1 0-1.146.254.254 0 0 0-.068-.296l-.856-.614c-.568-.42-.783-1.188-.468-1.878.198-.432.434-.844.704-1.23.428-.609 1.176-.806 1.82-.63l1.103.303c.066.019.176.011.299-.071.214-.143.437-.272.668-.386a.254.254 0 0 0 .212-.224l.288-1.107C5.56.645 6.107.095 6.9.031 7.243.01 7.622 0 8 0ZM5.5 8a2.5 2.5 0 1 0 5 0 2.5 2.5 0 0 0-5 0Z"/></svg>
                                 <span className="text-xl font-medium text-git-text">Settings</span>
                             </div>
@@ -59,7 +59,7 @@ export default async function Sidebar() {
                     {/* Big Action Post Button */}
                     {session?.user && (
                         <div className="mt-4 px-2 w-[85%]">
-                            <button className="w-full bg-[#1d9bf0] hover:bg-[#1a8cd8] text-white rounded-full py-3.5 px-6 font-bold text-lg shadow-sm transition-colors">
+                            <button className="w-full bg-git-blue hover:opacity-90 text-white rounded-full py-3.5 px-6 font-bold text-lg shadow-sm transition-colors">
                                 Post
                             </button>
                         </div>
@@ -69,7 +69,7 @@ export default async function Sidebar() {
                 {/* User Card Pill (X Style) */}
                 {session?.user && (
                     <div className="mt-auto mb-2 relative group w-full pr-4">
-                        <div className="flex items-center justify-between p-3 rounded-full hover:bg-[#181818] transition-colors cursor-pointer w-full mx-2">
+                        <div className="flex items-center justify-between p-3 rounded-full hover:bg-git-hover transition-colors cursor-pointer w-full mx-2">
                             <div className="flex items-center gap-3 overflow-hidden">
                                 {session.user.image ? (
                                     <Image
@@ -102,7 +102,7 @@ export default async function Sidebar() {
                                 "use server";
                                 await signOut({ redirectTo: "/login" });
                             }}>
-                                <button type="submit" className="w-[85%] mx-auto block bg-[#000000] border border-git-border shadow-[0_0_15px_rgba(255,255,255,0.1)] rounded-2xl px-4 py-3 text-left text-[15px] font-bold text-git-text hover:bg-[#16181c] transition-colors">
+                                <button type="submit" className="w-[85%] mx-auto block bg-git-bg border border-git-border shadow-[0_0_15px_rgba(255,255,255,0.1)] rounded-2xl px-4 py-3 text-left text-[15px] font-bold text-git-text hover:bg-git-card transition-colors">
                                     Log out @{session.user.login}
                                 </button>
                             </form>

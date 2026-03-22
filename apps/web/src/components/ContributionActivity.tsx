@@ -12,8 +12,8 @@ export default function ContributionActivity({ activity }: ContributionActivityP
     if (!activity || activity.length === 0) return null;
 
     return (
-        <div className="w-full rounded-xl border border-git-border bg-git-card overflow-hidden animate-fade-in">
-            <div className="px-4 py-3 border-b border-git-border bg-[#161b22]">
+        <div className="w-full rounded-xl border border-git-border bg-git-bg overflow-hidden animate-fade-in">
+            <div className="px-4 py-3 border-b border-git-border bg-git-card">
                 <h2 className="text-sm font-semibold text-git-text">Contribution activity</h2>
             </div>
 

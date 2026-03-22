@@ -31,7 +31,7 @@ export default async function RightSidebar() {
             <div className="sticky top-0 pt-3 flex flex-col gap-4">
 
                 {/* Trending Repos — REAL DATA */}
-                <div className="rounded-2xl border border-[#2f3336] bg-[#16181c] overflow-hidden">
+                <div className="rounded-2xl border border-git-border bg-git-card overflow-hidden">
                     <h3 className="font-bold text-xl text-git-text px-4 pt-3 pb-2">
                         Trending
                     </h3>
@@ -53,7 +53,7 @@ export default async function RightSidebar() {
                                 <div className="flex items-center gap-3 text-[13px] text-git-muted">
                                     {repo.language && (
                                         <span className="flex items-center gap-1">
-                                            <span className="w-3 h-3 rounded-full bg-[#1d9bf0]" />
+                                            <span className="w-3 h-3 rounded-full bg-git-blue" />
                                             {repo.language}
                                         </span>
                                     )}
@@ -70,7 +70,7 @@ export default async function RightSidebar() {
                 {session?.user && <CollabWidget />}
 
                 {/* Who to ship with */}
-                <div className="rounded-2xl border border-[#2f3336] bg-[#16181c] overflow-hidden">
+                <div className="rounded-2xl border border-git-border bg-git-card overflow-hidden">
                     <h3 className="font-bold text-xl text-git-text px-4 pt-3 pb-2">Who to follow</h3>
                     <div>
                         {suggestedUsers.length > 0 ? (

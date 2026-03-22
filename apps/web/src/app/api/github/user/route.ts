@@ -1,0 +1,88 @@
+import { auth } from "@/lib/auth";
+import { NextResponse } from "next/server";
+
+// get current user's github profile data
+export async function GET() {
+    const session = await auth();
+    if (!session?.user?.accessToken) {
+        return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    }
+
+    try {
+        const res = await fetch("https://api.github.com/user", {
+            headers: {
+                Authorization: `Bearer ${session.user.accessToken}`,
+                Accept: "application/vnd.github+json",
+            },
+        });
+
+        if (!res.ok) {
+            return NextResponse.json({ error: "failed to fetch profile" }, { status: res.status });
+        }
+
+        const data = await res.json();
+        return NextResponse.json({
+            name: data.name,
+            bio: data.bio,
+            blog: data.blog,
+            twitter_username: data.twitter_username,
+            location: data.location,
+            company: data.company,
+            avatar_url: data.avatar_url,
+            login: data.login,
+        });
+    } catch {
+        return NextResponse.json({ error: "failed to fetch profile" }, { status: 500 });
+    }
+}
+
+// update current user's github profile
+export async function PATCH(request: Request) {
+    const session = await auth();
+    if (!session?.user?.accessToken) {
+        return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    }
+
+    try {
+        const body = await request.json();
+
+        // only allow safe fields
+        const allowed = ["name", "bio", "blog", "twitter_username", "location", "company"];
+        const payload: Record<string, string> = {};
+        for (const key of allowed) {
+            if (key in body) {
+                payload[key] = body[key] ?? "";
+            }
+        }
+
+        const res = await fetch("https://api.github.com/user", {
+            method: "PATCH",
+            headers: {
+                Authorization: `Bearer ${session.user.accessToken}`,
+                Accept: "application/vnd.github+json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            return NextResponse.json(
+                { error: err.message || "failed to update profile" },
+                { status: res.status }
+            );
+        }
+
+        const data = await res.json();
+        return NextResponse.json({
+            name: data.name,
+            bio: data.bio,
+            blog: data.blog,
+            twitter_username: data.twitter_username,
+            location: data.location,
+            company: data.company,
+        });
+    } catch {
+        return NextResponse.json({ error: "failed to update profile" }, { status: 500 });
+    }
+}

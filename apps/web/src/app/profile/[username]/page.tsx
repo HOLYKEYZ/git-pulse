@@ -72,12 +72,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                 {/* ── Left Sidebar (User Info - 260px sleek) ──────────────── */}
                 <div className="w-full md:w-[260px] shrink-0 flex flex-col gap-5 md:sticky md:top-8 md:self-start">
                     <div className="relative group mx-auto md:mx-0 w-48 h-48 md:w-56 md:h-56">
-                        <div className="absolute -inset-1.5 rounded-full bg-gradient-to-tr from-[#3fb950] to-[#a371f7] blur-xl opacity-20 animate-pulse transition-opacity duration-500"></div>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                             src={ghUser.avatar_url}
                             alt={ghUser.login}
-                            className="relative w-full h-full rounded-full border-2 border-[#1f2328] shadow-[0_8px_32px_rgba(0,0,0,0.6)] object-cover bg-[#0d1117] transition-transform duration-500 group-hover:scale-[1.03]"
+                            className="relative w-full h-full rounded-full border border-git-border shadow-sm object-cover bg-git-card"
                         />
                     </div>
 
@@ -97,9 +96,12 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                         {!isOwnProfile ? (
                             <FollowButton targetUsername={username} initialIsFollowing={initialIsFollowing} className="w-full shadow-sm hover:shadow-md transition-shadow" />
                         ) : (
-                            <div className="w-full py-1.5 bg-[#21262d] border border-git-border/80 rounded-md text-center text-sm font-semibold text-[#c9d1d9] hover:bg-[#30363d] hover:border-[#8b949e] hover:text-white transition-all duration-200 shadow-sm cursor-pointer ring-1 ring-inset ring-white/5">
+                            <Link
+                                href={`/profile/${username}/edit`}
+                                className="w-full py-1.5 bg-git-card border border-git-border rounded-md text-center text-sm font-semibold text-git-text hover:bg-git-hover transition-all duration-200 block"
+                            >
                                 Edit profile
-                            </div>
+                            </Link>
                         )}
                     </div>
 

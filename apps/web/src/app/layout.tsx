@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import Sidebar from "@/components/Sidebar";
 import BottomNav from "@/components/BottomNav";
+import ThemeProvider from "@/components/ThemeProvider";
 import { SidebarSkeleton } from "@/components/Skeletons";
 import "./globals.css";
 
@@ -57,26 +58,28 @@ export default async function RootLayout({
     const session = await auth();
 
     return (
-        <html lang="en">
-            <body className={`${inter.variable} antialiased min-h-screen bg-black text-[#e7e9ea] overflow-x-hidden font-sans`}>
-                <div className="mx-auto w-full max-w-[1300px] pb-20 lg:pb-0">
-                    <div className="flex justify-center">
+        <html lang="en" data-theme="github">
+            <body className={`${inter.variable} antialiased min-h-screen bg-git-bg text-git-text overflow-x-hidden font-sans`}>
+                <ThemeProvider>
+                    <div className="mx-auto w-full max-w-[1300px] pb-20 lg:pb-0">
+                        <div className="flex justify-center">
+                            {/* left nav — async, wrapped in suspense */}
+                            <Suspense fallback={<div className="hidden w-[275px] shrink-0 xl:block"><SidebarSkeleton /></div>}>
+                                <Sidebar />
+                            </Suspense>
 
-                        {/* Left Nav — async, wrapped in Suspense */}
-                        <Suspense fallback={<div className="hidden w-[275px] shrink-0 xl:block"><SidebarSkeleton /></div>}>
-                            <Sidebar />
-                        </Suspense>
-
-                        {/* Main Content Area — Pages dictate their own width and right sidebars */}
-                        <main className="flex-1 min-w-0 border-x border-[#2f3336]">
-                            {children}
-                        </main>
+                            {/* main content area — pages dictate their own width and right sidebars */}
+                            <main className="flex-1 min-w-0 border-x border-git-border">
+                                {children}
+                            </main>
+                        </div>
                     </div>
-                </div>
 
-                {/* Mobile Bottom Navigation */}
-                <BottomNav username={session?.user?.login} />
+                    {/* mobile bottom navigation */}
+                    <BottomNav username={session?.user?.login} />
+                </ThemeProvider>
             </body>
         </html>
     );
 }
+

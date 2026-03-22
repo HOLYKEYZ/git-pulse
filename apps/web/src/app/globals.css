@@ -4,14 +4,40 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #000000;
-  --foreground: #e7e9ea;
+/* ─── Theme: GitHub Dark (default) ─────────────────────────────────────── */
+:root,
+[data-theme="github"] {
+  --bg: #0d1117;
+  --card: #161b22;
+  --border: #30363d;
+  --accent: #1f6feb;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --green: #238636;
+  --notification: #d29922;
+  --hover: #161b22;
+  --scrollbar-track: #0d1117;
+  --scrollbar-thumb: #30363d;
+}
+
+/* ─── Theme: Midnight (X-dark) ─────────────────────────────────────────── */
+[data-theme="midnight"] {
+  --bg: #000000;
+  --card: #16181c;
+  --border: #2f3336;
+  --accent: #1d9bf0;
+  --text: #e7e9ea;
+  --muted: #71767b;
+  --green: #00ba7c;
+  --notification: #f7c948;
+  --hover: #181818;
+  --scrollbar-track: #000000;
+  --scrollbar-thumb: #2f3336;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: var(--text);
+  background: var(--bg);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -20,17 +46,17 @@ body {
 
 /* ─── Scrollbar ─────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 14px; }
-::-webkit-scrollbar-track { background: #0d1117; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
 ::-webkit-scrollbar-thumb {
-  background-color: #30363d;
+  background-color: var(--scrollbar-thumb);
   border-radius: 10px;
-  border: 4px solid #0d1117;
+  border: 4px solid var(--scrollbar-track);
 }
-::-webkit-scrollbar-thumb:hover { background-color: #8b949e; }
+::-webkit-scrollbar-thumb:hover { background-color: var(--muted); }
 
 ::selection {
   background: rgba(56, 139, 253, 0.3);
-  color: #e6edf3;
+  color: var(--text);
 }
 
 /* ─── Animations ────────────────────────────────────────────────────────── */
@@ -61,7 +87,7 @@ body {
   animation: pulseGlow 2s ease-in-out infinite;
 }
 
-/* Stagger children for lists */
+/* stagger children for lists */
 .stagger-children > * {
   animation: fadeIn 0.3s ease-out both;
 }
@@ -74,7 +100,7 @@ body {
 
 /* ─── GitHub-Style Markdown ─────────────────────────────────────────────── */
 .markdown-body {
-  color: #e6edf3;
+  color: var(--text);
   font-size: 14px;
   line-height: 1.6;
   word-wrap: break-word;
@@ -83,7 +109,7 @@ body {
 .markdown-body h1,
 .markdown-body h2 {
   padding-bottom: 0.3em;
-  border-bottom: 1px solid #30363d;
+  border-bottom: 1px solid var(--border);
   margin-top: 1.5em;
   margin-bottom: 0.75em;
 }
@@ -117,9 +143,9 @@ body {
   overflow: auto;
   font-size: 85%;
   line-height: 1.45;
-  background-color: #161b22;
+  background-color: var(--card);
   border-radius: 6px;
-  border: 1px solid #30363d;
+  border: 1px solid var(--border);
   margin: 0.75em 0;
 }
 
@@ -137,8 +163,8 @@ body {
 
 .markdown-body blockquote {
   padding: 0 1em;
-  color: #8b949e;
-  border-left: 3px solid #30363d;
+  color: var(--muted);
+  border-left: 3px solid var(--border);
   margin: 0.5em 0;
 }
 
@@ -156,7 +182,7 @@ body {
   height: auto;
 }
 
-/* GitHub-style alignment attributes */
+/* github-style alignment attributes */
 .markdown-body [align="center"] {
   text-align: center;
   display: block;
@@ -167,7 +193,7 @@ body {
   text-align: right;
 }
 
-/* Handle <picture> and <source> elements */
+/* handle <picture> and <source> elements */
 .markdown-body picture {
   display: block;
 }
@@ -175,7 +201,7 @@ body {
   display: inline-block;
 }
 
-/* Contain wide content (stats cards, badges) */
+/* contain wide content (stats cards, badges) */
 .markdown-body p {
   overflow-wrap: break-word;
 }
@@ -193,20 +219,20 @@ body {
 .markdown-body table th,
 .markdown-body table td {
   padding: 6px 13px;
-  border: 1px solid #30363d;
+  border: 1px solid var(--border);
 }
 
 .markdown-body table th {
   font-weight: 600;
-  background: #161b22;
+  background: var(--card);
 }
 
 .markdown-body table tr:nth-child(2n) {
-  background-color: #161b22;
+  background-color: var(--card);
 }
 
 .markdown-body hr {
   border: 0;
-  border-top: 1px solid #21262d;
+  border-top: 1px solid var(--border);
   margin: 1.5em 0;
 }

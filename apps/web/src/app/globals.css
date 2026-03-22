@@ -140,7 +140,9 @@ body {
 
 .markdown-body img {
   display: inline-block;
-  max-width: 100%;
+  max-width: 100% !important;
+  height: auto !important;
+  object-fit: contain;
 }
 
 .markdown-body pre {

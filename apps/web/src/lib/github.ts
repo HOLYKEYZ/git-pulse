@@ -260,9 +260,9 @@ export async function getGitHubReadme(username: string, token: string): Promise<
  * Search trending repos (recently created, high stars)
  */
 export async function getGitHubTrendingRepos(token: string, limit = 5): Promise<GitHubRepo[]> {
-    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split("T")[0];
     const repos = await fetchWithAuth(
-        `/search/repositories?q=created:>${oneWeekAgo}&sort=stars&order=desc&per_page=${limit}`,
+        `/search/repositories?q=created:>${oneDayAgo}&sort=stars&order=desc&per_page=${limit}`,
         token
     );
     return repos?.items || [];

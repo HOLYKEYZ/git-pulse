@@ -59,7 +59,7 @@ export default function ContributionHeatmap({ weeks, totalContributions }: Contr
             
             <div className="rounded-xl border border-git-border bg-git-card p-3 sm:p-4 shadow-sm w-full max-w-full overflow-hidden">
                 {/* Scrollable Container so the graph isn't squished */}
-                <div className="overflow-x-auto pb-4 custom-scrollbar max-w-full">
+                <div className="overflow-x-auto pb-4 custom-scrollbar max-w-full touch-pan-x snap-x snap-mandatory scroll-smooth">
                 <div className="inline-flex flex-col min-w-max pt-8 px-4">
                     {/* Month labels row */}
                     <div className="relative h-[15px] mb-1 pl-6">

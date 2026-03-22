@@ -1,13 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-
-const LANGUAGE_COLORS: Record<string, string> = {
-    TypeScript: "#3178c6", JavaScript: "#f1e05a", Python: "#3572A5",
-    Rust: "#dea584", Go: "#00ADD8", Shell: "#89e051",
-    HTML: "#e34c26", CSS: "#563d7c", Java: "#b07219",
-    "C++": "#f34b7d", C: "#555555", Ruby: "#701516",
-    Kotlin: "#A97BFF", Swift: "#F05138", Dart: "#00B4AB",
-};
+import { getLanguageColor } from '@/lib/colors';
 
 interface RepoCardProps {
     name: string;
@@ -30,7 +23,7 @@ export default function RepoCard({
     lastPush,
     url,
 }: RepoCardProps) {
-    const resolvedColor = languageColor || LANGUAGE_COLORS[language] || "#8b949e";
+    const resolvedColor = languageColor || getLanguageColor(language);
 
     const CardContent = (
         <>

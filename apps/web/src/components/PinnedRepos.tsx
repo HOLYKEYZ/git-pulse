@@ -1,14 +1,6 @@
 import React from "react";
 import type { PinnedRepo } from "@/lib/github";
-
-const LANGUAGE_COLORS: Record<string, string> = {
-    TypeScript: "#3178c6", JavaScript: "#f1e05a", Python: "#3572A5",
-    Rust: "#dea584", Go: "#00ADD8", Shell: "#89e051",
-    HTML: "#e34c26", CSS: "#563d7c", Java: "#b07219",
-    "C++": "#f34b7d", C: "#555555", Ruby: "#701516",
-    Kotlin: "#A97BFF", Swift: "#F05138", Dart: "#00B4AB",
-    Lua: "#000080", Zig: "#ec915c", Haskell: "#5e5086",
-};
+import { getLanguageColor } from "@/lib/colors";
 
 interface PinnedReposProps {
     repos: PinnedRepo[];
@@ -54,7 +46,7 @@ export default function PinnedRepos({ repos }: PinnedReposProps) {
                                 <div className="flex items-center gap-1">
                                     <span
                                         className="w-2.5 h-2.5 rounded-full shrink-0"
-                                        style={{ backgroundColor: repo.primaryLanguage.color || LANGUAGE_COLORS[repo.primaryLanguage.name] || "#8b949e" }}
+                                        style={{ backgroundColor: repo.primaryLanguage.color || getLanguageColor(repo.primaryLanguage.name) }}
                                     />
                                     <span>{repo.primaryLanguage.name}</span>
                                 </div>

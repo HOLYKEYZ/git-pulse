@@ -19,17 +19,22 @@ export default async function NotificationsPage() {
         redirect("/login");
     }
 
-    const notifications = await prisma.notification.findMany({
-        where: { userId: session.user.id },
-        orderBy: { createdAt: "desc" },
-        take: 50,
-    });
+    let notifications: any[] = [];
+    try {
+        notifications = await prisma.notification.findMany({
+            where: { userId: session.user.id },
+            orderBy: { createdAt: "desc" },
+            take: 50,
+        });
 
-    // mark all unread as read on page load
-    await prisma.notification.updateMany({
-        where: { userId: session.user.id, read: false },
-        data: { read: true },
-    });
+        // mark all unread as read on page load
+        await prisma.notification.updateMany({
+            where: { userId: session.user.id, read: false },
+            data: { read: true },
+        });
+    } catch (err) {
+        console.error("[Notifications] DB Error:", err);
+    }
 
     return (
         <div className="w-full max-w-2xl mx-auto animate-fade-in">

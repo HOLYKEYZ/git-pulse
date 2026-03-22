@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react';
 
-const EMOJIS = ['👍', '🚀', '❤️', '👀', '🎉', '😕'];
-
+// Using a standard Star icon mechanics similar to X's Love icon
 interface ReactionPickerProps {
     postId: string;
     onReact: (emoji: string) => void;
@@ -11,59 +10,37 @@ interface ReactionPickerProps {
 }
 
 export default function ReactionPicker({ postId, onReact, currentReactions = [] }: ReactionPickerProps) {
-    const [isOpen, setIsOpen] = useState(false);
+    const starReaction = currentReactions.find(r => r.emoji === '⭐');
+    const isStarred = starReaction?.hasReacted || false;
+    const starCount = starReaction?.count || 0;
+    
+    // Add visual feedback
+    const [isAnimating, setIsAnimating] = useState(false);
+
+    const handleStar = () => {
+        setIsAnimating(true);
+        onReact('⭐');
+        setTimeout(() => setIsAnimating(false), 300);
+    };
 
     return (
-        <div className="relative inline-block">
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-git-muted hover:bg-git-bg hover:text-git-text border border-transparent hover:border-git-border transition-all"
-            >
-                <span>➕</span>
-                <span>React</span>
-            </button>
-
-            {isOpen && (
-                <>
-                    <div 
-                        className="fixed inset-0 z-20" 
-                        onClick={() => setIsOpen(false)} 
-                    />
-                    <div className="absolute bottom-full left-0 mb-2 z-30 flex items-center gap-1 p-1 bg-git-card border border-git-border rounded-lg shadow-xl animate-in fade-in slide-in-from-bottom-2 duration-200">
-                        {EMOJIS.map((emoji) => (
-                            <button
-                                key={emoji}
-                                onClick={() => {
-                                    onReact(emoji);
-                                    setIsOpen(false);
-                                }}
-                                className="w-8 h-8 flex items-center justify-center rounded hover:bg-git-bg transition-colors text-lg"
-                            >
-                                {emoji}
-                            </button>
-                        ))}
-                    </div>
-                </>
-            )}
-
-            {currentReactions.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                    {currentReactions.map((r) => (
-                        <button
-                            key={r.emoji}
-                            onClick={() => onReact(r.emoji)}
-                            className={`flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] transition-colors ${
-                                r.hasReacted 
-                                    ? 'bg-git-accent/10 border-git-accent/30 text-git-accent' 
-                                    : 'bg-git-bg border-git-border text-git-muted hover:border-git-muted'
-                            }`}
-                        >
-                            <span>{r.emoji}</span>
-                            <span>{r.count}</span>
-                        </button>
-                    ))}
-                </div>
-            )}
-        </div>
+        <button
+            onClick={handleStar}
+            className={`flex items-center gap-1.5 transition-colors group ${
+                isStarred ? 'text-[#e3b341]' : 'text-git-muted hover:text-[#e3b341]'
+            }`}
+            title="Star"
+        >
+            <div className={`relative flex items-center justify-center ${isAnimating ? 'scale-125 transition-transform duration-200' : 'transition-transform duration-200'}`}>
+                <svg aria-hidden="true" height="16" viewBox="0 0 16 16" width="16" className={`fill-current group-hover:bg-[#e3b341]/10 rounded pb-0.5 px-0.5 ${isStarred ? '' : 'opacity-80'}`}>
+                    {isStarred ? (
+                        <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/>
+                    ) : (
+                        <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/>
+                    )}
+                </svg>
+            </div>
+            {starCount > 0 && <span className="text-xs">{starCount}</span>}
+        </button>
     );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SearchBar from '@/components/SearchBar';
 import ComposeFeed from '@/components/ComposeFeed';
 import ShipItForm from '@/components/ShipItForm';
@@ -25,9 +25,33 @@ const TABS: { key: TabType; label: string }[] = [
 export default function FeedClient({ discoverPosts, followingPosts, activityPosts, userName, userAvatar }: FeedClientProps) {
     const [activeTab, setActiveTab] = useState<TabType>('discover');
     const [composeMode, setComposeMode] = useState<'standard' | 'ship'>('standard');
+    
+    // Live State
+    const [liveDiscover, setLiveDiscover] = useState<PostProps[]>(discoverPosts);
+
+    useEffect(() => {
+        const eventSource = new EventSource("/api/feed/stream");
+
+        eventSource.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === "NEW_POST" && data.post) {
+                    setLiveDiscover((prev) => {
+                        // Deduplicate protection
+                        if (prev.find(p => p.id === data.post.id)) return prev;
+                        return [data.post, ...prev];
+                    });
+                }
+            } catch (err) { }
+        };
+
+        return () => {
+            eventSource.close();
+        };
+    }, []);
 
     const postsMap: Record<TabType, PostProps[]> = {
-        discover: discoverPosts,
+        discover: liveDiscover,
         following: followingPosts,
         activity: activityPosts,
     };

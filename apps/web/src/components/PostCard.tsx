@@ -78,7 +78,7 @@ export default function PostCard({ post }: { post: PostProps }) {
   };
 
   return (
-    <div className="flex gap-3 px-4 py-4 border-b border-git-border hover:bg-[#161b22]/50 transition-colors">
+    <div className="flex gap-3 px-4 py-4 border-b border-[#2f3336] hover:bg-[#161b22]/50 transition-colors">
       
       {/* Left Column: Avatar & Thread Line */}
       <div className="flex flex-col items-center">
@@ -87,7 +87,7 @@ export default function PostCard({ post }: { post: PostProps }) {
           alt={post.author.username}
           width={40}
           height={40}
-          className="rounded-full border border-git-border bg-git-bg shrink-0"
+          className="rounded-full border border-[#2f3336] bg-git-bg shrink-0"
         />
         {showComments && <div className="w-[2px] h-full bg-git-border mt-2 rounded-full"></div>}
       </div>
@@ -159,7 +159,7 @@ export default function PostCard({ post }: { post: PostProps }) {
         {post.images && post.images.length > 0 && (
           <div className={`mb-3 grid gap-2 ${post.images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
             {post.images.map((img, i) => (
-              <div key={i} className="relative aspect-video w-full overflow-hidden rounded-lg border border-git-border">
+              <div key={i} className="relative aspect-video w-full overflow-hidden rounded-lg border border-[#2f3336]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={img} alt="Post attachment" className="object-cover w-full h-full" loading="lazy" />
               </div>

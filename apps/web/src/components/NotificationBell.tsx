@@ -82,13 +82,13 @@ export default function NotificationBell() {
             </button>
 
             {open && (
-                <div className="absolute left-full ml-2 top-0 w-80 max-h-96 overflow-y-auto bg-git-card border border-git-border rounded-lg shadow-xl z-50 animate-fade-in">
-                    <div className="flex items-center justify-between px-4 py-3 border-b border-git-border">
-                        <span className="text-sm font-semibold text-git-text">Notifications</span>
+                <div className="absolute left-full ml-2 top-0 w-[360px] max-h-[480px] overflow-y-auto bg-[#16181c] border border-[#2f3336] rounded-2xl shadow-[0_0_15px_rgba(255,255,255,0.1)] z-50 animate-fade-in">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-[#2f3336]">
+                        <span className="text-[15px] font-bold text-git-text">Notifications</span>
                         {unreadCount > 0 && (
                             <button
                                 onClick={markAllRead}
-                                className="text-xs text-git-blue hover:underline"
+                                className="text-[13px] text-[#1d9bf0] hover:underline"
                             >
                                 Mark all read
                             </button>
@@ -96,7 +96,7 @@ export default function NotificationBell() {
                     </div>
 
                     {notifications.length === 0 ? (
-                        <div className="px-4 py-8 text-center text-sm text-git-muted">
+                        <div className="px-4 py-12 text-center text-[15px] text-git-muted">
                             No notifications yet.
                         </div>
                     ) : (
@@ -104,23 +104,23 @@ export default function NotificationBell() {
                             {notifications.map((n) => {
                                 const inner = (
                                     <div
-                                        className={`flex items-start gap-3 px-4 py-3 hover:bg-[#161b22] transition-colors border-b border-git-border last:border-b-0 ${
-                                            !n.read ? "bg-git-blue/5" : ""
+                                        className={`flex items-start gap-3 px-4 py-3 hover:bg-white/[0.03] transition-colors border-b border-[#2f3336] last:border-b-0 ${
+                                            !n.read ? "bg-[#1d9bf0]/5" : ""
                                         }`}
                                     >
                                         <span className="text-lg shrink-0 mt-0.5">
                                             {TYPE_ICONS[n.type] || "📢"}
                                         </span>
                                         <div className="flex flex-col min-w-0">
-                                            <span className="text-sm text-git-text leading-snug">
+                                            <span className="text-[15px] text-git-text leading-snug">
                                                 {n.message}
                                             </span>
-                                            <span className="text-[11px] text-git-muted mt-0.5">
+                                            <span className="text-[13px] text-git-muted mt-0.5">
                                                 {getRelativeTime(n.createdAt)}
                                             </span>
                                         </div>
                                         {!n.read && (
-                                            <span className="w-2 h-2 rounded-full bg-git-blue shrink-0 mt-1.5 ml-auto" />
+                                            <span className="w-2 h-2 rounded-full bg-[#1d9bf0] shrink-0 mt-1.5 ml-auto" />
                                         )}
                                     </div>
                                 );
@@ -141,7 +141,7 @@ export default function NotificationBell() {
                     <Link
                         href="/notifications"
                         onClick={() => setOpen(false)}
-                        className="block text-center text-xs text-git-blue py-2 border-t border-git-border hover:underline"
+                        className="block text-center text-[13px] text-[#1d9bf0] py-3 border-t border-[#2f3336] hover:bg-white/[0.03] transition-colors rounded-b-2xl"
                     >
                         View all notifications
                     </Link>

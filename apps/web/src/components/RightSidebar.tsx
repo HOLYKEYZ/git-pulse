@@ -27,36 +27,33 @@ export default async function RightSidebar() {
     });
 
     return (
-        <aside className="hidden w-[300px] shrink-0 lg:block">
-            <div className="sticky top-6 flex flex-col gap-6">
+        <aside className="hidden w-[350px] shrink-0 lg:block">
+            <div className="sticky top-0 pt-3 flex flex-col gap-4">
 
                 {/* Trending Repos — REAL DATA */}
-                <div className="rounded-xl border border-git-border bg-git-card p-4 animate-fade-in">
-                    <h3 className="font-semibold text-git-text mb-4 flex items-center gap-2">
-                        <svg height="16" viewBox="0 0 16 16" width="16" className="fill-git-muted">
-                            <path d="M1.5 1.75V13.5h13.75a.75.75 0 0 1 0 1.5H.75a.75.75 0 0 1-.75-.75V1.75a.75.75 0 0 1 1.5 0Zm14.28 2.53-5.25 5.25a.75.75 0 0 1-1.06 0L7 7.06 4.28 9.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.25-3.25a.75.75 0 0 1 1.06 0L10 7.94l4.72-4.72a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042Z"/>
-                        </svg>
+                <div className="rounded-2xl border border-[#2f3336] bg-[#16181c] overflow-hidden">
+                    <h3 className="font-bold text-xl text-git-text px-4 pt-3 pb-2">
                         Trending
                     </h3>
-                    <div className="space-y-4 stagger-children">
+                    <div className="stagger-children">
                         {trendingRepos.length > 0 ? trendingRepos.map((repo) => (
                             <a
                                 key={repo.id}
                                 href={repo.html_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="group block"
+                                className="block px-4 py-3 hover:bg-white/[0.03] transition-colors"
                             >
-                                <div className="text-sm font-semibold text-git-text group-hover:text-git-blue transition-colors mb-1 truncate">
+                                <div className="text-[15px] font-bold text-git-text mb-0.5 truncate">
                                     {repo.full_name}
                                 </div>
                                 {repo.description && (
-                                    <p className="text-[11px] text-git-muted line-clamp-2 mb-1.5">{repo.description}</p>
+                                    <p className="text-[13px] text-git-muted line-clamp-2 mb-1.5 leading-snug">{repo.description}</p>
                                 )}
-                                <div className="flex items-center gap-3 text-[11px] text-git-muted">
+                                <div className="flex items-center gap-3 text-[13px] text-git-muted">
                                     {repo.language && (
                                         <span className="flex items-center gap-1">
-                                            <span className="w-2 h-2 rounded-full bg-git-blue" />
+                                            <span className="w-3 h-3 rounded-full bg-[#1d9bf0]" />
                                             {repo.language}
                                         </span>
                                     )}
@@ -64,54 +61,54 @@ export default async function RightSidebar() {
                                 </div>
                             </a>
                         )) : (
-                            <div className="text-xs text-git-muted italic">Loading trending repos...</div>
+                            <div className="px-4 py-6 text-[13px] text-git-muted">Loading trending repos...</div>
                         )}
                     </div>
                 </div>
 
-                {/* Collab Matching — Developers Like You */}
+                {/* Collab Matching */}
                 {session?.user && <CollabWidget />}
 
                 {/* Who to ship with */}
-                <div className="rounded-xl border border-git-border bg-git-card p-4 animate-fade-in">
-                    <h3 className="font-semibold text-git-text mb-4">Who to ship with</h3>
-                    <div className="space-y-4">
+                <div className="rounded-2xl border border-[#2f3336] bg-[#16181c] overflow-hidden">
+                    <h3 className="font-bold text-xl text-git-text px-4 pt-3 pb-2">Who to follow</h3>
+                    <div>
                         {suggestedUsers.length > 0 ? (
                             suggestedUsers.map(user => (
                                 <Link
                                     key={user.username}
                                     href={`/profile/${user.username}`}
-                                    className="flex items-center gap-3 group"
+                                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.03] transition-colors group"
                                 >
                                     <Image
                                         src={user.avatar || "/icon.png"}
                                         alt={user.username}
-                                        width={32}
-                                        height={32}
-                                        className="rounded-full border border-git-border"
+                                        width={40}
+                                        height={40}
+                                        className="rounded-full flex-shrink-0"
                                     />
-                                    <div className="flex flex-col min-w-0">
-                                        <span className="text-sm font-semibold text-git-text group-hover:text-git-blue truncate">
+                                    <div className="flex flex-col min-w-0 flex-1">
+                                        <span className="text-[15px] font-bold text-git-text group-hover:underline truncate">
                                             {user.name || user.username}
                                         </span>
-                                        <span className="text-[10px] text-git-muted truncate">@{user.username}</span>
+                                        <span className="text-[13px] text-git-muted truncate">@{user.username}</span>
                                     </div>
-                                    <button className="ml-auto text-[10px] font-bold text-git-blue hover:underline">
+                                    <button className="ml-auto px-4 py-1.5 rounded-full bg-git-text text-black text-[13px] font-bold hover:bg-[#d7dbdc] transition-colors flex-shrink-0">
                                         Follow
                                     </button>
                                 </Link>
                             ))
                         ) : (
-                            <div className="text-xs text-git-muted italic">No suggestions found.</div>
+                            <div className="px-4 py-6 text-[13px] text-git-muted">No suggestions found.</div>
                         )}
                     </div>
                 </div>
 
                 {/* Footer */}
-                <div className="px-4 text-[10px] text-git-muted flex flex-wrap gap-x-3 gap-y-1">
-                    <Link href="#" className="hover:text-git-blue">About</Link>
-                    <Link href="#" className="hover:text-git-blue">Terms</Link>
-                    <Link href="#" className="hover:text-git-blue">Privacy</Link>
+                <div className="px-4 text-[13px] text-git-muted flex flex-wrap gap-x-3 gap-y-1">
+                    <Link href="#" className="hover:underline">About</Link>
+                    <Link href="#" className="hover:underline">Terms</Link>
+                    <Link href="#" className="hover:underline">Privacy</Link>
                     <span>© 2026 GitPulse</span>
                 </div>
             </div>

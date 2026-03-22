@@ -244,8 +244,8 @@ export default async function HomePage() {
     }
 
     return (
-        <>
-            <main className="flex-1 w-full max-w-[600px] border-x border-b lg:border border-git-border lg:rounded-xl bg-git-card min-h-[80vh]">
+        <div className="flex w-full">
+            <div className="flex-1 max-w-[600px] min-h-screen">
                 <FeedClient
                     discoverPosts={discoverPosts}
                     followingPosts={followingPosts}
@@ -253,11 +253,11 @@ export default async function HomePage() {
                     userName={session?.user?.name ?? ""}
                     userAvatar={session?.user?.image ?? ""}
                 />
-            </main>
+            </div>
             {/* Right Sidebar — async, wrapped in Suspense */}
-            <Suspense fallback={<div className="hidden w-[300px] shrink-0 lg:block"><SidebarSkeleton /></div>}>
+            <Suspense fallback={<div className="hidden w-[350px] shrink-0 lg:block"><SidebarSkeleton /></div>}>
                 <RightSidebar />
             </Suspense>
-        </>
+        </div>
     );
 }

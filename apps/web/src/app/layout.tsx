@@ -58,17 +58,19 @@ export default async function RootLayout({
 
     return (
         <html lang="en">
-            <body className={`${inter.variable} antialiased min-h-screen bg-git-bg text-git-text overflow-x-hidden font-sans`}>
-                <div className="mx-auto max-w-7xl px-0 sm:px-6 lg:px-8 pb-20 lg:pb-0">
-                    <div className="flex justify-center gap-0 lg:gap-6 py-0 lg:py-6">
+            <body className={`${inter.variable} antialiased min-h-screen bg-black text-[#e7e9ea] overflow-x-hidden font-sans`}>
+                <div className="mx-auto w-full max-w-[1300px] pb-20 lg:pb-0">
+                    <div className="flex justify-center">
 
                         {/* Left Nav — async, wrapped in Suspense */}
-                        <Suspense fallback={<div className="hidden w-[240px] shrink-0 lg:block"><SidebarSkeleton /></div>}>
+                        <Suspense fallback={<div className="hidden w-[275px] shrink-0 xl:block"><SidebarSkeleton /></div>}>
                             <Sidebar />
                         </Suspense>
 
                         {/* Main Content Area — Pages dictate their own width and right sidebars */}
-                        {children}
+                        <main className="flex-1 min-w-0 border-x border-[#2f3336]">
+                            {children}
+                        </main>
                     </div>
                 </div>
 

@@ -2,164 +2,164 @@ import { prisma } from "./prisma";
 import { withCache } from "./cache";
 
 /**
- * Collab Matching Engine
- * Matches developers by tech stack similarity using cosine similarity.
+ * collab matching engine
+ * matches developers by tech stack similarity using cosine similarity.
  */
 
 export interface TechWeight {
-    language: string;
-    weight: number;
+  language: string;
+  weight: number;
 }
 
 export interface CollabMatch {
-    username: string;
-    avatar: string;
-    sharedLanguages: string[];
-    similarity: number; // 0–1
+  username: string;
+  avatar: string;
+  sharedLanguages: string[];
+  similarity: number; // 0–1
 }
 
 /**
- * Build a tech stack profile from a user's repos.
- * Weight = proportion of repos using that language.
+ * build a tech stack profile from a user's repos.
+ * weight = proportion of repos using that language.
  */
 export async function getUserTechStack(
-    username: string,
-    token: string
-): Promise<TechWeight[]> {
-    const cacheKey = `techstack:${username}`;
+username: string,
+token: string)
+: Promise<TechWeight[]> {
+  const cacheKey = `techstack:${username}`;
 
-    return withCache(cacheKey, async () => {
-        const res = await fetch(
-            `https://api.github.com/users/${username}/repos?per_page=100&type=owner&sort=pushed`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: "application/vnd.github.v3+json",
-                },
-            }
-        );
-
-        if (!res.ok) return [];
-
-        const repos = await res.json();
-        const langCounts: Record<string, number> = {};
-        let total = 0;
-
-        for (const repo of repos) {
-            if (repo.language && !repo.fork && !repo.archived) {
-                langCounts[repo.language] = (langCounts[repo.language] || 0) + 1;
-                total++;
-            }
+  return withCache(cacheKey, async () => {
+    const res = await fetch(
+      `https://api.github.com/users/${username}/repos?per_page=100&type=owner&sort=pushed`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/vnd.github.v3+json"
         }
+      }
+    );
 
-        if (total === 0) return [];
+    if (!res.ok) return [];
 
-        return Object.entries(langCounts)
-            .map(([language, count]) => ({
-                language,
-                weight: count / total,
-            }))
-            .sort((a, b) => b.weight - a.weight);
-    }, 1000 * 60 * 60); // 1 hour cache
+    const repos = await res.json();
+    const langCounts: Record<string, number> = {};
+    let total = 0;
+
+    for (const repo of repos) {
+      if (repo.language && !repo.fork && !repo.archived) {
+        langCounts[repo.language] = (langCounts[repo.language] || 0) + 1;
+        total++;
+      }
+    }
+
+    if (total === 0) return [];
+
+    return Object.entries(langCounts).
+    map(([language, count]) => ({
+      language,
+      weight: count / total
+    })).
+    sort((a, b) => b.weight - a.weight);
+  }, 1000 * 60 * 60); // 1 hour cache
 }
 
 /**
- * Cosine similarity between two tech stack vectors.
+ * cosine similarity between two tech stack vectors.
  */
 function cosineSimilarity(a: TechWeight[], b: TechWeight[]): number {
-    const allLangs = new Set([
-        ...a.map((x) => x.language),
-        ...b.map((x) => x.language),
-    ]);
+  const allLangs = new Set([
+  ...a.map((x) => x.language),
+  ...b.map((x) => x.language)]
+  );
 
-    let dotProduct = 0;
-    let normA = 0;
-    let normB = 0;
+  let dotProduct = 0;
+  let normA = 0;
+  let normB = 0;
 
-    for (const lang of allLangs) {
-        const wA = a.find((x) => x.language === lang)?.weight || 0;
-        const wB = b.find((x) => x.language === lang)?.weight || 0;
-        dotProduct += wA * wB;
-        normA += wA * wA;
-        normB += wB * wB;
-    }
+  for (const lang of allLangs) {
+    const wA = a.find((x) => x.language === lang)?.weight || 0;
+    const wB = b.find((x) => x.language === lang)?.weight || 0;
+    dotProduct += wA * wB;
+    normA += wA * wA;
+    normB += wB * wB;
+  }
 
-    if (normA === 0 || normB === 0) return 0;
-    return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+  if (normA === 0 || normB === 0) return 0;
+  return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
 }
 
 /**
- * Find top N developers similar to the given user.
+ * find top n developers similar to the given user.
  */
 export async function findSimilarDevs(
-    currentUsername: string,
-    currentStack: TechWeight[],
-    limit = 5
-): Promise<CollabMatch[]> {
-    if (currentStack.length === 0) return [];
+currentUsername: string,
+currentStack: TechWeight[],
+limit = 5)
+: Promise<CollabMatch[]> {
+  if (currentStack.length === 0) return [];
 
-    // Get all users in our DB who have posted (active users)
-    const users = await prisma.user.findMany({
-        where: {
-            username: { not: currentUsername },
-            posts: { some: {} }, // only users who have posted
-        },
-        select: {
-            username: true,
-            avatar: true,
-        },
-        take: 50, // limit the pool for performance
+  // get all users in my db who have posted (active users)
+  const users = await prisma.user.findMany({
+    where: {
+      username: { not: currentUsername },
+      posts: { some: {} } // only users who have posted
+    },
+    select: {
+      username: true,
+      avatar: true
+    },
+    take: 50 // limit the pool for performance
+  });
+
+  const matches: CollabMatch[] = [];
+
+  for (const user of users) {
+    // i can't fetch their repos without their token, so we'll
+    // use a heuristic based on their posts' repo languages
+    const posts = await prisma.post.findMany({
+      where: { author: { username: user.username } },
+      select: { repoEmbed: true },
+      take: 20
     });
 
-    const matches: CollabMatch[] = [];
-
-    for (const user of users) {
-        // We can't fetch their repos without their token, so we'll
-        // use a heuristic based on their posts' repo languages
-        const posts = await prisma.post.findMany({
-            where: { author: { username: user.username } },
-            select: { repoEmbed: true },
-            take: 20,
-        });
-
-        // Build a lightweight stack from their post repo embeds
-        const langCounts: Record<string, number> = {};
-        let total = 0;
-        for (const post of posts) {
-            if (post.repoEmbed) {
-                const embed = post.repoEmbed as Record<string, any>;
-                if (embed.language) {
-                    langCounts[embed.language] = (langCounts[embed.language] || 0) + 1;
-                    total++;
-                }
-            }
+    // build a lightweight stack from their post repo embeds
+    const langCounts: Record<string, number> = {};
+    let total = 0;
+    for (const post of posts) {
+      if (post.repoEmbed) {
+        const embed = post.repoEmbed as Record<string, any>;
+        if (embed.language) {
+          langCounts[embed.language] = (langCounts[embed.language] || 0) + 1;
+          total++;
         }
-
-        if (total === 0) continue;
-
-        const userStack: TechWeight[] = Object.entries(langCounts).map(
-            ([language, count]) => ({
-                language,
-                weight: count / total,
-            })
-        );
-
-        const similarity = cosineSimilarity(currentStack, userStack);
-        if (similarity > 0.1) {
-            // Find shared languages
-            const currentLangs = new Set(currentStack.map((x) => x.language));
-            const sharedLanguages = userStack
-                .filter((x) => currentLangs.has(x.language))
-                .map((x) => x.language);
-
-            matches.push({
-                username: user.username,
-                avatar: user.avatar || "",
-                sharedLanguages,
-                similarity,
-            });
-        }
+      }
     }
 
-    return matches.sort((a, b) => b.similarity - a.similarity).slice(0, limit);
+    if (total === 0) continue;
+
+    const userStack: TechWeight[] = Object.entries(langCounts).map(
+      ([language, count]) => ({
+        language,
+        weight: count / total
+      })
+    );
+
+    const similarity = cosineSimilarity(currentStack, userStack);
+    if (similarity > 0.1) {
+      // find shared languages
+      const currentLangs = new Set(currentStack.map((x) => x.language));
+      const sharedLanguages = userStack.
+      filter((x) => currentLangs.has(x.language)).
+      map((x) => x.language);
+
+      matches.push({
+        username: user.username,
+        avatar: user.avatar || "",
+        sharedLanguages,
+        similarity
+      });
+    }
+  }
+
+  return matches.sort((a, b) => b.similarity - a.similarity).slice(0, limit);
 }

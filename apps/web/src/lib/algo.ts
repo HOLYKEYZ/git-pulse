@@ -1,66 +1,66 @@
 export interface ScoreFactors {
-    language: string | null;
-    stars: number;
-    forks: number;
-    daysSincePush: number;
-    hasDescription: boolean;
-    authorFollowers?: number; // Optional, to penalize high followers
-    daysSincePost: number;
+  language: string | null;
+  stars: number;
+  forks: number;
+  daysSincePush: number;
+  hasDescription: boolean;
+  authorFollowers?: number; // optional, to penalize high followers
+  daysSincePost: number;
 }
 
 /**
- * Calculates a "Quality Score" for a post based on its embedded repository.
- * The goal is to surface hidden gems rather than just popular repos.
+ * calculates a "quality score" for a post based on its embedded repository.
+ * the goal is to surface hidden gems rather than just popular repos.
  */
 export function calculatePostScore(factors: ScoreFactors): number {
-    let score = 0;
+  let score = 0;
 
-    // 1. Tech Stack Novelty (reward less common, high-interest languages & frameworks)
-    const noveltyLanguages = ["Rust", "Zig", "Elixir", "Go", "Gleam", "Ocaml", "Haskell", "F#", "HolyC", "Vue", "Angular", "Svelte"];
-    const commonLanguages = ["JavaScript", "TypeScript", "Python", "Java", "C++", "C#", "PHP", "Ruby", "C", "React", "NextJs", "NodeJs", "Express",];
+  // 1. tech stack novelty (reward less common, high-interest languages & frameworks)
+  const noveltyLanguages = ["Rust", "Zig", "Elixir", "Go", "Gleam", "Ocaml", "Haskell", "F#", "HolyC", "Vue", "Angular", "Svelte"];
+  const commonLanguages = ["JavaScript", "TypeScript", "Python", "Java", "C++", "C#", "PHP", "Ruby", "C", "React", "NextJs", "NodeJs", "Express"];
 
-    if (factors.language) {
-        if (noveltyLanguages.includes(factors.language)) {
-            score += 25; // big boost for novel tech
-        } else if (!commonLanguages.includes(factors.language)) {
-            score += 10; // slight boost for niche
-        }
+  if (factors.language) {
+    if (noveltyLanguages.includes(factors.language)) {
+      score += 25; // big boost for novel tech
+    } else if (!commonLanguages.includes(factors.language)) {
+      score += 10; // slight boost for niche
     }
+  }
 
-    // 2. base Quality (Stars & Forks)
-    // we want to reward SOME traction, but with diminishing returns so big repos don't dominate
-    const starScore = Math.min(factors.stars * 0.5, 30); // Max 30 pts from stars
-    const forkScore = Math.min(factors.forks * 1.0, 20); // Max 20 pts from forks
-    score += starScore + forkScore;
+  // 2. base quality (stars & forks)
+  // i want to reward some traction, but with diminishing returns so big repos don't dominate
+  const starScore = Math.min(factors.stars * 0.5, 30); // max 30 pts from stars
+  const forkScore = Math.min(factors.forks * 1.0, 20); // max 20 pts from forks
+  score += starScore + forkScore;
 
-    // 3. Completeness
-    if (factors.hasDescription) {
-        score += 10;
+  // 3. completeness
+  if (factors.hasDescription) {
+    score += 10;
+  }
+
+  // 4. recent activity (active development boost)
+  // penalize if it hasn't been pushed to recently
+  if (factors.daysSincePush <= 7) {
+    score += 20; // active this week
+  } else if (factors.daysSincePush <= 30) {
+    score += 10; // active this month
+  } else if (factors.daysSincePush > 365) {
+    score -= 20; // dead repo penalty
+  }
+
+  // 5. follower bias (the "anti-clout" mechanic)
+  // i want to surface hidden gems. penalize massive accounts slightly.
+  if (factors.authorFollowers !== undefined) {
+    if (factors.authorFollowers > 10000) {
+      score -= 15;
+    } else if (factors.authorFollowers < 100) {
+      score += 10; // boost no-name developers
     }
+  }
 
-    // 4. Recent Activity (Active development boost)
-    // Penalize if it hasn't been pushed to recently
-    if (factors.daysSincePush <= 7) {
-        score += 20; // Active this week
-    } else if (factors.daysSincePush <= 30) {
-        score += 10; // Active this month
-    } else if (factors.daysSincePush > 365) {
-        score -= 20; // Dead repo penalty
-    }
+  // 6. time decay (gravity)
+  // posts lose relevance over time
+  const decayFactor = Math.pow(Math.max(factors.daysSincePost, 1), 1.2);
 
-    // 5. Follower Bias (The "Anti-Clout" mechanic)
-    // We want to surface hidden gems. Penalize massive accounts slightly.
-    if (factors.authorFollowers !== undefined) {
-        if (factors.authorFollowers > 10000) {
-            score -= 15;
-        } else if (factors.authorFollowers < 100) {
-            score += 10; // Boost no-name developers
-        }
-    }
-
-    // 6. Time Decay (Gravity)
-    // Posts lose relevance over time
-    const decayFactor = Math.pow(Math.max(factors.daysSincePost, 1), 1.2);
-
-    return Math.max(score / decayFactor, 0); // Score can't be negative
+  return Math.max(score / decayFactor, 0); // score can't be negative
 }

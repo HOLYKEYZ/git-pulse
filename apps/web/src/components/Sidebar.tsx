@@ -2,7 +2,6 @@ import { auth, signOut } from "@/lib/auth";
 import Image from "next/image";
 import Link from "next/link";
 import NotificationBell from "./NotificationBell";
-import { Github } from "lucide-react";
 
 export default async function Sidebar() {
     let session = null;
@@ -15,18 +14,22 @@ export default async function Sidebar() {
     return (
         <aside className="hidden w-[275px] shrink-0 xl:block relative">
             <nav className="fixed w-[275px] top-0 flex flex-col h-screen px-4 pb-4">
-                {/* Logo */}
+                {/* logo — github filled octicon mark */}
                 <div className="py-2">
                     <Link href="/" className="inline-flex items-center justify-center w-14 h-14 rounded-full hover:bg-white/10 transition-colors group">
-                        <Github size={30} className="text-git-text group-hover:text-git-accent transition-colors" />
+                        <svg height="30" viewBox="0 0 16 16" width="30" className="fill-git-text group-hover:fill-git-accent transition-colors">
+                            <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/>
+                        </svg>
                     </Link>
                 </div>
 
-                {/* Nav Links */}
+                {/* nav links — filled octicon svgs */}
                 <div className="flex flex-col gap-1 w-full mt-2">
                     <Link href="/" className="group flex items-center w-fit">
                         <div className="flex items-center gap-5 px-4 py-3 rounded-full hover:bg-git-hover transition-colors">
-                            <svg height="26" viewBox="0 0 16 16" width="26" className="fill-current"><path d="M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z"/></svg>
+                            <svg height="26" viewBox="0 0 24 24" width="26" className="fill-current">
+                                <path d="M12.97 2.59a1.5 1.5 0 0 0-1.94 0l-7.5 6.363A1.5 1.5 0 0 0 3 10.097V19.5A1.5 1.5 0 0 0 4.5 21h4.75a.75.75 0 0 0 .75-.75V14h4v6.25c0 .414.336.75.75.75h4.75a1.5 1.5 0 0 0 1.5-1.5v-9.403a1.5 1.5 0 0 0-.53-1.144l-7.5-6.363Z"/>
+                            </svg>
                             <span className="text-xl font-medium text-git-text">Home</span>
                         </div>
                     </Link>
@@ -40,7 +43,9 @@ export default async function Sidebar() {
                     {session?.user?.login && (
                         <Link href={`/profile/${session.user.login}`} className="group flex items-center w-fit">
                             <div className="flex items-center gap-5 px-4 py-3 rounded-full hover:bg-git-hover transition-colors">
-                                <svg height="26" viewBox="0 0 16 16" width="26" className="fill-current"><path d="M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z"/></svg>
+                                <svg height="26" viewBox="0 0 24 24" width="26" className="fill-current">
+                                    <path d="M12 2.5a5.5 5.5 0 0 1 3.096 10.047 9.005 9.005 0 0 1 5.9 8.181.75.75 0 1 1-1.499.044 7.5 7.5 0 0 0-14.993 0 .75.75 0 0 1-1.5-.045 9.005 9.005 0 0 1 5.9-8.18A5.5 5.5 0 0 1 12 2.5ZM8 8a4 4 0 1 0 8 0 4 4 0 0 0-8 0Z"/>
+                                </svg>
                                 <span className="text-xl font-medium text-git-text">Profile</span>
                             </div>
                         </Link>
@@ -49,13 +54,16 @@ export default async function Sidebar() {
                     {session?.user && (
                         <Link href="/settings" className="group flex items-center w-fit">
                             <div className="flex items-center gap-5 px-4 py-3 rounded-full hover:bg-git-hover transition-colors">
-                                <svg height="26" viewBox="0 0 16 16" width="26" className="fill-current"><path d="M8 0a8.2 8.2 0 0 1 .701.031C9.444.095 9.99.645 10.16 1.29l.288 1.107c.018.066.079.158.212.224.231.114.454.243.668.386.123.082.233.09.299.071l1.103-.303c.644-.176 1.392.021 1.82.63.27.386.506.798.704 1.23.315.69.1 1.457-.468 1.878l-.856.614a.254.254 0 0 0-.068.296 6.3 6.3 0 0 1 0 1.146.254.254 0 0 0 .068.296l.856.614c.568.42.783 1.188.468 1.878a8.28 8.28 0 0 1-.704 1.23c-.428.609-1.176.806-1.82.63l-1.103-.303c-.066-.019-.176-.011-.299.071a5.973 5.973 0 0 1-.668.386c-.133.066-.194.158-.212.224l-.288 1.107c-.17.645-.667 1.186-1.46 1.259a8.09 8.09 0 0 1-1.402 0c-.793-.073-1.29-.614-1.46-1.259l-.288-1.107a.254.254 0 0 0-.212-.224 5.975 5.975 0 0 1-.668-.386c-.123-.082-.233-.09-.299-.071l-1.103.303c-.644.176-1.392-.021-1.82-.63a8.279 8.279 0 0 1-.704-1.23c-.315-.69-.1-1.457.468-1.878l.856-.614a.254.254 0 0 0 .068-.296 6.3 6.3 0 0 1 0-1.146.254.254 0 0 0-.068-.296l-.856-.614c-.568-.42-.783-1.188-.468-1.878.198-.432.434-.844.704-1.23.428-.609 1.176-.806 1.82-.63l1.103.303c.066.019.176.011.299-.071.214-.143.437-.272.668-.386a.254.254 0 0 0 .212-.224l.288-1.107C5.56.645 6.107.095 6.9.031 7.243.01 7.622 0 8 0ZM5.5 8a2.5 2.5 0 1 0 5 0 2.5 2.5 0 0 0-5 0Z"/></svg>
+                                <svg height="26" viewBox="0 0 24 24" width="26" className="fill-current">
+                                    <path d="M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Zm-1.5 0a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z"/>
+                                    <path d="M12 1c.266 0 .532.009.797.028.763.055 1.345.617 1.512 1.304l.352 1.45c.019.078.09.171.225.221.247.089.49.19.728.302.13.061.246.044.315.002l1.275-.776c.603-.368 1.411-.353 1.99.147.403.348.78.726 1.128 1.129.501.578.515 1.386.147 1.99l-.776 1.274c-.042.069-.059.185.002.315.112.238.213.481.303.728.048.135.142.205.22.225l1.45.352c.687.167 1.249.749 1.303 1.512.038.531.038 1.063 0 1.594-.054.763-.616 1.345-1.303 1.512l-1.45.352c-.078.019-.172.09-.22.225-.09.247-.191.49-.303.728-.061.13-.044.246-.002.315l.776 1.275c.368.603.354 1.411-.147 1.99-.348.403-.726.78-1.128 1.128-.579.501-1.387.515-1.99.147l-1.275-.776c-.069-.042-.185-.059-.315.002a8.606 8.606 0 0 1-.728.302c-.135.049-.206.143-.225.221l-.352 1.45c-.167.687-.749 1.249-1.512 1.303a11.539 11.539 0 0 1-1.594 0c-.763-.054-1.345-.616-1.512-1.303l-.352-1.45c-.019-.078-.09-.172-.225-.22a8.55 8.55 0 0 1-.728-.303c-.13-.061-.246-.044-.315-.002l-1.275.776c-.603.368-1.411.354-1.99-.147a10.138 10.138 0 0 1-1.128-1.129c-.501-.578-.515-1.386-.147-1.99l.776-1.274c.042-.069.059-.185-.002-.315a8.606 8.606 0 0 1-.303-.728c-.048-.135-.142-.205-.22-.225l-1.45-.352c-.687-.167-1.249-.749-1.304-1.512a11.539 11.539 0 0 1 0-1.594c.055-.763.617-1.345 1.303-1.512l1.45-.352c.078-.019.172-.09.221-.225.089-.247.19-.49.302-.728.061-.13.044-.246.002-.315L2.752 8.22c-.368-.603-.354-1.412.147-1.99.348-.403.726-.78 1.128-1.129.579-.5 1.387-.515 1.99-.147l1.275.776c.069.042.185.06.315-.002.238-.112.481-.213.728-.303.135-.048.205-.142.225-.22l.352-1.45c.167-.687.749-1.25 1.512-1.304A11.539 11.539 0 0 1 12 1Z"/>
+                                </svg>
                                 <span className="text-xl font-medium text-git-text">Settings</span>
                             </div>
                         </Link>
                     )}
                     
-                    {/* Big Action Post Button */}
+                    {/* post button */}
                     {session?.user && (
                         <div className="mt-4 px-2 w-[85%]">
                             <button className="w-full bg-git-accent hover:opacity-90 text-white rounded-full py-3.5 px-6 font-bold text-lg shadow-sm transition-colors">
@@ -65,7 +73,7 @@ export default async function Sidebar() {
                     )}
                 </div>
 
-                {/* User Card Pill (X Style) */}
+                {/* user card pill */}
                 {session?.user && (
                     <div className="mt-auto mb-2 relative group w-full pr-4">
                         <div className="flex items-center justify-between p-3 rounded-full hover:bg-git-hover transition-colors cursor-pointer w-full mx-2">
@@ -95,7 +103,7 @@ export default async function Sidebar() {
                             </div>
                         </div>
 
-                        {/* Sign out dropdown (hover absolute) */}
+                        {/* sign out dropdown */}
                         <div className="absolute bottom-full left-0 w-full pb-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                             <form action={async () => {
                                 "use server";

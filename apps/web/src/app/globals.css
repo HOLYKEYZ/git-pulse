@@ -140,9 +140,18 @@ body {
 
 .markdown-body img {
   display: inline-block;
-  max-width: 100% !important;
-  height: auto !important;
+  max-width: 100%;
+  height: auto;
   object-fit: contain;
+}
+
+/* shields.io / camo badge images should stay at natural size */
+.markdown-body img[src*="shields.io"],
+.markdown-body img[src*="camo.githubusercontent.com"],
+.markdown-body img[src*="image-proxy"] {
+  max-width: none;
+  width: auto;
+  height: 20px;
 }
 
 .markdown-body pre {

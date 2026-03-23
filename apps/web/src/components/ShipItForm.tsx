@@ -1,20 +1,28 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function ShipItForm() {
   const [repo, setRepo] = useState('');
   const [version, setVersion] = useState('');
   const [changelog, setChangelog] = useState('');
-  
-  const mockRepos = [
-    "gitpulse",
-    "dotfiles",
-    "react-component-lib",
-    "awesome-repo"
-  ];
-
+  const [repos, setRepos] = useState<{name: string, full_name: string}[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    async function fetchRepos() {
+      try {
+        const res = await fetch('/api/github/repos');
+        if (res.ok) {
+          const data = await res.json();
+          setRepos(data);
+        }
+      } catch (err) {
+        console.error("failed to fetch user repos", err);
+      }
+    }
+    fetchRepos();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +47,7 @@ export default function ShipItForm() {
         window.location.reload();
       }
     } catch (error) {
-      console.error("Failed to ship release", error);
+      console.error("failed to ship release", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -65,8 +73,8 @@ export default function ShipItForm() {
               className="w-full bg-git-bg text-git-text text-sm p-2 rounded-md border border-git-border focus:outline-none focus:ring-2 focus:ring-git-accent focus:border-transparent appearance-none"
             >
               <option value="" disabled>Select a repository...</option>
-              {mockRepos.map(r => (
-                <option key={r} value={r}>{r}</option>
+              {repos.map(r => (
+                <option key={r.name} value={r.name}>{r.name}</option>
               ))}
             </select>
           </div>

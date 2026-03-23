@@ -13,6 +13,7 @@ const limiter = rateLimit({
 export async function POST(req: Request) {
   const session = await auth();
   let username: string | null = session?.user?.login || null;
+  let userInDb: any = null; // Variable to store user if found via API key
 
   // fallback: bearer token auth for programmatic access (github action)
   if (!username) {
@@ -21,10 +22,11 @@ export async function POST(req: Request) {
       const apiKey = authHeader.slice(7); // remove "bearer "
       const tokenUser = await prisma.user.findUnique({
         where: { apiKey },
-        select: { username: true }
+      // No select clause, fetch full user object to avoid redundant lookup
       });
       if (tokenUser) {
         username = tokenUser.username;
+        userInDb = tokenUser; // Store the full user object
       }
     }
   }
@@ -47,7 +49,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Content is required" }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({
+    const user = userInDb || await prisma.user.findUnique({
       where: { username }
     });
 

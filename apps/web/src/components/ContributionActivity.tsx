@@ -25,8 +25,6 @@ export default function ContributionActivity({ activity }: ContributionActivityP
 }
 
 function MonthSection({ month }: {month: MonthlyActivity;}) {
-  const [expanded, setExpanded] = useState(true);
-
   // find the max commit count for the progress bar scaling
   const maxCommits = Math.max(...(month.commitRepos?.map((r) => r.count) || [1]), 1);
 
@@ -40,31 +38,30 @@ function MonthSection({ month }: {month: MonthlyActivity;}) {
   if (!hasContent) return null;
 
   return (
-    <div className="mb-4">
-            {/* month header */}
-            <button
-        onClick={() => setExpanded(!expanded)}
-        className="flex items-center gap-2 text-sm font-semibold text-git-text mb-2 hover:text-git-accent transition-colors w-full text-left">
-        
-                <svg height="16" viewBox="0 0 16 16" width="16" className={`fill-current text-git-muted transition-transform ${expanded ? 'rotate-90' : ''}`}>
-                    <path d="M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06Z" />
-                </svg>
+    <div className="mb-6">
+        {/* month header - GitHub style horizontal line */}
+        <div className="flex items-center mb-4">
+            <span className="text-xs font-semibold text-git-text bg-[#0d1117] pr-2 z-10 shrink-0">
                 {month.month}
-            </button>
+            </span>
+            <div className="h-[1px] bg-git-border flex-1 ml-2"></div>
+        </div>
 
-            {expanded &&
-      <div className="border-l-2 border-[#30363d] ml-2 pl-6 space-y-4 pb-2">
+        <div className="relative pl-6 space-y-5 pb-2">
+            {/* vertical timeline line */}
+            <div className="absolute top-[6px] bottom-[-24px] left-[7px] w-[2px] bg-[#30363d] z-0"></div>
                     {/* commits section */}
                     {month.commits > 0 && Array.isArray(month.commitRepos) &&
-        <div>
+        <div className="mb-4">
                             <div className="flex items-center gap-2 mb-2">
-                                <div className="w-[10px] h-[10px] rounded-full bg-[#3fb950] -ml-[31px] mr-[15px] border-2 border-git-bg" />
-                                <svg height="16" viewBox="0 0 16 16" width="16" className="fill-git-muted shrink-0">
-                                    <path d="M11.93 8.5a4.002 4.002 0 0 1-7.86 0H.75a.75.75 0 0 1 0-1.5h3.32a4.002 4.002 0 0 1 7.86 0h3.32a.75.75 0 0 1 0 1.5Zm-1.43-.75a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z" />
-                                </svg>
-                                <span className="text-sm text-git-text">
-                                    Created <strong>{month.commits.toLocaleString()}</strong> commit{month.commits !== 1 ? "s" : ""} in{" "}
-                                    <strong>{month.commitRepos.length}</strong> repositor{month.commitRepos.length !== 1 ? "ies" : "y"}
+                                <span className="relative flex items-center justify-center bg-git-bg rounded-full ring-2 ring-git-bg -ml-[33px] mr-[3px] w-8 h-8 z-10">
+                                    <svg height="16" viewBox="0 0 16 16" width="16" className="fill-git-muted shrink-0">
+                                        <path d="M11.93 8.5a4.002 4.002 0 0 1-7.86 0H.75a.75.75 0 0 1 0-1.5h3.32a4.002 4.002 0 0 1 7.86 0h3.32a.75.75 0 0 1 0 1.5Zm-1.43-.75a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z" />
+                                    </svg>
+                                </span>
+                                <span className="text-sm font-semibold text-git-text">
+                                    Created <strong className="font-semibold">{month.commits.toLocaleString()}</strong> commit{month.commits !== 1 ? "s" : ""} in{" "}
+                                    <strong className="font-semibold">{month.commitRepos.length}</strong> repositor{month.commitRepos.length !== 1 ? "ies" : "y"}
                                 </span>
                             </div>
                             {/* repo breakdown with progress bars */}
@@ -141,13 +138,14 @@ function MonthSection({ month }: {month: MonthlyActivity;}) {
 
                     {/* repos created */}
                     {month.reposCreated.length > 0 &&
-        <div>
-                            <div className="flex items-center gap-2 mb-1">
-                                <div className="w-[10px] h-[10px] rounded-full bg-[#8b949e] -ml-[31px] mr-[15px] border-2 border-git-bg" />
-                                <svg height="16" viewBox="0 0 16 16" width="16" className="fill-git-muted shrink-0">
-                                    <path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8ZM5 12.25a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.25a.25.25 0 0 1-.4.2l-1.45-1.087a.249.249 0 0 0-.3 0L5.4 15.7a.25.25 0 0 1-.4-.2Z" />
-                                </svg>
-                                <span className="text-sm text-git-text">
+        <div className="mb-4">
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="relative flex items-center justify-center bg-git-bg rounded-full ring-2 ring-git-bg -ml-[33px] mr-[3px] w-8 h-8 z-10">
+                                    <svg height="16" viewBox="0 0 16 16" width="16" className="fill-git-muted shrink-0">
+                                        <path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8ZM5 12.25a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.25a.25.25 0 0 1-.4.2l-1.45-1.087a.249.249 0 0 0-.3 0L5.4 15.7a.25.25 0 0 1-.4-.2Z" />
+                                    </svg>
+                                </span>
+                                <span className="text-sm font-semibold text-git-text">
                                     Created <strong>{month.reposCreated.length}</strong> repositor{month.reposCreated.length !== 1 ? "ies" : "y"}
                                 </span>
                             </div>
@@ -167,46 +165,40 @@ function MonthSection({ month }: {month: MonthlyActivity;}) {
                         </div>
         }
                 </div>
-      }
-        </div>);
+        </div>
+  );
 
 }
 
 // reusable row for prs, issues, comments, reviews
-function ActivityRow({ color, icon, label, items
-
-
-
-
-}: {color: string;icon: React.ReactNode;label: React.ReactNode;items: {title: string;url: string;repo: string;}[];}) {
+function ActivityRow({ color, icon, label, items }: { color: string; icon: React.ReactNode; label: React.ReactNode; items: { title: string; url: string; repo: string; }[]; }) {
   return (
-    <div>
-            <div className="flex items-center gap-2 mb-1">
-                <div
-          className="w-[10px] h-[10px] rounded-full -ml-[31px] mr-[15px] border-2 border-git-bg"
-          style={{ backgroundColor: color }} />
-        
+    <div className="mb-4">
+        <div className="flex items-center gap-2 mb-2">
+            <span className="relative flex items-center justify-center bg-git-bg rounded-full ring-2 ring-git-bg -ml-[33px] mr-[3px] w-8 h-8 z-10">
                 {icon}
-                <span className="text-sm text-git-text">{label}</span>
-            </div>
-            <div className="ml-6 space-y-1">
-                {items.slice(0, 4).map((item, idx) =>
-        <div key={idx} className="flex flex-col text-xs">
-                        <Link
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-git-accent hover:underline truncate">
-            
-                            {item.title}
-                        </Link>
-                        <span className="text-git-muted">{item.repo}</span>
-                    </div>
-        )}
-                {items.length > 4 &&
-        <p className="text-xs text-git-muted">and {items.length - 4} more...</p>
-        }
-            </div>
-        </div>);
-
+            </span>
+            <span className="text-sm font-semibold text-git-text">{label}</span>
+        </div>
+        <div className="ml-6 space-y-1">
+            {items.slice(0, 4).map((item, idx) =>
+                <div key={idx} className="flex flex-col text-xs mb-2">
+                    <Link
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[14px] font-medium text-git-text hover:text-[#2f81f7] transition-colors truncate">
+                        {item.title}
+                    </Link>
+                    <span className="text-git-muted opacity-80">{item.repo}</span>
+                </div>
+            )}
+            {items.length > 4 &&
+                <p className="text-xs font-semibold text-git-muted mt-1 hover:text-git-accent cursor-pointer transition-colors block">
+                    and {items.length - 4} more...
+                </p>
+            }
+        </div>
+    </div>
+  );
 }

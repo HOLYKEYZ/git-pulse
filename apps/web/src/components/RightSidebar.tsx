@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getGitHubTrendingRepos } from "@/lib/github";
+import { getGitHubTrendingRepos, getSuggestedGitHubUsers } from "@/lib/github";
 import { getLanguageColor } from "@/lib/colors";
 import CollabWidget from "./CollabWidget";
 
@@ -13,7 +13,7 @@ export default async function RightSidebar() {
   // fetch real trending repos if i have a token
   const trendingRepos = token ? await getGitHubTrendingRepos(token, 5) : [];
 
-  const suggestedUsers = await prisma.user.findMany({
+  let suggestedUsers = await prisma.user.findMany({
     take: 3,
     where: {
       NOT: {
@@ -26,6 +26,22 @@ export default async function RightSidebar() {
       name: true
     }
   });
+
+  // if not enough local users, supplement with gh api "devs like you"
+  if (suggestedUsers.length < 3 && token) {
+    const fallbackLimit = 3 - suggestedUsers.length;
+    try {
+        const ghDevs = await getSuggestedGitHubUsers(token, undefined, fallbackLimit);
+        const ghMapped = ghDevs.map(dev => ({
+            username: dev.login,
+            avatar: dev.avatar_url,
+            name: dev.name || dev.login
+        }));
+        suggestedUsers = [...suggestedUsers, ...ghMapped];
+    } catch {
+        // fail silently if gh trending devs fails
+    }
+  }
 
   return (
     <aside className="hidden w-[350px] shrink-0 lg:block">

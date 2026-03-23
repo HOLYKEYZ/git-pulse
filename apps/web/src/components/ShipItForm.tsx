@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function ShipItForm() {
+  const router = useRouter();
   const [repo, setRepo] = useState('');
   const [version, setVersion] = useState('');
   const [changelog, setChangelog] = useState('');
@@ -44,7 +46,7 @@ export default function ShipItForm() {
         setRepo('');
         setVersion('');
         setChangelog('');
-        window.location.reload();
+        router.refresh();
       }
     } catch (error) {
       console.error("failed to ship release", error);

@@ -260,12 +260,26 @@ export async function getGitHubReadme(username: string, token: string): Promise<
  * search trending repos (recently created, high stars)
  */
 export async function getGitHubTrendingRepos(token: string, limit = 5): Promise<GitHubRepo[]> {
-  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+  const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
   const repos = await fetchWithAuth(
-    `/search/repositories?q=created:>${oneDayAgo}&sort=stars&order=desc&per_page=${limit}`,
+    `/search/repositories?q=created:>${oneMonthAgo}&sort=stars&order=desc&per_page=${limit}`,
     token
   );
   return repos?.items || [];
+}
+
+/**
+ * fetch suggested users (Devs like you)
+ */
+export async function getSuggestedGitHubUsers(token: string, language?: string, limit = 3): Promise<any[]> {
+  const q = language ? `language:${language} followers:>50 type:user` : `followers:>500 type:user`;
+  // Randomize the page slightly to give different results
+  const randomPage = Math.floor(Math.random() * 5) + 1;
+  const users = await fetchWithAuth(
+    `/search/users?q=${q}&sort=followers&order=desc&per_page=${limit}&page=${randomPage}`,
+    token
+  );
+  return users?.items || [];
 }
 
 // ─── graphql functions ───────────────────────────────────────────────────────

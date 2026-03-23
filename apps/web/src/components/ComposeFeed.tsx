@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 export default function ComposeFeed() {
+  const router = useRouter();
   const [content, setContent] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const [previewMode, setPreviewMode] = useState(false);
@@ -53,8 +55,8 @@ export default function ComposeFeed() {
         setContent('');
         setImages([]);
         setPreviewMode(false);
-        // refresh the page to show new post
-        window.location.reload();
+        // refresh the server components to show new post without hard reload
+        router.refresh();
       }
     } catch (error) {
       console.error("Failed to create post", error);

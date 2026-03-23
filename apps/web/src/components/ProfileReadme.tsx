@@ -69,18 +69,34 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
     div: ({ node, ...props }) => applyAlign(node, "div", props),
     img: ({ node, ...props }: any) => {
       const align = node?.properties?.align || props.align;
-      let style: any = { maxWidth: "100%", height: "auto", ...(props.style || {}) };
+      const width = node?.properties?.width || props.width;
+      const height = node?.properties?.height || props.height;
+      
+      let style: React.CSSProperties = { maxWidth: "100%", ...(props.style || {}) };
+      
+      if (!height && !style.height) style.height = "auto";
+      
       if (align === "center") {
         style = { ...style, display: "block", marginLeft: "auto", marginRight: "auto" };
       } else if (align === "right") {
         style = { ...style, float: "right" };
       }
-      return <img src={proxyImageUrl(String(props.src || ""), username)} alt={props.alt || ""} loading="lazy" style={style} />;
+      
+      return (
+        <img 
+          src={proxyImageUrl(String(props.src || ""), username)} 
+          alt={props.alt || ""} 
+          loading="lazy" 
+          style={style} 
+          width={width}
+          height={height}
+        />
+      );
     },
-    h1: ({ node, ...props }) => applyAlign(node, "h1", props),
-    h2: ({ node, ...props }) => applyAlign(node, "h2", props),
-    h3: ({ node, ...props }) => applyAlign(node, "h3", props),
-    section: ({ node, ...props }) => applyAlign(node, "section", props)
+    h1: ({ node, ...props }: any) => applyAlign(node, "h1", props),
+    h2: ({ node, ...props }: any) => applyAlign(node, "h2", props),
+    h3: ({ node, ...props }: any) => applyAlign(node, "h3", props),
+    section: ({ node, ...props }: any) => applyAlign(node, "section", props)
   };
 
   return (

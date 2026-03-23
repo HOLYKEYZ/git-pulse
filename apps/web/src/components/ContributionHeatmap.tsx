@@ -133,20 +133,23 @@ export default function ContributionHeatmap({ weeks, totalContributions }: Contr
                 </div>
             </div>
 
-            {/* legend */}
-            <div className="mt-4 flex items-center justify-end text-[10px] text-git-muted gap-1">
-                <span className="mr-1">Less</span>
-                {(Object.values(LEVEL_COLORS)).map((color, i) => (
-                    <div
-                        key={i}
-                        className="rounded-[2px]"
-                        style={{ width: 11, height: 11, backgroundColor: color }}
-                    />
-
-                ))}
-                <span>More</span>
+            <div className="flex justify-between items-center w-full mt-3 px-2">
+                <a href="#" className="text-xs text-git-muted hover:text-git-accent hover:underline">
+                    Learn how we count contributions
+                </a>
+                <div className="flex items-center gap-1.5 text-xs text-git-muted">
+                    <span>Less</span>
+                    <div className="flex gap-[3px]">
+                        <div className="w-[11px] h-[11px] rounded-[2px] bg-[#161b22] border border-[#1b232d]" />
+                        <div className="w-[11px] h-[11px] rounded-[2px] bg-[#0e4429] border border-[#115533]" />
+                        <div className="w-[11px] h-[11px] rounded-[2px] bg-[#006d32] border border-[#00823c]" />
+                        <div className="w-[11px] h-[11px] rounded-[2px] bg-[#26a641] border border-[#29b748]" />
+                        <div className="w-[11px] h-[11px] rounded-[2px] bg-[#39d353] border border-[#3ee05a]" />
+                    </div>
+                    <span>More</span>
+                </div>
             </div>
-        </div>
+            </div>
         </div>
     );
 }

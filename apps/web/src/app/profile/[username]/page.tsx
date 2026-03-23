@@ -15,6 +15,7 @@ import ContributionHeatmap from "@/components/ContributionHeatmap";
 import ContributionActivity from "@/components/ContributionActivity";
 import ProfileReadme from "@/components/ProfileReadme";
 import PinnedRepos from "@/components/PinnedRepos";
+import AchievementsWidget from "@/components/AchievementsWidget";
 import RepoCard from "@/components/RepoCard";
 import FollowButton from "@/components/FollowButton";
 import ProfileTabs from "@/components/ProfileTabs";
@@ -152,6 +153,9 @@ export default async function ProfilePage({ params }: {params: Promise<{username
             }
                     </div>
 
+                    {/* achievements (UI parity mock) */}
+                    <AchievementsWidget />
+
                     {/* organizations */}
                     {userStats && userStats.organizations && userStats.organizations.length > 0 &&
           <div className="border-t border-git-border border-solid mt-4 pt-4">
@@ -168,10 +172,10 @@ export default async function ProfilePage({ params }: {params: Promise<{username
                   className="rounded-md border border-git-border hover:opacity-80 transition-opacity" />
                 
                                     </Link>
-              )}
+                                )}
                             </div>
                         </div>
-          }
+                    }
                 </div>
 
                 {/* ── right content area ────────────────────────────────────── */}
@@ -180,12 +184,11 @@ export default async function ProfilePage({ params }: {params: Promise<{username
                     <ProfileTabs username={username} activeTab="overview" repoCount={ghUser.public_repos} />
 
                     {/* ── profile readme (content only, no filename header) ── */}
-                    {readme &&
-          <div className="w-full mb-2">
+                    {readme && (
+                        <div className="w-full mb-2">
                             <ProfileReadme content={readme} username={username} />
                         </div>
-          }
-                    
+                    )}
 
                     {/* ── pinned repos (only if user has pinned) ────────────── */}
                     {pinnedRepos.length > 0 && <PinnedRepos repos={pinnedRepos} />}

@@ -74,16 +74,15 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
 
       let style: React.CSSProperties = { maxWidth: "100%", ...(props.style || {}) };
 
-      // convert numeric html width/height attributes to css pixel values safely
-      // this is the key fix — without this, images stretch to full container width
-      // and checking strictly numeric prevents stripping valid css units like 'vw' or 'em'
+      // convert numeric html width/height attributes to css pixel values
+      // pure numbers (like "250") get "px" appended; anything with units (like "50%") passes through
       if (width) {
         const w = String(width).trim();
-        style.width = /^\\d+$/.test(w) ? `${w}px` : w;
+        style.width = !isNaN(Number(w)) && w !== '' ? `${w}px` : w;
       }
       if (height) {
         const h = String(height).trim();
-        style.height = /^\\d+$/.test(h) ? `${h}px` : h;
+        style.height = !isNaN(Number(h)) && h !== '' ? `${h}px` : h;
       }
 
       if (!width && !height && !style.height) style.height = "auto";

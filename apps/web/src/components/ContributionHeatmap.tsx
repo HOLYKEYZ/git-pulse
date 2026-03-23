@@ -116,6 +116,8 @@ export default function ContributionHeatmap({ weeks, totalContributions }: Contr
                                                     width: 11,
                                                     height: 11,
                                                     backgroundColor: LEVEL_COLORS[day.contributionLevel],
+                                                    outline: '1px solid rgba(27,31,35,0.06)',
+                                                    border: day.contributionLevel === 'NONE' ? '1px solid #1b232d' : 'none',
                                                 }}
                                             >
                                                 {/* tooltip — positioned above with overflow visible */}

@@ -17,12 +17,9 @@ export async function GET(req: Request) {
   const secret = searchParams.get("secret");
 
   // basic auth — either via cron secret or session
-  if (secret !== process.env.CRON_SECRET && secret !== "admin") {
-
-
-    // for now, allow "admin" as a simple bypass for dev.
-    // in production, this should check session or a proper api key.
-  }try {
+  if (secret !== process.env.CRON_SECRET) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
     const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
     const posts = await prisma.post.findMany({

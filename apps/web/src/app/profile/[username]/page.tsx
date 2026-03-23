@@ -161,13 +161,14 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                 <div className="flex-1 flex flex-col gap-8 min-w-0">
                     {/* ── Profile Tabs ──────────────────────────────────────── */}
                     <ProfileTabs username={username} activeTab="overview" repoCount={ghUser.public_repos} />
-                    
-                    {/* ── Profile README ────────────────────────────────────── */}
+
+                    {/* ── Profile README (content only, no filename header) ── */}
                     {readme && (
                         <div className="w-full mb-2">
                             <ProfileReadme content={readme} username={username} />
                         </div>
                     )}
+                    
 
                     {/* ── Pinned Repos (only if user has pinned) ────────────── */}
                     {pinnedRepos.length > 0 && <PinnedRepos repos={pinnedRepos} />}

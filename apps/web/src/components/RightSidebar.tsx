@@ -3,6 +3,7 @@ import Image from "next/image";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getGitHubTrendingRepos } from "@/lib/github";
+import { getLanguageColor } from "@/lib/colors";
 import CollabWidget from "./CollabWidget";
 
 export default async function RightSidebar() {
@@ -53,7 +54,7 @@ export default async function RightSidebar() {
                                 <div className="flex items-center gap-3 text-[13px] text-git-muted">
                                     {repo.language && (
                                         <span className="flex items-center gap-1">
-                                            <span className="w-3 h-3 rounded-full bg-git-accent" />
+                                            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: getLanguageColor(repo.language) }} />
                                             {repo.language}
                                         </span>
                                     )}

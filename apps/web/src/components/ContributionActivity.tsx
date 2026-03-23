@@ -5,62 +5,62 @@ import Link from "next/link";
 import type { MonthlyActivity } from "@/lib/github";
 
 interface ContributionActivityProps {
-    activity: MonthlyActivity[];
+  activity: MonthlyActivity[];
 }
 
 export default function ContributionActivity({ activity }: ContributionActivityProps) {
-    if (!activity || activity.length === 0) return null;
+  if (!activity || activity.length === 0) return null;
 
-    return (
-        <div className="w-full animate-fade-in">
+  return (
+    <div className="w-full animate-fade-in">
             <h2 className="text-base font-normal text-git-text mb-4">Contribution activity</h2>
 
             <div className="relative">
-                {activity.map((month) => (
-                    <MonthSection key={month.month} month={month} />
-                ))}
+                {activity.map((month) =>
+        <MonthSection key={month.month} month={month} />
+        )}
             </div>
-        </div>
-    );
+        </div>);
+
 }
 
-function MonthSection({ month }: { month: MonthlyActivity }) {
-    const [expanded, setExpanded] = useState(true);
+function MonthSection({ month }: {month: MonthlyActivity;}) {
+  const [expanded, setExpanded] = useState(true);
 
-    // find the max commit count for the progress bar scaling
-    const maxCommits = Math.max(...(month.commitRepos?.map(r => r.count) || [1]), 1);
+  // find the max commit count for the progress bar scaling
+  const maxCommits = Math.max(...(month.commitRepos?.map((r) => r.count) || [1]), 1);
 
-    const hasContent = month.commits > 0 ||
-        month.prsOpened.length > 0 ||
-        month.issuesOpened.length > 0 ||
-        month.issueComments.length > 0 ||
-        month.prReviews.length > 0 ||
-        month.reposCreated.length > 0;
+  const hasContent = month.commits > 0 ||
+  month.prsOpened.length > 0 ||
+  month.issuesOpened.length > 0 ||
+  month.issueComments.length > 0 ||
+  month.prReviews.length > 0 ||
+  month.reposCreated.length > 0;
 
-    if (!hasContent) return null;
+  if (!hasContent) return null;
 
-    return (
-        <div className="mb-4">
+  return (
+    <div className="mb-4">
             {/* month header */}
             <button
-                onClick={() => setExpanded(!expanded)}
-                className="flex items-center gap-2 text-sm font-semibold text-git-text mb-2 hover:text-git-accent transition-colors w-full text-left"
-            >
+        onClick={() => setExpanded(!expanded)}
+        className="flex items-center gap-2 text-sm font-semibold text-git-text mb-2 hover:text-git-accent transition-colors w-full text-left">
+        
                 <svg height="16" viewBox="0 0 16 16" width="16" className={`fill-current text-git-muted transition-transform ${expanded ? 'rotate-90' : ''}`}>
-                    <path d="M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06Z"/>
+                    <path d="M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06Z" />
                 </svg>
                 {month.month}
             </button>
 
-            {expanded && (
-                <div className="border-l-2 border-[#30363d] ml-2 pl-6 space-y-4 pb-2">
+            {expanded &&
+      <div className="border-l-2 border-[#30363d] ml-2 pl-6 space-y-4 pb-2">
                     {/* commits section */}
-                    {month.commits > 0 && Array.isArray(month.commitRepos) && (
-                        <div>
+                    {month.commits > 0 && Array.isArray(month.commitRepos) &&
+        <div>
                             <div className="flex items-center gap-2 mb-2">
                                 <div className="w-[10px] h-[10px] rounded-full bg-[#3fb950] -ml-[31px] mr-[15px] border-2 border-git-bg" />
                                 <svg height="16" viewBox="0 0 16 16" width="16" className="fill-git-muted shrink-0">
-                                    <path d="M11.93 8.5a4.002 4.002 0 0 1-7.86 0H.75a.75.75 0 0 1 0-1.5h3.32a4.002 4.002 0 0 1 7.86 0h3.32a.75.75 0 0 1 0 1.5Zm-1.43-.75a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z"/>
+                                    <path d="M11.93 8.5a4.002 4.002 0 0 1-7.86 0H.75a.75.75 0 0 1 0-1.5h3.32a4.002 4.002 0 0 1 7.86 0h3.32a.75.75 0 0 1 0 1.5Zm-1.43-.75a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z" />
                                 </svg>
                                 <span className="text-sm text-git-text">
                                     Created <strong>{month.commits.toLocaleString()}</strong> commit{month.commits !== 1 ? "s" : ""} in{" "}
@@ -69,144 +69,144 @@ function MonthSection({ month }: { month: MonthlyActivity }) {
                             </div>
                             {/* repo breakdown with progress bars */}
                             <div className="ml-6 space-y-1.5">
-                                {month.commitRepos.slice(0, 5).map((repo) => (
-                                    <div key={repo.name} className="flex items-center gap-3 text-[13px]">
+                                {month.commitRepos.slice(0, 5).map((repo) =>
+            <div key={repo.name} className="flex items-center gap-3 text-[13px]">
                                         <Link
-                                            href={`https://github.com/${repo.name}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-git-accent hover:underline truncate shrink-0 max-w-[200px]"
-                                        >
+                href={`https://github.com/${repo.name}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-git-accent hover:underline truncate shrink-0 max-w-[200px]">
+                
                                             {repo.name}
                                         </Link>
                                         <div className="flex-1 h-[8px] bg-[#161b22] rounded-full overflow-hidden">
                                             <div
-                                                className="h-full bg-[#3fb950] rounded-full"
-                                                style={{ width: `${Math.max((repo.count / maxCommits) * 100, 4)}%` }}
-                                            />
+                  className="h-full bg-[#3fb950] rounded-full"
+                  style={{ width: `${Math.max(repo.count / maxCommits * 100, 4)}%` }} />
+                
                                         </div>
                                         <span className="text-git-muted shrink-0 text-xs tabular-nums">
                                             {repo.count}
                                         </span>
                                     </div>
-                                ))}
-                                {month.commitRepos.length > 5 && (
-                                    <p className="text-xs text-git-muted">
+            )}
+                                {month.commitRepos.length > 5 &&
+            <p className="text-xs text-git-muted">
                                         and {month.commitRepos.length - 5} more...
                                     </p>
-                                )}
+            }
                             </div>
                         </div>
-                    )}
+        }
 
                     {/* pull requests */}
-                    {month.prsOpened.length > 0 && (
-                        <ActivityRow
-                            color="#a371f7"
-                            icon={<svg height="16" viewBox="0 0 16 16" width="16" className="fill-[#a371f7] shrink-0"><path d="M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm5.677-.177L9.573.677A.25.25 0 0 1 10 .854V2.5h1A2.5 2.5 0 0 1 13.5 5v5.628a2.251 2.251 0 1 1-1.5 0V5a1 1 0 0 0-1-1h-1v1.646a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354ZM3.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm0 9.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm8.25.75a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Z"/></svg>}
-                            label={<>Opened <strong>{month.prsOpened.length}</strong> pull request{month.prsOpened.length !== 1 ? "s" : ""}</>}
-                            items={month.prsOpened}
-                        />
-                    )}
+                    {month.prsOpened.length > 0 &&
+        <ActivityRow
+          color="#a371f7"
+          icon={<svg height="16" viewBox="0 0 16 16" width="16" className="fill-[#a371f7] shrink-0"><path d="M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm5.677-.177L9.573.677A.25.25 0 0 1 10 .854V2.5h1A2.5 2.5 0 0 1 13.5 5v5.628a2.251 2.251 0 1 1-1.5 0V5a1 1 0 0 0-1-1h-1v1.646a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354ZM3.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm0 9.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm8.25.75a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Z" /></svg>}
+          label={<>Opened <strong>{month.prsOpened.length}</strong> pull request{month.prsOpened.length !== 1 ? "s" : ""}</>}
+          items={month.prsOpened} />
+
+        }
 
                     {/* issues */}
-                    {month.issuesOpened.length > 0 && (
-                        <ActivityRow
-                            color="#3fb950"
-                            icon={<svg height="16" viewBox="0 0 16 16" width="16" className="fill-[#3fb950] shrink-0"><path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/></svg>}
-                            label={<>Opened <strong>{month.issuesOpened.length}</strong> issue{month.issuesOpened.length !== 1 ? "s" : ""}</>}
-                            items={month.issuesOpened}
-                        />
-                    )}
+                    {month.issuesOpened.length > 0 &&
+        <ActivityRow
+          color="#3fb950"
+          icon={<svg height="16" viewBox="0 0 16 16" width="16" className="fill-[#3fb950] shrink-0"><path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" /><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z" /></svg>}
+          label={<>Opened <strong>{month.issuesOpened.length}</strong> issue{month.issuesOpened.length !== 1 ? "s" : ""}</>}
+          items={month.issuesOpened} />
+
+        }
 
                     {/* comments */}
-                    {month.issueComments.length > 0 && (
-                        <ActivityRow
-                            color="#8b949e"
-                            icon={<svg height="16" viewBox="0 0 16 16" width="16" className="fill-git-muted shrink-0"><path d="M1.75 1h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 13H8.061l-2.574 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25v-8.5C0 1.784.784 1 1.75 1ZM1.5 2.75v8.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25H1.75a.25.25 0 0 0-.25.25Z"/></svg>}
-                            label={<>Commented on <strong>{month.issueComments.length}</strong> issue{month.issueComments.length !== 1 ? "s" : ""}</>}
-                            items={month.issueComments}
-                        />
-                    )}
+                    {month.issueComments.length > 0 &&
+        <ActivityRow
+          color="#8b949e"
+          icon={<svg height="16" viewBox="0 0 16 16" width="16" className="fill-git-muted shrink-0"><path d="M1.75 1h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 13H8.061l-2.574 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25v-8.5C0 1.784.784 1 1.75 1ZM1.5 2.75v8.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25H1.75a.25.25 0 0 0-.25.25Z" /></svg>}
+          label={<>Commented on <strong>{month.issueComments.length}</strong> issue{month.issueComments.length !== 1 ? "s" : ""}</>}
+          items={month.issueComments} />
+
+        }
 
                     {/* reviews */}
-                    {month.prReviews.length > 0 && (
-                        <ActivityRow
-                            color="#8957e5"
-                            icon={<svg height="16" viewBox="0 0 16 16" width="16" className="fill-[#8957e5] shrink-0"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm9.78-2.03-4.5 4.5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 0 1 1.06-1.06L6.25 8.94l3.97-3.97a.75.75 0 0 1 1.06 1.06Z"/></svg>}
-                            label={<>Reviewed <strong>{month.prReviews.length}</strong> pull request{month.prReviews.length !== 1 ? "s" : ""}</>}
-                            items={month.prReviews}
-                        />
-                    )}
+                    {month.prReviews.length > 0 &&
+        <ActivityRow
+          color="#8957e5"
+          icon={<svg height="16" viewBox="0 0 16 16" width="16" className="fill-[#8957e5] shrink-0"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm9.78-2.03-4.5 4.5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 0 1 1.06-1.06L6.25 8.94l3.97-3.97a.75.75 0 0 1 1.06 1.06Z" /></svg>}
+          label={<>Reviewed <strong>{month.prReviews.length}</strong> pull request{month.prReviews.length !== 1 ? "s" : ""}</>}
+          items={month.prReviews} />
+
+        }
 
                     {/* repos created */}
-                    {month.reposCreated.length > 0 && (
-                        <div>
+                    {month.reposCreated.length > 0 &&
+        <div>
                             <div className="flex items-center gap-2 mb-1">
                                 <div className="w-[10px] h-[10px] rounded-full bg-[#8b949e] -ml-[31px] mr-[15px] border-2 border-git-bg" />
                                 <svg height="16" viewBox="0 0 16 16" width="16" className="fill-git-muted shrink-0">
-                                    <path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8ZM5 12.25a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.25a.25.25 0 0 1-.4.2l-1.45-1.087a.249.249 0 0 0-.3 0L5.4 15.7a.25.25 0 0 1-.4-.2Z"/>
+                                    <path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8ZM5 12.25a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.25a.25.25 0 0 1-.4.2l-1.45-1.087a.249.249 0 0 0-.3 0L5.4 15.7a.25.25 0 0 1-.4-.2Z" />
                                 </svg>
                                 <span className="text-sm text-git-text">
                                     Created <strong>{month.reposCreated.length}</strong> repositor{month.reposCreated.length !== 1 ? "ies" : "y"}
                                 </span>
                             </div>
                             <div className="ml-6 space-y-0.5">
-                                {month.reposCreated.map((repo) => (
-                                    <Link
-                                        key={repo}
-                                        href={`https://github.com/${repo}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="block text-xs text-git-accent hover:underline"
-                                    >
+                                {month.reposCreated.map((repo) =>
+            <Link
+              key={repo}
+              href={`https://github.com/${repo}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-xs text-git-accent hover:underline">
+              
                                         {repo}
                                     </Link>
-                                ))}
+            )}
                             </div>
                         </div>
-                    )}
+        }
                 </div>
-            )}
-        </div>
-    );
+      }
+        </div>);
+
 }
 
-// reusable row for PRs, issues, comments, reviews
-function ActivityRow({ color, icon, label, items }: {
-    color: string;
-    icon: React.ReactNode;
-    label: React.ReactNode;
-    items: { title: string; url: string; repo: string }[];
-}) {
-    return (
-        <div>
+// reusable row for prs, issues, comments, reviews
+function ActivityRow({ color, icon, label, items
+
+
+
+
+}: {color: string;icon: React.ReactNode;label: React.ReactNode;items: {title: string;url: string;repo: string;}[];}) {
+  return (
+    <div>
             <div className="flex items-center gap-2 mb-1">
                 <div
-                    className="w-[10px] h-[10px] rounded-full -ml-[31px] mr-[15px] border-2 border-git-bg"
-                    style={{ backgroundColor: color }}
-                />
+          className="w-[10px] h-[10px] rounded-full -ml-[31px] mr-[15px] border-2 border-git-bg"
+          style={{ backgroundColor: color }} />
+        
                 {icon}
                 <span className="text-sm text-git-text">{label}</span>
             </div>
             <div className="ml-6 space-y-1">
-                {items.slice(0, 4).map((item, idx) => (
-                    <div key={idx} className="flex flex-col text-xs">
+                {items.slice(0, 4).map((item, idx) =>
+        <div key={idx} className="flex flex-col text-xs">
                         <Link
-                            href={item.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-git-accent hover:underline truncate"
-                        >
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-git-accent hover:underline truncate">
+            
                             {item.title}
                         </Link>
                         <span className="text-git-muted">{item.repo}</span>
                     </div>
-                ))}
-                {items.length > 4 && (
-                    <p className="text-xs text-git-muted">and {items.length - 4} more...</p>
-                )}
+        )}
+                {items.length > 4 &&
+        <p className="text-xs text-git-muted">and {items.length - 4} more...</p>
+        }
             </div>
-        </div>
-    );
+        </div>);
+
 }

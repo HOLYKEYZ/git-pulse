@@ -9,51 +9,51 @@ export default function ComposeFeed() {
   const [images, setImages] = useState<string[]>([]);
   const [previewMode, setPreviewMode] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const maxLength = 280;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-        const files = Array.from(e.target.files);
-        if (images.length + files.length > 4) {
-            alert("Maximum 4 images allowed per post");
-            return;
-        }
-        
-        files.forEach(file => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImages(prev => [...prev, reader.result as string]);
-            };
-            reader.readAsDataURL(file);
-        });
+      const files = Array.from(e.target.files);
+      if (images.length + files.length > 4) {
+        alert("Maximum 4 images allowed per post");
+        return;
+      }
+
+      files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImages((prev) => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
     }
-    // Reset so same file can be selected again if removed
+    // reset so same file can be selected again if removed
     if (e.target) e.target.value = '';
   };
 
   const removeImage = (index: number) => {
-      setImages(prev => prev.filter((_, i) => i !== index));
+    setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if ((!content.trim() && images.length === 0) || content.length > maxLength || isSubmitting) return;
-    
+    if (!content.trim() && images.length === 0 || content.length > maxLength || isSubmitting) return;
+
     setIsSubmitting(true);
     try {
       const res = await fetch('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, type: 'standard', images }),
+        body: JSON.stringify({ content, type: 'standard', images })
       });
 
       if (res.ok) {
         setContent('');
         setImages([]);
         setPreviewMode(false);
-        // Refresh the page to show new post
+        // refresh the page to show new post
         window.location.reload();
       }
     } catch (error) {
@@ -66,75 +66,75 @@ export default function ComposeFeed() {
   return (
     <div className="rounded-xl border border-git-border bg-git-card overflow-hidden">
       <div className="bg-[#0d1117] border-b border-git-border px-4 py-2 flex gap-4 text-sm font-medium">
-        <button 
-            type="button"
-            onClick={() => setPreviewMode(false)}
-            className={`pb-1 -mb-2 transition-colors ${!previewMode ? 'text-git-text border-b-2 border-git-accent' : 'text-git-muted hover:text-git-text border-b-2 border-transparent'}`}
-        >
+        <button
+          type="button"
+          onClick={() => setPreviewMode(false)}
+          className={`pb-1 -mb-2 transition-colors ${!previewMode ? 'text-git-text border-b-2 border-git-accent' : 'text-git-muted hover:text-git-text border-b-2 border-transparent'}`}>
+          
             Write
         </button>
-        <button 
-            type="button"
-            disabled={!content.trim()}
-            onClick={() => setPreviewMode(true)}
-            className={`pb-1 -mb-2 transition-colors ${previewMode ? 'text-git-text border-b-2 border-git-accent' : 'text-git-muted hover:text-git-text border-b-2 border-transparent disabled:opacity-50 disabled:cursor-not-allowed'}`}
-        >
+        <button
+          type="button"
+          disabled={!content.trim()}
+          onClick={() => setPreviewMode(true)}
+          className={`pb-1 -mb-2 transition-colors ${previewMode ? 'text-git-text border-b-2 border-git-accent' : 'text-git-muted hover:text-git-text border-b-2 border-transparent disabled:opacity-50 disabled:cursor-not-allowed'}`}>
+          
             Preview
         </button>
       </div>
       
       <form onSubmit={handleSubmit} className="p-4 flex flex-col gap-3 bg-[#0d1117]">
-        {!previewMode ? (
-            <textarea
-              placeholder="What's happening? (Supports Markdown, #hashtags, @mentions)"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="w-full min-h-[100px] resize-y bg-git-bg text-git-text font-mono text-sm p-3 rounded-md border border-git-border focus:outline-none focus:ring-2 focus:ring-git-accent focus:border-transparent placeholder:text-git-muted custom-scrollbar"
-            />
-        ) : (
-            <div className="w-full min-h-[100px] bg-git-bg text-git-text text-sm p-3 rounded-md border border-git-border overflow-y-auto custom-scrollbar markdown-body" style={{ background: '#010409', padding: '12px' }}>
+        {!previewMode ?
+        <textarea
+          placeholder="What's happening? (Supports Markdown, #hashtags, @mentions)"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          className="w-full min-h-[100px] resize-y bg-git-bg text-git-text font-mono text-sm p-3 rounded-md border border-git-border focus:outline-none focus:ring-2 focus:ring-git-accent focus:border-transparent placeholder:text-git-muted custom-scrollbar" /> :
+
+
+        <div className="w-full min-h-[100px] bg-git-bg text-git-text text-sm p-3 rounded-md border border-git-border overflow-y-auto custom-scrollbar markdown-body" style={{ background: '#010409', padding: '12px' }}>
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {content.replace(/(^|\s)(#[\w-]+)/g, '$1[$2]($2)').replace(/(^|\s)(@[\w-]+)/g, '$1[$2]($2)')}
                 </ReactMarkdown>
             </div>
-        )}
+        }
 
-        {/* Selected Images Preview */}
-        {images.length > 0 && !previewMode && (
-            <div className="flex flex-wrap gap-2 mt-2">
-                {images.map((img, idx) => (
-                    <div key={idx} className="relative group rounded-md overflow-hidden border border-git-border w-20 h-20">
+        {/* selected images preview */}
+        {images.length > 0 && !previewMode &&
+        <div className="flex flex-wrap gap-2 mt-2">
+                {images.map((img, idx) =>
+          <div key={idx} className="relative group rounded-md overflow-hidden border border-git-border w-20 h-20">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={img} alt={`Upload ${idx+1}`} className="w-full h-full object-cover" />
-                        <button 
-                            type="button" 
-                            onClick={() => removeImage(idx)}
-                            className="absolute top-1 right-1 bg-black/60 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
-                        >
+                        <img src={img} alt={`Upload ${idx + 1}`} className="w-full h-full object-cover" />
+                        <button
+              type="button"
+              onClick={() => removeImage(idx)}
+              className="absolute top-1 right-1 bg-black/60 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs">
+              
                             ✕
                         </button>
                     </div>
-                ))}
+          )}
             </div>
-        )}
+        }
         
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs text-git-muted">
-            {/* Image Upload Button */}
-            <input 
-                type="file" 
-                ref={fileInputRef} 
-                onChange={handleImageSelect} 
-                accept="image/*" 
-                multiple 
-                className="hidden" 
-            />
-            <button 
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="p-1.5 rounded-md hover:bg-git-card transition-colors text-git-accent flex items-center gap-1.5"
-                title="Attach picture"
-            >
+            {/* image upload button */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImageSelect}
+              accept="image/*"
+              multiple
+              className="hidden" />
+            
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="p-1.5 rounded-md hover:bg-git-card transition-colors text-git-accent flex items-center gap-1.5"
+              title="Attach picture">
+              
                 <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" className="fill-current">
                     <path d="M1.75 2.5a.25.25 0 0 0-.25.25v10.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25V2.75a.25.25 0 0 0-.25-.25H1.75Zm-.25-1.5h12.5a1.75 1.75 0 0 1 1.75 1.75v10.5A1.75 1.75 0 0 1 14.25 15H1.75A1.75 1.75 0 0 1 0 13.25V2.75C0 1.784.784 1 1.75 1ZM6.25 7a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5ZM2.5 13.25l3.44-3.44a.25.25 0 0 1 .354 0l1.206 1.206-2.5 2.5H2.5v-.266ZM10.53 8.47a.25.25 0 0 1 .354 0l2.616 2.616v2.164h-3.42l-2.028-2.029 2.478-2.75Z"></path>
                 </svg>
@@ -152,14 +152,14 @@ export default function ComposeFeed() {
             </span>
             <button
               type="submit"
-              disabled={(!content.trim() && images.length === 0) || content.length > maxLength || isSubmitting}
-              className="rounded-md bg-git-green px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-[#2ea043] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:bg-[#238636] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            >
+              disabled={!content.trim() && images.length === 0 || content.length > maxLength || isSubmitting}
+              className="rounded-md bg-git-green px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-[#2ea043] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:bg-[#238636] disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+              
               Post
             </button>
           </div>
         </div>
       </form>
-    </div>
-  );
+    </div>);
+
 }

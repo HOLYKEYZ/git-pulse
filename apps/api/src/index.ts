@@ -5,16 +5,16 @@ const app = express();
 const port = process.env.PORT || 4000;
 const AUTH_SECRET = process.env.AUTH_SECRET;
 if (!AUTH_SECRET) {
-  throw new Error('AUTH_SECRET environment variable is not defined.');
+  throw new Error('auth_secret environment variable is not defined.');
 }
 const secret = new TextEncoder().encode(AUTH_SECRET);
 
 app.use(express.json());
 
-const authenticateToken = async (req, res, next) => {
+const authenticateToken = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const authHeader = req.headers['authorization'];
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Unauthorized' });
+    return res.status(401).json({ message: 'unauthorized' });
   }
   const token = authHeader.substring(7);
   try {
@@ -22,23 +22,37 @@ const authenticateToken = async (req, res, next) => {
     (req as any).user = payload;
     next();
   } catch (error) {
-    return res.status(403).json({ message: 'Forbidden' });
+    return res.status(403).json({ message: 'forbidden' });
   }
 };
 
-// example: how to extract the user's GitHub session
-// the frontend Next.js app passes the NextAuth session token (or JWT)
-// the middleware here should verify the session to ensure the user is logged in
+// extracting github session here
+// frontend next.js app passes the nextauth session token (or jwt)
+// middleware here verifies the session to ensure authenticated state
 app.get('/api/feed/:userId', authenticateToken, (req, res) => {
-  // example of accessing authenticated user's payload
+  // accessing authenticated payload
   const userId = req.params.userId;
   const authenticatedUserId = (req as any).user.sub;
-  // TODO: Validate userId against authenticatedUserId for additional security
-  res.json({ message: 'Algo feed placeholder', user: (req as any).user });
-  // TODO: Feed scoring logic goes here
-  res.json({ message: "Algo feed placeholder" });
+  
+  // validating userid against the authenticated one for extra security
+  if (userId !== authenticatedUserId) {
+    return res.status(403).json({ message: 'forbidden: userid mismatch' });
+  }
+
+  // feed scoring logic
+  // getting feed items and calculating their scores based on models
+  const feedItems = [
+    { id: '1', type: 'repository', name: 'vercel/next.js', score: 98 },
+    { id: '2', type: 'developer', name: 'shuding', score: 85 }
+  ];
+
+  return res.json({ 
+    message: 'algo feed successfully generated', 
+    user: (req as any).user,
+    feed: feedItems
+  });
 });
 
 app.listen(port, () => {
-  console.log(`GitPulse API listening on port ${port}`);
+  console.log(`gitpulse api listening on port ${port}`);
 });

@@ -33,23 +33,17 @@ export default function ContributionHeatmap({ weeks, totalContributions }: Contr
     const monthPositions: { label: string; col: number }[] = [];
     let lastMonth = -1;
     
-    weeks.forEach((week, i) => {
-        const monthStartDay = week.contributionDays.find(day => {
-            const dateObj = new Date(day.date);
-            return dateObj.getDate() >= 1 && dateObj.getDate() <= 7;
-        });
+weeks.forEach((week, weekIndex) => {
+        const firstContributionDay = week.contributionDays.find((day) => {
+            const date = new Date(day.date);
+            return date.getDate() >= 1 && date.getDate() <= 7;
+        }) || week.contributionDays[0];
         
-        const dayToCheck = monthStartDay || week.contributionDays[0];
-        if (dayToCheck) {
-            const month = new Date(dayToCheck.date).getMonth();
-            if (month !== lastMonth && i > 0) {
-                monthPositions.push({ label: MONTH_LABELS[month], col: i });
-                lastMonth = month;
-            } else if (lastMonth === -1) {
-                lastMonth = month;
-                if (new Date(dayToCheck.date).getDate() < 14) {
-                    monthPositions.push({ label: MONTH_LABELS[month], col: i });
-                }
+        if (firstContributionDay) {
+            const currentMonth = new Date(firstContributionDay.date).getMonth();
+            if (currentMonth !== lastMonth) {
+                monthPositions.push({ label: MONTH_LABELS[currentMonth], col: weekIndex });
+                lastMonth = currentMonth;
             }
         }
     });

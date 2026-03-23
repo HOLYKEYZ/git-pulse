@@ -555,7 +555,7 @@ export async function getUserAchievements(username: string): Promise<UserAchieve
         multiplier = parseInt(tierText.replace('x', ''), 10);
       }
       
-      const description = $hc('h3').parent().next('div').text().replace(/\\s+/g, ' ').trim();
+      const description = $hc('h3').parent().next('div').text().replace(/\s+/g, ' ').trim();
       
       let badgeUrl = $hc('img.tier-badge').attr('src');
       if (badgeUrl) badgeUrl = badgeUrl.split('?')[0];

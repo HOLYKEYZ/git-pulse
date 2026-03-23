@@ -105,7 +105,57 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
     h1: ({ node, ...props }: any) => applyAlign(node, "h1", props),
     h2: ({ node, ...props }: any) => applyAlign(node, "h2", props),
     h3: ({ node, ...props }: any) => applyAlign(node, "h3", props),
-    section: ({ node, ...props }: any) => applyAlign(node, "section", props)
+    section: ({ node, ...props }: any) => applyAlign(node, "section", props),
+
+    // handle <picture> elements — gitpulse is always dark, so prefer the dark-mode <source>
+    picture: ({ node, children, ...props }: any) => {
+      // walk through children to find a dark-mode <source> srcset
+      let darkSrc = "";
+      let fallbackSrc = "";
+      let imgProps: any = {};
+
+      if (node?.children) {
+        for (const child of node.children) {
+          if (child.tagName === "source") {
+            const media = child.properties?.media || "";
+            const srcset = child.properties?.srcset || child.properties?.srcSet || "";
+            if (media.includes("dark") && srcset) {
+              darkSrc = srcset;
+            }
+          }
+          if (child.tagName === "img") {
+            fallbackSrc = child.properties?.src || "";
+            imgProps = child.properties || {};
+          }
+        }
+      }
+
+      const src = darkSrc || fallbackSrc;
+      if (!src) return <>{children}</>;
+
+      const w = imgProps.width || imgProps.Width;
+      const h = imgProps.height || imgProps.Height;
+      let style: React.CSSProperties = { maxWidth: "100%" };
+      if (w) {
+        const ws = String(w).trim();
+        style.width = !isNaN(Number(ws)) && ws !== '' ? `${ws}px` : ws;
+      }
+      if (h) {
+        const hs = String(h).trim();
+        style.height = !isNaN(Number(hs)) && hs !== '' ? `${hs}px` : hs;
+      }
+
+      return (
+        <img
+          src={proxyImageUrl(src, username)}
+          alt={imgProps.alt || ""}
+          loading="lazy"
+          style={style}
+        />
+      );
+    },
+    // suppress <source> elements — handled by <picture> above
+    source: () => null
   };
 
   return (

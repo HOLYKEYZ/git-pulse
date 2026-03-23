@@ -41,10 +41,10 @@ function MonthSection({ month }: {month: MonthlyActivity;}) {
     <div className="mb-6">
         {/* month header - GitHub style horizontal line */}
         <div className="flex items-center mb-4">
-            <span className="text-xs font-semibold text-git-text bg-[#0d1117] pr-2 z-10 shrink-0">
+            <span className="text-sm font-bold text-[#2f81f7] bg-[#0d1117] pr-3 z-10 shrink-0">
                 {month.month}
             </span>
-            <div className="h-[1px] bg-git-border flex-1 ml-2"></div>
+            <div className="h-[1px] bg-git-border flex-1"></div>
         </div>
 
         <div className="relative pl-6 space-y-5 pb-2">

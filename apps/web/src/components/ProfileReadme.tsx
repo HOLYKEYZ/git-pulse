@@ -74,12 +74,23 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
       
       let style: React.CSSProperties = { maxWidth: "100%", ...(props.style || {}) };
       
-      if (!height && !style.height) style.height = "auto";
+      // convert html width/height attributes to css pixel values
+      // this is the key fix — without this, images stretch to full container width
+      if (width) {
+        const w = String(width);
+        style.width = w.includes("%") ? w : `${parseInt(w, 10)}px`;
+      }
+      if (height) {
+        const h = String(height);
+        style.height = h.includes("%") ? h : `${parseInt(h, 10)}px`;
+      }
+      
+      if (!width && !height && !style.height) style.height = "auto";
       
       if (align === "center") {
         style = { ...style, display: "block", marginLeft: "auto", marginRight: "auto" };
       } else if (align === "right") {
-        style = { ...style, float: "right" };
+        style = { ...style, float: "right", marginLeft: "16px", marginBottom: "8px" };
       }
       
       return (
@@ -88,8 +99,6 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
           alt={props.alt || ""} 
           loading="lazy" 
           style={style} 
-          width={width}
-          height={height}
         />
       );
     },

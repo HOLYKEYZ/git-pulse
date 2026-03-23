@@ -1,5 +1,6 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
+import DOMPurify from "dompurify";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import type { Components } from "react-markdown";
@@ -158,7 +159,8 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
     source: () => null
   };
 
-  return (
+const sanitizedContent = DOMPurify.sanitize(content);
+return (
     <div className="w-full animate-fade-in">
       <div className="markdown-body pt-2">
         <ReactMarkdown
@@ -166,7 +168,7 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
           rehypePlugins={[rehypeRaw]}
           components={components}>
 
-          {content}
+          {sanitizedContent}
         </ReactMarkdown>
       </div>
     </div>);

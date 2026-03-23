@@ -10,7 +10,7 @@ interface ProfileReadmeProps {
 }
 
 /**
- * rewrites image urls to go through my proxy for cors-safe rendering.
+ * rewrites image urls to go through d proxy for cors-safe rendering.
  * handles: relative paths, camo urls, shields.io, github-readme-stats, etc.
  */
 function proxyImageUrl(src: string, username: string): string {
@@ -57,13 +57,13 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
   const components: Components = {
     // fix <a> targets for external links
     a: ({ href, children }) =>
-    <a
-      href={href}
-      target={href?.startsWith("http") ? "_blank" : undefined}
-      rel={href?.startsWith("http") ? "noopener noreferrer" : undefined}>
-      
-                {children}
-            </a>,
+      <a
+        href={href}
+        target={href?.startsWith("http") ? "_blank" : undefined}
+        rel={href?.startsWith("http") ? "noopener noreferrer" : undefined}>
+
+        {children}
+      </a>,
 
     p: ({ node, ...props }) => applyAlign(node, "p", props),
     div: ({ node, ...props }) => applyAlign(node, "div", props),
@@ -71,34 +71,35 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
       const align = node?.properties?.align || props.align;
       const width = node?.properties?.width || props.width;
       const height = node?.properties?.height || props.height;
-      
+
       let style: React.CSSProperties = { maxWidth: "100%", ...(props.style || {}) };
-      
-      // convert html width/height attributes to css pixel values
+
+      // convert numeric html width/height attributes to css pixel values safely
       // this is the key fix — without this, images stretch to full container width
+      // and checking strictly numeric prevents stripping valid css units like 'vw' or 'em'
       if (width) {
-        const w = String(width);
-        style.width = w.includes("%") ? w : `${parseInt(w, 10)}px`;
+        const w = String(width).trim();
+        style.width = /^\\d+$/.test(w) ? `${w}px` : w;
       }
       if (height) {
-        const h = String(height);
-        style.height = h.includes("%") ? h : `${parseInt(h, 10)}px`;
+        const h = String(height).trim();
+        style.height = /^\\d+$/.test(h) ? `${h}px` : h;
       }
-      
+
       if (!width && !height && !style.height) style.height = "auto";
-      
+
       if (align === "center") {
         style = { ...style, display: "block", marginLeft: "auto", marginRight: "auto" };
       } else if (align === "right") {
         style = { ...style, float: "right", marginLeft: "16px", marginBottom: "8px" };
       }
-      
+
       return (
-        <img 
-          src={proxyImageUrl(String(props.src || ""), username)} 
-          alt={props.alt || ""} 
-          loading="lazy" 
-          style={style} 
+        <img
+          src={proxyImageUrl(String(props.src || ""), username)}
+          alt={props.alt || ""}
+          loading="lazy"
+          style={style}
         />
       );
     },
@@ -110,15 +111,15 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
 
   return (
     <div className="w-full animate-fade-in">
-            <div className="markdown-body pt-2">
-                <ReactMarkdown
+      <div className="markdown-body pt-2">
+        <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
           components={components}>
-          
-                    {content}
-                </ReactMarkdown>
-            </div>
-        </div>);
+
+          {content}
+        </ReactMarkdown>
+      </div>
+    </div>);
 
 }

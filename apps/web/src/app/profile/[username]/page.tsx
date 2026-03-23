@@ -153,8 +153,8 @@ export default async function ProfilePage({ params }: {params: Promise<{username
             }
                     </div>
 
-                    {/* achievements (UI parity mock) */}
-                    <AchievementsWidget />
+                    {/* achievements area */}
+                    <AchievementsWidget username={username} />
 
                     {/* organizations */}
                     {userStats && userStats.organizations && userStats.organizations.length > 0 &&

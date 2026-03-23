@@ -506,6 +506,71 @@ export async function getGitHubFollowing(username: string, token: string): Promi
   return users || [];
 }
 
+// ─── user achievements scraper ───────────────────────────────────────────
+
+export interface UserAchievement {
+  name: string;
+  badgeUrl: string;
+  description?: string;
+  multiplier?: number;
+}
+
+export async function getUserAchievements(username: string): Promise<UserAchievement[]> {
+  try {
+    const res = await fetch(`https://github.com/${username}?tab=achievements`, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Accept": "text/html"
+      },
+      next: { revalidate: 3600 }
+    });
+    
+    if (!res.ok) return [];
+    
+    const html = await res.text();
+    const cheerio = require("cheerio");
+    const $ = cheerio.load(html);
+    
+    const hovercardUrls: string[] = [];
+    $('a[href*="achievement="]').each((_: any, el: any) => {
+      const url = $(el).find('[data-hovercard-url]').attr('data-hovercard-url');
+      if (url && !hovercardUrls.includes(url)) {
+        hovercardUrls.push(url);
+      }
+    });
+    
+    // Fetch detailed hovercards in parallel for descriptions and multipliers
+    const achievements = await Promise.all(hovercardUrls.map(async (url) => {
+      const hcRes = await fetch('https://github.com' + url, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+      const hcHtml = await hcRes.text();
+      const $hc = cheerio.load(hcHtml);
+      
+      const name = $hc('h3').text().trim();
+      
+      let multiplier;
+      const tierText = $hc('.achievement-tier-label').text().trim();
+      if (tierText.startsWith('x')) {
+        multiplier = parseInt(tierText.replace('x', ''), 10);
+      }
+      
+      const description = $hc('h3').parent().next('div').text().replace(/\\s+/g, ' ').trim();
+      
+      let badgeUrl = $hc('img.tier-badge').attr('src');
+      if (badgeUrl) badgeUrl = badgeUrl.split('?')[0];
+      
+      return { name, description, multiplier, badgeUrl: badgeUrl || '' };
+    }));
+    
+    return achievements.filter(a => a.badgeUrl !== '');
+  } catch (error) {
+    console.error(`Error scraping achievements for ${username}:`, error);
+    return [];
+  }
+}
+
+
 // ─── user stats (for achievements) ──────────────────────────────────────────
 
 const USER_STATS_QUERY = `

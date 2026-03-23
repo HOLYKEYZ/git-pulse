@@ -8,7 +8,8 @@
         "start": "next start",
         "lint": "next lint"
     },
-    "dependencies": {
+"dependencies": {
+    "dompurify": "^2.3.8",
         "@google/generative-ai": "^0.24.1",
         "@neondatabase/serverless": "^1.0.2",
         "@prisma/adapter-neon": "6.1.0",

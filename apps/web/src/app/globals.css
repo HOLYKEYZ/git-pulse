@@ -106,6 +106,21 @@ body {
   word-wrap: break-word;
 }
 
+/* hide the anchor link icons that github-markdown-css injects on headings */
+.markdown-body h1 .anchor,
+.markdown-body h2 .anchor,
+.markdown-body h3 .anchor,
+.markdown-body h4 .anchor,
+.markdown-body h5 .anchor,
+.markdown-body h6 .anchor {
+  display: none !important;
+}
+
+/* also hide any heading-link octicon svg that bleeds through */
+.markdown-body .octicon-link {
+  display: none !important;
+}
+
 .markdown-body h1,
 .markdown-body h2 {
   padding-bottom: 0.3em;
@@ -145,13 +160,24 @@ body {
   object-fit: contain;
 }
 
-/* shields.io / camo badge images should stay at natural size */
+/* shields.io badge images — render at their natural badge height */
 .markdown-body img[src*="shields.io"],
-.markdown-body img[src*="camo.githubusercontent.com"],
-.markdown-body img[src*="image-proxy"] {
+.markdown-body img[src*="image-proxy?url=https%3A%2F%2Fimg.shields.io"] {
   max-width: none;
   width: auto;
-  height: 20px;
+  height: auto;
+  border-radius: 0;
+}
+
+/* github stats cards and similar large svg images — fill width */
+.markdown-body img[src*="github-readme-stats"],
+.markdown-body img[src*="streak-stats"],
+.markdown-body img[src*="github-profile-trophy"],
+.markdown-body img[src*="github-readme-activity-graph"] {
+  max-width: 100%;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
 }
 
 .markdown-body pre {
@@ -192,11 +218,7 @@ body {
 
 .markdown-body li { margin: 0.25em 0; }
 
-.markdown-body img {
-  max-width: 100%;
-  border-radius: 6px;
-  height: auto;
-}
+/* (merged into the main .markdown-body img rule above) */
 
 .markdown-body [align="center"],
 .markdown-body div[align="center"],

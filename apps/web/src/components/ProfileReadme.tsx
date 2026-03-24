@@ -12,21 +12,32 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
   const $ = cheerio.load(content);
 
   // 1. Force dark mode for picture elements (GitPulse is always dark)
-  // Remove light mode sources entirely
+  // remove light mode sources entirely
   $('source[media*="light"]').remove();
-  // Force dark mode sources to always apply
+  // force dark mode sources to always apply
   $('source[media*="dark"]').attr('media', 'all');
+
+  // 1b. strip github's heading anchor links (the 🔗 chain icons on every heading)
+  $('a.anchor').remove();
+  $('.octicon-link').remove();
+  // also remove any remaining heading-link svgs
+  $('svg.octicon').each((_, el) => {
+    const parent = $(el).parent();
+    if (parent.is('a') && parent.attr('class')?.includes('anchor')) {
+      parent.remove();
+    }
+  });
 
   // 2. Proxy image URLs to handle CORS and relative path resolution
   $('img').each((_, el) => {
     let src = $(el).attr('src');
     if (src && !src.startsWith('data:')) {
-      // If the image is a relative path (e.g. "cover2.jpeg" or "/repo/img.png")
+      // if the image is a relative path (e.g. "cover2.jpeg" or "/repo/img.png")
       if (!src.startsWith('http')) {
         if (src.startsWith('/')) {
           src = `https://github.com${src}`;
         } else {
-          // It's a relative path in the special repository
+          // it's a relative path in the special repository
           src = `https://raw.githubusercontent.com/${username}/${username}/main/${src}`;
         }
       }
@@ -38,8 +49,6 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
   $('source').each((_, el) => {
     const srcset = $(el).attr('srcset');
     if (srcset && !srcset.startsWith('/') && !srcset.startsWith('data:')) {
-      // srcset might have multiple URLs and descriptors, but simple ones are single URLs.
-      // GitHub stats usually just have a single URL in srcset. Look out for spaces.
       const proxySet = srcset.split(',').map(part => {
         const [url, size] = part.trim().split(/\s+/);
         if (url && url.startsWith('http')) {

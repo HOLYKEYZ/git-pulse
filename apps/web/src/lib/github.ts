@@ -249,7 +249,7 @@ export async function getGitHubReadme(username: string, token: string): Promise<
 
   // github returns base64-encoded content
   try {
-    return Buffer.from(data.content, "base64").toString("utf-8");
+    return Buffer.from(data.content, "base64").toString('utf8');g("utf-8");
   } catch {
     console.error("Failed to decode README content");
     return null;

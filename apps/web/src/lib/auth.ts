@@ -14,8 +14,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
 
       if (account && profile) {
-        token.accessToken = account.access_token as string;
-        token.githubId = account.providerAccountId;
 
         // upsert user in db on every login - only runs on server
         try {

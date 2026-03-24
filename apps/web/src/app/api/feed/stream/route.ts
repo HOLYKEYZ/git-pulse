@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
                 avatar: `https://avatars.githubusercontent.com/u/${post.author.githubId}?v=4`
               },
               content: post.content,
-              timestamp: "Just now", // fast ui
+timestamp: post.createdAt.toISOString(),
               likes: post.reactions.length,
               comments: 0,
               reactions: post.reactions,

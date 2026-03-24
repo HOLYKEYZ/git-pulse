@@ -61,7 +61,7 @@ export interface GitHubEvent {
     commits?: Array<{
       sha: string;
       message: string;
-      author: {name: string;email: string;};
+      author: { name: string; email: string; };
     }>;
     pull_request?: {
       number: number;
@@ -104,7 +104,7 @@ export interface PinnedRepo {
   description: string | null;
   stargazerCount: number;
   forkCount: number;
-  primaryLanguage: {name: string;color: string;} | null;
+  primaryLanguage: { name: string; color: string; } | null;
   url: string;
 }
 
@@ -219,12 +219,12 @@ export async function getGitHubRepos(username: string, token: string, limit = 6)
  * fetch all repos with pagination support for the full repos page
  */
 export async function getGitHubAllRepos(
-username: string,
-token: string,
-page = 1,
-perPage = 30,
-sort: "updated" | "pushed" | "full_name" | "created" = "updated")
-: Promise<GitHubRepo[]> {
+  username: string,
+  token: string,
+  page = 1,
+  perPage = 30,
+  sort: "updated" | "pushed" | "full_name" | "created" = "updated")
+  : Promise<GitHubRepo[]> {
   const repos = await fetchWithAuth(
     `/users/${username}/repos?sort=${sort}&per_page=${perPage}&page=${page}&type=owner`,
     token
@@ -244,33 +244,16 @@ export async function getGitHubReceivedEvents(username: string, token: string): 
  * fetch the profile readme from me's special {username}/{username} repo
  */
 export async function getGitHubReadme(username: string, token: string): Promise<string | null> {
-  const cacheKey = `rest:${token.slice(-10)}:/repos/${username}/${username}/readme-rendered`;
-  
-  return withCache(cacheKey, async () => {
-    try {
-      // Use Accept: application/vnd.github.html to get the pre-rendered HTML directly
-      // This matches exactly how GitHub renders it, including all <picture> tags etc.
-      const res = await fetch(`${GITHUB_API_URL}/repos/${username}/${username}/readme`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/vnd.github.html"
-        },
-        next: { revalidate: 3600 }
-      });
+  const data = await fetchWithAuth(`/repos/${username}/${username}/readme`, token);
+  if (!data?.content) return null;
 
-      if (!res.ok) {
-        if (res.status !== 404) {
-          console.error(`Failed to fetch rendered README for ${username}: ${res.statusText}`);
-        }
-        return null;
-      }
-
-      return await res.text(); // Return the raw HTML string
-    } catch (error) {
-      console.error("Failed to fetch rendered README", error);
-      return null;
-    }
-  });
+  // github returns base64-encoded content
+  try {
+    return Buffer.from(data.content, "base64").toString("utf-8");
+  } catch {
+    console.error("Failed to decode README content");
+    return null;
+  }
 }
 
 /**
@@ -386,7 +369,7 @@ export interface MonthlyActivity {
 
 export async function getContributionActivity(username: string, token: string): Promise<MonthlyActivity[]> {
   const cacheKey = `rest:auth:/users/${username}/events`;
-  
+
   return withCache(cacheKey, async () => {
     try {
       const res = await fetch(`https://api.github.com/users/${username}/events/public?per_page=100`, {
@@ -489,8 +472,8 @@ export async function getContributionActivity(username: string, token: string): 
         month: monthLabel,
         commits: data.commits,
         commitRepos: Array.from(data.commitRepos.entries()).
-        map(([name, count]) => ({ name, count })).
-        sort((a, b: any) => b.count - (a as any).count), // highest commits first
+          map(([name, count]) => ({ name, count })).
+          sort((a, b: any) => b.count - (a as any).count), // highest commits first
         prsOpened: data.prsOpened,
         issuesOpened: data.issuesOpened,
         reposCreated: data.reposCreated,
@@ -542,13 +525,13 @@ export async function getUserAchievements(username: string): Promise<UserAchieve
       },
       next: { revalidate: 3600 }
     });
-    
+
     if (!res.ok) return [];
-    
+
     const html = await res.text();
     const cheerio = require("cheerio");
     const $ = cheerio.load(html);
-    
+
     const hovercardUrls: string[] = [];
     $('a[href*="achievement="]').each((_: any, el: any) => {
       const url = $(el).find('[data-hovercard-url]').attr('data-hovercard-url');
@@ -556,7 +539,7 @@ export async function getUserAchievements(username: string): Promise<UserAchieve
         hovercardUrls.push(url);
       }
     });
-    
+
     // Fetch detailed hovercards in parallel for descriptions and multipliers
     const achievements = await Promise.all(hovercardUrls.map(async (url) => {
       const hcRes = await fetch('https://github.com' + url, {
@@ -564,23 +547,23 @@ export async function getUserAchievements(username: string): Promise<UserAchieve
       });
       const hcHtml = await hcRes.text();
       const $hc = cheerio.load(hcHtml);
-      
+
       const name = $hc('h3').text().trim();
-      
+
       let multiplier;
       const tierText = $hc('.achievement-tier-label').text().trim();
       if (tierText.startsWith('x')) {
         multiplier = parseInt(tierText.replace('x', ''), 10);
       }
-      
+
       const description = $hc('h3').parent().next('div').text().replace(/\s+/g, ' ').trim();
-      
+
       let badgeUrl = $hc('img.tier-badge').attr('src');
       if (badgeUrl) badgeUrl = badgeUrl.split('?')[0];
-      
+
       return { name, description, multiplier, badgeUrl: badgeUrl || '' };
     }));
-    
+
     return achievements.filter(a => a.badgeUrl !== '');
   } catch (error) {
     console.error(`Error scraping achievements for ${username}:`, error);
@@ -616,8 +599,8 @@ export interface UserStats {
   totalRepos: number;
   contributedToRepos: number;
   totalFollowers: number;
-  starredRepos: {name: string;stars: number;}[];
-  organizations: {login: string;avatarUrl: string;name: string | null;}[];
+  starredRepos: { name: string; stars: number; }[];
+  organizations: { login: string; avatarUrl: string; name: string | null; }[];
 }
 
 export async function getUserStats(username: string, token: string): Promise<UserStats | null> {
@@ -629,10 +612,10 @@ export async function getUserStats(username: string, token: string): Promise<Use
 
   const user = data.user;
   const starredRepos = (user.repositories?.nodes ?? []).
-  filter((r: {stargazerCount: number;}) => r.stargazerCount > 0).
-  map((r: {name: string;stargazerCount: number;}) => ({ name: r.name, stars: r.stargazerCount }));
+    filter((r: { stargazerCount: number; }) => r.stargazerCount > 0).
+    map((r: { name: string; stargazerCount: number; }) => ({ name: r.name, stars: r.stargazerCount }));
 
-  let organizations: {login: string;avatarUrl: string;name: string | null;}[] = [];
+  let organizations: { login: string; avatarUrl: string; name: string | null; }[] = [];
   try {
     const orgsData = await fetchWithAuth(`/users/${username}/orgs`, token);
     if (Array.isArray(orgsData)) {

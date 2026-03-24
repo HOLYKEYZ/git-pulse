@@ -60,6 +60,9 @@ importers:
       '@neondatabase/serverless':
         specifier: ^1.0.2
         version: 1.0.2
+      '@primer/octicons-react':
+        specifier: ^19.23.1
+        version: 19.23.1(react@19.0.0)
       '@prisma/adapter-neon':
         specifier: 6.1.0
         version: 6.1.0(@neondatabase/serverless@1.0.2)
@@ -490,6 +493,12 @@ packages:
 
   '@pinojs/redact@0.4.0':
     resolution: {integrity: sha512-k2ENnmBugE/rzQfEcdWHcCY+/FM3VLzH9cYEsbdsoqrvzAKRhUZeRNhAZvB8OitQJ1TBed3yqWtdjzS6wJKBwg==}
+
+  '@primer/octicons-react@19.23.1':
+    resolution: {integrity: sha512-Ldiu3zZ46YGKj4PawrbnbPxwKs+8+2Zz0J24bV4PPYPrqbNo9sSbd9aHtIAyWs8PaMohlsJGfxQtHMyKt7odjg==}
+    engines: {node: '>=8'}
+    peerDependencies:
+      react: '>=16.3'
 
   '@prisma/adapter-neon@6.1.0':
     resolution: {integrity: sha512-wVAwpfiDr7O6kq4Gg4M/2grtm79vkdr52osoZItIhYrKcqPaE+H0r+nX7/S5dYLLuaVeB6UAw1SprLxff1rhNA==}
@@ -3291,6 +3300,10 @@ snapshots:
   '@panva/hkdf@1.2.1': {}
 
   '@pinojs/redact@0.4.0': {}
+
+  '@primer/octicons-react@19.23.1(react@19.0.0)':
+    dependencies:
+      react: 19.0.0
 
   '@prisma/adapter-neon@6.1.0(@neondatabase/serverless@1.0.2)':
     dependencies:

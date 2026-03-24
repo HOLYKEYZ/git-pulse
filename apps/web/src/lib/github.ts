@@ -244,16 +244,33 @@ export async function getGitHubReceivedEvents(username: string, token: string): 
  * fetch the profile readme from me's special {username}/{username} repo
  */
 export async function getGitHubReadme(username: string, token: string): Promise<string | null> {
-  const data = await fetchWithAuth(`/repos/${username}/${username}/readme`, token);
-  if (!data?.content) return null;
+  const cacheKey = `rest:${token.slice(-10)}:/repos/${username}/${username}/readme-rendered`;
+  
+  return withCache(cacheKey, async () => {
+    try {
+      // Use Accept: application/vnd.github.html to get the pre-rendered HTML directly
+      // This matches exactly how GitHub renders it, including all <picture> tags etc.
+      const res = await fetch(`${GITHUB_API_URL}/repos/${username}/${username}/readme`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/vnd.github.html"
+        },
+        next: { revalidate: 3600 }
+      });
 
-  // github returns base64-encoded content
-  try {
-    return Buffer.from(data.content, "base64").toString("utf-8");
-  } catch {
-    console.error("Failed to decode README content");
-    return null;
-  }
+      if (!res.ok) {
+        if (res.status !== 404) {
+          console.error(`Failed to fetch rendered README for ${username}: ${res.statusText}`);
+        }
+        return null;
+      }
+
+      return await res.text(); // Return the raw HTML string
+    } catch (error) {
+      console.error("Failed to fetch rendered README", error);
+      return null;
+    }
+  });
 }
 
 /**
@@ -359,7 +376,7 @@ export interface PRDetail {
 export interface MonthlyActivity {
   month: string;
   commits: number;
-  commitRepos: {name: string;count: number;}[];
+  commitRepos: { name: string; count: number }[];
   prsOpened: PRDetail[];
   issuesOpened: PRDetail[];
   reposCreated: string[];
@@ -367,123 +384,124 @@ export interface MonthlyActivity {
   issueComments: PRDetail[];
 }
 
-/**
- * fetch user events and aggregate into monthly contribution activity.
- * github api returns max 300 events (10 pages × 30).
- */
-export async function getContributionActivity(
-username: string,
-token: string,
-pages = 3)
-: Promise<MonthlyActivity[]> {
-  const allEvents: GitHubEvent[] = [];
-
-  for (let page = 1; page <= pages; page++) {
-    const events = await fetchWithAuth(
-      `/users/${username}/events?per_page=100&page=${page}`,
-      token
-    );
-    if (!events || events.length === 0) break;
-    allEvents.push(...events);
-  }
-
-  // aggregate by month
-  const monthMap = new Map<string, {
-    commits: number;
-    commitRepos: Map<string, number>;
-    prsOpened: PRDetail[];
-    issuesOpened: PRDetail[];
-    reposCreated: string[];
-    prReviews: PRDetail[];
-    issueComments: PRDetail[];
-  }>();
-
-  for (const event of allEvents) {
-    const date = new Date(event.created_at);
-    const key = date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
-
-    if (!monthMap.has(key)) {
-      monthMap.set(key, {
-        commits: 0,
-        commitRepos: new Map(),
-        prsOpened: [],
-        issuesOpened: [],
-        reposCreated: [],
-        prReviews: [],
-        issueComments: []
+export async function getContributionActivity(username: string, token: string): Promise<MonthlyActivity[]> {
+  const cacheKey = `rest:auth:/users/${username}/events`;
+  
+  return withCache(cacheKey, async () => {
+    try {
+      const res = await fetch(`https://api.github.com/users/${username}/events/public?per_page=100`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.github.v3+json',
+        },
+        next: { revalidate: 3600 }
       });
-    }
-    const month = monthMap.get(key)!;
 
-    switch (event.type) {
-      case "PushEvent":
-        const count = event.payload.commits?.length ?? 0;
-        month.commits += count;
-        const currentCount = month.commitRepos.get(event.repo.name) || 0;
-        month.commitRepos.set(event.repo.name, currentCount + count);
-        break;
-      case "PullRequestEvent":
-        if (event.payload.action === "opened" && event.payload.pull_request) {
-          month.prsOpened.push({
-            title: event.payload.pull_request.title || `PR #${event.payload.pull_request.number}`,
-            number: event.payload.pull_request.number,
-            url: event.payload.pull_request.html_url || `https://github.com/${event.repo.name}/pull/${event.payload.pull_request.number}`,
-            repo: event.repo.name
-          });
-        }
-        break;
-      case "IssuesEvent":
-        if (event.payload.action === "opened" && event.payload.issue) {
-          month.issuesOpened.push({
-            title: event.payload.issue.title || `Issue #${event.payload.issue.number}`,
-            number: event.payload.issue.number,
-            url: event.payload.issue.html_url || `https://github.com/${event.repo.name}/issues/${event.payload.issue.number}`,
-            repo: event.repo.name
-          });
-        }
-        break;
-      case "IssueCommentEvent":
-        if (event.payload.issue) {
-          month.issueComments.push({
-            title: event.payload.issue.title || `Issue #${event.payload.issue.number}`,
-            number: event.payload.issue.number,
-            url: event.payload.issue.html_url || `https://github.com/${event.repo.name}/issues/${event.payload.issue.number}`,
-            repo: event.repo.name
-          });
-        }
-        break;
-      case "PullRequestReviewEvent":
-      case "PullRequestReviewCommentEvent":
-        if (event.payload.pull_request) {
-          month.prReviews.push({
-            title: event.payload.pull_request.title || `PR #${event.payload.pull_request.number}`,
-            number: event.payload.pull_request.number,
-            url: event.payload.pull_request.html_url || `https://github.com/${event.repo.name}/pull/${event.payload.pull_request.number}`,
-            repo: event.repo.name
-          });
-        }
-        break;
-      case "CreateEvent":
-        if (event.payload.ref_type === "repository") {
-          month.reposCreated.push(event.repo.name);
-        }
-        break;
-    }
-  }
+      if (!res.ok) {
+        return [];
+      }
 
-  // convert to array, serializable
-  return Array.from(monthMap.entries()).map(([monthLabel, data]) => ({
-    month: monthLabel,
-    commits: data.commits,
-    commitRepos: Array.from(data.commitRepos.entries()).
-    map(([name, count]) => ({ name, count })).
-    sort((a, b) => b.count - a.count), // highest commits first
-    prsOpened: data.prsOpened,
-    issuesOpened: data.issuesOpened,
-    reposCreated: data.reposCreated,
-    prReviews: data.prReviews,
-    issueComments: data.issueComments
-  }));
+      const events = await res.json();
+      if (!events || !Array.isArray(events)) return [];
+
+      const monthMap = new Map<string, any>();
+
+      for (const event of events) {
+        const date = new Date(event.created_at);
+        // group by month/year like "March 2026"
+        const monthLabel = date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+
+        if (!monthMap.has(monthLabel)) {
+          monthMap.set(monthLabel, {
+            commits: 0,
+            commitRepos: new Map<string, number>(), // relative repo path -> count
+            prsOpened: [],
+            issuesOpened: [],
+            reposCreated: [],
+            prReviews: [],
+            issueComments: []
+          });
+        }
+
+        const month = monthMap.get(monthLabel);
+
+        switch (event.type) {
+          case "PushEvent":
+            if (event.payload.commits) {
+              const count = event.payload.commits.length;
+              month.commits += count;
+
+              const currentCount = month.commitRepos.get(event.repo.name) || 0;
+              month.commitRepos.set(event.repo.name, currentCount + count);
+            }
+            break;
+          case "PullRequestEvent":
+            if (event.payload.action === "opened" && event.payload.pull_request) {
+              month.prsOpened.push({
+                title: event.payload.pull_request.title || `PR #${event.payload.pull_request.number}`,
+                number: event.payload.pull_request.number,
+                url: event.payload.pull_request.html_url || `https://github.com/${event.repo.name}/pull/${event.payload.pull_request.number}`,
+                repo: event.repo.name
+              });
+            }
+            break;
+          case "IssuesEvent":
+            if (event.payload.action === "opened" && event.payload.issue) {
+              month.issuesOpened.push({
+                title: event.payload.issue.title || `Issue #${event.payload.issue.number}`,
+                number: event.payload.issue.number,
+                url: event.payload.issue.html_url || `https://github.com/${event.repo.name}/issues/${event.payload.issue.number}`,
+                repo: event.repo.name
+              });
+            }
+            break;
+          case "IssueCommentEvent":
+            if (event.payload.issue) {
+              month.issueComments.push({
+                title: event.payload.issue.title || `Issue #${event.payload.issue.number}`,
+                number: event.payload.issue.number,
+                url: event.payload.issue.html_url || `https://github.com/${event.repo.name}/issues/${event.payload.issue.number}`,
+                repo: event.repo.name
+              });
+            }
+            break;
+          case "PullRequestReviewEvent":
+          case "PullRequestReviewCommentEvent":
+            if (event.payload.pull_request) {
+              month.prReviews.push({
+                title: event.payload.pull_request.title || `PR #${event.payload.pull_request.number}`,
+                number: event.payload.pull_request.number,
+                url: event.payload.pull_request.html_url || `https://github.com/${event.repo.name}/pull/${event.payload.pull_request.number}`,
+                repo: event.repo.name
+              });
+            }
+            break;
+          case "CreateEvent":
+            if (event.payload.ref_type === "repository") {
+              month.reposCreated.push(event.repo.name);
+            }
+            break;
+        }
+      }
+
+      // convert to array, serializable
+      return Array.from(monthMap.entries()).map(([monthLabel, data]) => ({
+        month: monthLabel,
+        commits: data.commits,
+        commitRepos: Array.from(data.commitRepos.entries()).
+        map(([name, count]) => ({ name, count })).
+        sort((a, b: any) => b.count - (a as any).count), // highest commits first
+        prsOpened: data.prsOpened,
+        issuesOpened: data.issuesOpened,
+        reposCreated: data.reposCreated,
+        prReviews: data.prReviews,
+        issueComments: data.issueComments
+      }));
+    } catch (error) {
+      console.error("Failed to fetch public events", error);
+      return [];
+    }
+  });
 }
 
 // ─── followers / following ──────────────────────────────────────────────────

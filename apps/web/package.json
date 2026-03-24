@@ -11,6 +11,7 @@
     "dependencies": {
         "@google/generative-ai": "^0.24.1",
         "@neondatabase/serverless": "^1.0.2",
+        "@primer/octicons-react": "^19.23.1",
         "@prisma/adapter-neon": "6.1.0",
         "@prisma/client": "^6.1.0",
         "cheerio": "^1.2.0",

@@ -12,19 +12,21 @@ interface CollabMatch {
 }
 
 export default function CollabWidget() {
-    const [matches, setMatches] = useState<CollabMatch[]>([]);
-    const [loading, setLoading] = useState(true);
+const [matches, setMatches] = useState<CollabMatch[]>([]);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         async function fetchMatches() {
-            try {
+try {
                 const res = await fetch("/api/collab");
                 if (res.ok) {
                     const data = await res.json();
                     setMatches(data.matches || []);
+                    setError(null);
                 }
-            } catch {
-                // silently fail
+            } catch (e) {
+                setError('Failed to load developers. Please try again later.');
             } finally {
                 setLoading(false);
             }
@@ -32,25 +34,33 @@ export default function CollabWidget() {
         fetchMatches();
     }, []);
 
-    if (loading) {
-        return (
-            <div className="border border-git-border rounded-lg p-4 bg-git-card">
-                <h3 className="text-sm font-semibold text-git-text mb-3">Developers like you</h3>
-                <div className="space-y-3">
-                    {[1, 2, 3].map((i) => (
-                        <div key={i} className="flex items-center gap-3 animate-pulse">
-                            <div className="w-8 h-8 rounded-full bg-git-border" />
-                            <div className="flex-1 space-y-1">
-                                <div className="h-3 w-24 bg-git-border rounded" />
-                                <div className="h-2 w-32 bg-git-border rounded" />
+if (loading) {
+            return (
+                <div className="border border-git-border rounded-lg p-4 bg-git-card">
+                    <h3 className="text-sm font-semibold text-git-text mb-3">Developers like you</h3>
+                    <div className="space-y-3">
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className="flex items-center gap-3 animate-pulse">
+                                <div className="w-8 h-8 rounded-full bg-git-border" />
+                                <div className="flex-1 space-y-1">
+                                    <div className="h-3 w-24 bg-git-border rounded" />
+                                    <div className="h-2 w-32 bg-git-border rounded" />
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
-            </div>
-        );
-    }
-
+            );
+        }
+        if (error) {
+            return (
+                <div className="border border-git-border rounded-lg p-4 bg-git-card">
+                    <h3 className="text-sm font-semibold text-git-text mb-3">Developers like you</h3>
+                    <div className="text-git-muted">{error}</div>
+                </div>
+            );
+        }
+        if (matches.length === 0) return null;
     if (matches.length === 0) return null;
 
     return (

@@ -6,14 +6,16 @@ export const authConfig = {
   GitHub({
     clientId: process.env.GITHUB_ID,
     clientSecret: process.env.GITHUB_SECRET,
-    authorization: { params: { scope: "user user:email public_repo user:follow" } }
+authorization: { params: { scope: "user user:email" } }
   })],
 
   callbacks: {
     // we'll move the db dependant parts to the main auth.ts
-    async jwt({ token, profile }) {
+async jwt({ token, profile, account }) {
       if (profile) {
         token.login = (profile as any).login as string;
+        token.accessToken = account.access_token as string;
+        token.githubId = (profile as any).id as string;
       }
       return token;
     },

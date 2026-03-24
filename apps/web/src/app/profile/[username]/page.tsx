@@ -20,9 +20,9 @@ import RepoCard from "@/components/RepoCard";
 import FollowButton from "@/components/FollowButton";
 import ProfileTabs from "@/components/ProfileTabs";
 
-export default async function ProfilePage({ params }: {params: Promise<{username: string;}>;}) {
+export default async function ProfilePage({ params }: {params: {username: string;};}) {
   const session = await auth();
-  const { username } = await params;
+  const { username } = params;
   const token = session?.user?.accessToken;
   const isOwnProfile = session?.user?.login === username;
 

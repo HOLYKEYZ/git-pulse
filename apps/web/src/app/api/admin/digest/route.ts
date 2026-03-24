@@ -17,6 +17,9 @@ export async function GET(req: Request) {
   const secret = searchParams.get("secret");
 
   // basic auth — either via cron secret or session
+if (secret !== process.env.CRON_SECRET && !auth().user.isAdmin) {
+  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+}
   if (secret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

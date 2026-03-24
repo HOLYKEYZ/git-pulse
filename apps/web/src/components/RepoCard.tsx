@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { getLanguageColor } from '@/lib/colors';
+import { isValidHttpUrl } from '@/lib/utils';
 import { StarIcon, RepoForkedIcon } from '@primer/octicons-react';
 
 interface RepoCardProps {
@@ -65,10 +66,12 @@ export default function RepoCard({
         </>
     );
 
-    if (url) {
+const safeUrl = url && isValidHttpUrl(url) ? url : undefined;
+
+if (safeUrl) {
         return (
             <a
-                href={url}
+                href={safeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex flex-col h-full rounded-xl border border-white/5 bg-[#0d1117]/80 hover:bg-[#161b22] hover:border-white/10 p-5 shadow-sm hover:shadow-md transition-all backdrop-blur-sm"

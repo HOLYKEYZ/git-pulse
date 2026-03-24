@@ -241,19 +241,34 @@ export async function getGitHubReceivedEvents(username: string, token: string): 
 }
 
 /**
- * fetch the profile readme from me's special {username}/{username} repo
+ * fetch the profile readme as pre-rendered html from the special {username}/{username} repo.
+ * uses github's html media type so we get rendered markup, not raw markdown.
  */
 export async function getGitHubReadme(username: string, token: string): Promise<string | null> {
-  const data = await fetchWithAuth(`/repos/${username}/${username}/readme`, token);
-  if (!data?.content) return null;
+  const cacheKey = `readme-html:${token.slice(-10)}:${username}`;
 
-  // github returns base64-encoded content
-  try {
-    return Buffer.from(data.content, "base64").toString("utf-8");
-  } catch {
-    console.error("Failed to decode README content");
-    return null;
-  }
+  return withCache(cacheKey, async () => {
+    try {
+      const res = await fetch(`${GITHUB_API_URL}/repos/${username}/${username}/readme`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/vnd.github.html+json"
+        },
+        next: { revalidate: 300 }
+      });
+
+      if (!res.ok) {
+        console.error(`GitHub README fetch [${res.status}] for ${username}`);
+        return null;
+      }
+
+      // with the html accept header, the response body IS the rendered html string
+      return await res.text();
+    } catch (err) {
+      console.error("Failed to fetch README HTML:", err);
+      return null;
+    }
+  });
 }
 
 /**

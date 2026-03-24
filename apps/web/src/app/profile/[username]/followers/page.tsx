@@ -4,9 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import FollowButton from "@/components/FollowButton";
 
-export default async function FollowersPage({ params }: {params: Promise<{username: string;}>;}) {
+export default async function FollowersPage({ params }: {params: {username: string};}) {
   const session = await auth();
-  const { username } = await params;
+  const { username } = params;
   const token = session?.user?.accessToken;
 
   const followers: GitHubFollowUser[] = token ? await getGitHubFollowers(username, token) : [];

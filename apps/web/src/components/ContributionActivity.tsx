@@ -28,7 +28,7 @@ export default function ContributionActivity({ activity }: ContributionActivityP
 // ── timeline icon circle — matches github's outlined style ──
 function TimelineIcon({ icon, className }: { icon: React.ReactNode; className?: string }) {
   return (
-    <div className={`absolute -left-[25px] flex items-center justify-center w-[32px] h-[32px] rounded-full border-[2px] border-[#30363d] bg-[#0d1117] z-10 text-[#8b949e] ${className || ""}`}>
+    <div className={`absolute -left-[25px] top-0 flex items-center justify-center w-[32px] h-[32px] rounded-full border-[2px] border-[#0d1117] bg-[#161b22] z-10 text-[#8b949e] ${className || ""}`}>
       {icon}
     </div>
   );
@@ -90,7 +90,7 @@ function MonthSection({ month }: { month: MonthlyActivity }) {
               </span>
 
               {/* repo breakdown with progress bars */}
-              <div className="mt-3 space-y-[6px]">
+              <div className="mt-3 space-y-3">
                 {month.commitRepos
                   .slice(0, expandedSections["commits"] ? undefined : 4)
                   .map((repo) => (
@@ -135,7 +135,7 @@ function MonthSection({ month }: { month: MonthlyActivity }) {
                 Created <strong>{month.totalReposCreated.toLocaleString()}</strong>{" "}
                 repositor{month.totalReposCreated !== 1 ? "ies" : "y"}
               </span>
-              <div className="mt-2 space-y-1">
+              <div className="mt-2 space-y-2">
                 {month.reposCreated.map((repo) => (
                   <Link
                     key={repo}
@@ -234,18 +234,18 @@ function ActivityRow({
       <div className="pt-1">
         <span className="text-sm text-git-text">{label}</span>
 
-        <div className="mt-2 space-y-[6px]">
+        <div className="mt-3 space-y-3">
           {itemsToShow.map((item, idx) => (
-            <div key={idx} className="flex flex-col leading-tight">
+            <div key={idx} className="flex flex-col leading-snug">
               <Link
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-git-accent hover:underline truncate"
+                className="text-sm font-medium text-git-text hover:text-git-accent truncate"
               >
                 {item.title}
               </Link>
-              <span className="text-git-muted text-xs">{item.repo}</span>
+              <span className="text-git-muted text-xs mt-0.5">{item.repo}</span>
             </div>
           ))}
           {items.length > 4 && (

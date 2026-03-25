@@ -390,14 +390,12 @@ export interface MonthlyActivity {
 }
 
 export async function getContributionActivity(username: string, token: string): Promise<MonthlyActivity[]> {
-  const cacheKey = `graphql:auth:/users/${username}/contributions`;
-
-  return withCache(cacheKey, async () => {
-    try {
-      const now = new Date();
-      // To match GitHub UI exactly, we query the current month's contributions
-      const currentMonthLabel = now.toLocaleDateString("en-US", { month: "long", year: "numeric" });
-      const firstDayOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
+  console.log("[contribution-activity] CALLED for", username);
+  try {
+    const now = new Date();
+    const currentMonthLabel = now.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    const firstDayOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
+    console.log("[contribution-activity] month:", currentMonthLabel, "from:", firstDayOfMonth);
 
       const query = `
         query($login: String!, $from: DateTime!) {
@@ -478,7 +476,7 @@ export async function getContributionActivity(username: string, token: string): 
       };
 
       for (const edge of collection.commitContributionsByRepository || []) {
-        if (!edge.repository?.nameWithOwner) continue;
+        if (!edge?.repository?.nameWithOwner) continue;
         const repoName = edge.repository.nameWithOwner;
         const count = edge.contributions?.totalCount || 0;
         monthData.commits += count;
@@ -487,14 +485,14 @@ export async function getContributionActivity(username: string, token: string): 
       monthData.commitRepos.sort((a, b) => b.count - a.count);
 
       for (const node of collection.repositoryContributions?.nodes || []) {
-        if (node.repository?.nameWithOwner) {
+        if (node?.repository?.nameWithOwner) {
           monthData.reposCreated.push(node.repository.nameWithOwner);
         }
       }
       monthData.totalReposCreated = monthData.reposCreated.length;
 
       for (const edge of collection.pullRequestContributionsByRepository || []) {
-        if (!edge.repository?.nameWithOwner) continue;
+        if (!edge?.repository?.nameWithOwner) continue;
         const repoName = edge.repository.nameWithOwner;
         const totalPrs = edge.contributions?.totalCount || 0;
         if (totalPrs > 0) {
@@ -514,7 +512,7 @@ export async function getContributionActivity(username: string, token: string): 
       }
 
       for (const edge of collection.issueContributionsByRepository || []) {
-        if (!edge.repository?.nameWithOwner) continue;
+        if (!edge?.repository?.nameWithOwner) continue;
         const repoName = edge.repository.nameWithOwner;
         const totalIssues = edge.contributions?.totalCount || 0;
         if (totalIssues > 0) {
@@ -534,7 +532,7 @@ export async function getContributionActivity(username: string, token: string): 
       }
 
       for (const edge of collection.pullRequestReviewContributionsByRepository || []) {
-        if (!edge.repository?.nameWithOwner) continue;
+        if (!edge?.repository?.nameWithOwner) continue;
         const repoName = edge.repository.nameWithOwner;
         const totalReviews = edge.contributions?.totalCount || 0;
         if (totalReviews > 0) {
@@ -553,12 +551,11 @@ export async function getContributionActivity(username: string, token: string): 
         }
       }
 
-      return [monthData];
-    } catch (e) {
-      console.error("Error formatting GraphQL contributions", e);
-      return [];
-    }
-  });
+    return [monthData];
+  } catch (e) {
+    console.error("[contribution-activity] Error formatting GraphQL contributions", e);
+    return [];
+  }
 }
 
 // ─── followers / following ──────────────────────────────────────────────────

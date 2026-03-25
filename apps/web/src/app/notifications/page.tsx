@@ -15,21 +15,21 @@ const TYPE_ICONS: Record<string, string> = {
 
 export default async function NotificationsPage() {
     const session = await auth();
-    if (!session?.user?.id) {
+    if (!session?.user?.login) {
         redirect("/login");
     }
 
     let notifications: any[] = [];
     try {
         notifications = await prisma.notification.findMany({
-            where: { userId: session.user.id },
+            where: { user: { username: session.user.login } },
             orderBy: { createdAt: "desc" },
             take: 50,
         });
 
         // mark all unread as read on page load
         await prisma.notification.updateMany({
-            where: { userId: session.user.id, read: false },
+            where: { user: { username: session.user.login }, read: false },
             data: { read: true },
         });
     } catch (err) {

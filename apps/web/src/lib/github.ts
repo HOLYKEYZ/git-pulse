@@ -272,24 +272,77 @@ export async function getGitHubReadme(username: string, token: string): Promise<
 }
 
 /**
- * search trending repos (recently created, high stars)
+ * Scrape actual GitHub trending repos
  */
-export async function getGitHubTrendingRepos(token: string, limit = 5): Promise<GitHubRepo[]> {
+export async function getGitHubTrendingRepos(token: string, limit = 5): Promise<any[]> {
+  try {
+    const res = await fetch('https://github.com/trending', {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Accept": "text/html"
+      },
+      next: { revalidate: 3600 }
+    });
+
+    if (!res.ok) {
+      console.error("Failed to fetch trending page", res.status);
+      return [];
+    }
+    
+    const html = await res.text();
+    const cheerio = require('cheerio');
+    const $ = cheerio.load(html);
+    
+    const repos: any[] = [];
+    $('article.Box-row').each((i: number, el: any) => {
+      if (i >= limit) return false;
+      
+      const titleEl = $(el).find('h2.h3 a');
+      const href = titleEl.attr('href') || '';
+      const fullName = href.substring(1); 
+      
+      const description = $(el).find('p.col-9').text().replace(/\s+/g, ' ').trim();
+      const language = $(el).find('[itemprop="programmingLanguage"]').text().trim();
+      
+      const starsText = $(el).find('a[href$="/stargazers"]').text().trim().replace(/,/g, '');
+      const stargazers_count = parseInt(starsText) || 0;
+      
+      repos.push({
+        id: fullName,
+        html_url: `https://github.com${href}`,
+        full_name: fullName,
+        description,
+        language,
+        stargazers_count
+      });
+    });
+    
+    return repos;
+  } catch (err) {
+    console.error("Error scraping GitHub Trending:", err);
+    return [];
+  }
+}
+
+/**
+ * fetch high-potential lower-starred upcoming projects
+ */
+export async function getUpcomingGitHubProjects(token: string, limit = 5): Promise<any[]> {
   const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
   const repos = await fetchWithAuth(
-    `/search/repositories?q=created:>${oneMonthAgo}&sort=stars&order=desc&per_page=${limit}`,
+    `/search/repositories?q=created:>${oneMonthAgo}+stars:50..500&sort=stars&order=desc&per_page=${limit}`,
     token
   );
   return repos?.items || [];
 }
 
 /**
- * fetch suggested users (Devs like you)
+ * fetch suggested users (Mid-tier Devs like you)
  */
 export async function getSuggestedGitHubUsers(token: string, language?: string, limit = 3): Promise<any[]> {
-  const q = language ? `language:${language} followers:>50 type:user` : `followers:>500 type:user`;
-  // Randomize the page slightly to give different results
-  const randomPage = Math.floor(Math.random() * 5) + 1;
+  const q = language ? `language:${language} followers:5..2000 type:user` : `followers:5..2000 type:user`;
+  // deterministic page seed changing every 30 minutes
+  const randomPage = (Math.floor(Date.now() / (1000 * 60 * 30)) % 10) + 1;
   const users = await fetchWithAuth(
     `/search/users?q=${q}&sort=followers&order=desc&per_page=${limit}&page=${randomPage}`,
     token

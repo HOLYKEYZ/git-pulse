@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getGitHubTrendingRepos, getSuggestedGitHubUsers } from "@/lib/github";
+import { getGitHubTrendingRepos, getSuggestedGitHubUsers, getUpcomingGitHubProjects } from "@/lib/github";
 import { getLanguageColor } from "@/lib/colors";
 import CollabWidget from "./CollabWidget";
 
@@ -12,6 +12,9 @@ export default async function RightSidebar() {
 
   // fetch real trending repos if i have a token
   const trendingRepos = token ? await getGitHubTrendingRepos(token, 5) : [];
+  
+  // fetch upcoming projects with low stars
+  const upcomingProjects = token ? await getUpcomingGitHubProjects(token, 3) : [];
 
   let suggestedUsers = await prisma.user.findMany({
     take: 3,
@@ -79,6 +82,42 @@ export default async function RightSidebar() {
                             </a>
             ) :
             <div className="px-4 py-6 text-[13px] text-git-muted">Loading trending repos...</div>
+            }
+                    </div>
+                </div>
+
+                {/* upcoming projects */}
+                <div className="rounded-2xl border border-git-border bg-git-card overflow-hidden">
+                    <h3 className="font-bold text-xl text-git-text px-4 pt-3 pb-2">
+                        Upcoming Projects
+                    </h3>
+                    <div className="stagger-children">
+                        {upcomingProjects.length > 0 ? upcomingProjects.map((repo: any) =>
+            <a
+              key={repo.id}
+              href={repo.html_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block px-4 py-3 hover:bg-white/[0.03] transition-colors">
+              
+                                <div className="text-[15px] font-bold text-[#2ea043] mb-0.5 truncate">
+                                    {repo.full_name}
+                                </div>
+                                {repo.description &&
+              <p className="text-[13px] text-git-muted line-clamp-2 mb-1.5 leading-snug">{repo.description}</p>
+              }
+                                <div className="flex items-center gap-3 text-[13px] text-git-muted">
+                                    {repo.language &&
+                <span className="flex items-center gap-1">
+                                            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: getLanguageColor(repo.language) }} />
+                                            {repo.language}
+                                        </span>
+                }
+                                    <span>⭐ {repo.stargazers_count?.toLocaleString() || 0}</span>
+                                </div>
+                            </a>
+            ) :
+            <div className="px-4 py-6 text-[13px] text-git-muted">No upcoming projects found.</div>
             }
                     </div>
                 </div>

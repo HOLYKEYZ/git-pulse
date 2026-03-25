@@ -375,128 +375,180 @@ export interface MonthlyActivity {
   month: string;
   commits: number;
   commitRepos: { name: string; count: number }[];
+  totalPrsOpened: number;
+  totalPrRepos: number;
   prsOpened: PRDetail[];
+  totalIssuesOpened: number;
+  totalIssueRepos: number;
   issuesOpened: PRDetail[];
+  totalReposCreated: number;
   reposCreated: string[];
+  totalPrReviews: number;
+  totalReviewRepos: number;
   prReviews: PRDetail[];
   issueComments: PRDetail[];
 }
 
 export async function getContributionActivity(username: string, token: string): Promise<MonthlyActivity[]> {
-  const cacheKey = `rest:auth:/users/${username}/events`;
+  const cacheKey = `graphql:auth:/users/${username}/contributions`;
 
   return withCache(cacheKey, async () => {
     try {
-      const res = await fetch(`https://api.github.com/users/${username}/events/public?per_page=100`, {
+      const now = new Date();
+      // To match GitHub UI exactly, we query the current month's contributions
+      const currentMonthLabel = now.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+      const firstDayOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
+
+      const query = `
+        query($login: String!, $from: DateTime!) {
+          user(login: $login) {
+            contributionsCollection(from: $from) {
+              commitContributionsByRepository(maxRepositories: 50) {
+                repository { nameWithOwner }
+                contributions { totalCount }
+              }
+              repositoryContributions(first: 50) {
+                nodes { repository { nameWithOwner } }
+              }
+              pullRequestContributionsByRepository(maxRepositories: 50) {
+                repository { nameWithOwner }
+                contributions(first: 10) {
+                  totalCount
+                  nodes { pullRequest { title, url, number } }
+                }
+              }
+              issueContributionsByRepository(maxRepositories: 50) {
+                repository { nameWithOwner }
+                contributions(first: 10) {
+                  totalCount
+                  nodes { issue { title, url, number } }
+                }
+              }
+              pullRequestReviewContributionsByRepository(maxRepositories: 50) {
+                repository { nameWithOwner }
+                contributions(first: 10) {
+                  totalCount
+                  nodes { pullRequest { title, url, number } }
+                }
+              }
+            }
+          }
+        }
+      `;
+
+      const res = await fetch("https://api.github.com/graphql", {
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-          Accept: 'application/vnd.github.v3+json',
+          "Content-Type": "application/json"
         },
+        body: JSON.stringify({ query, variables: { login: username, from: firstDayOfMonth } }),
         next: { revalidate: 3600 }
       });
 
       if (!res.ok) {
+        console.error("Failed to fetch GraphQL contributions", res.status);
         return [];
       }
 
-      const events = await res.json();
-      if (!events || !Array.isArray(events)) return [];
+      const json = await res.json();
+      if (json.errors || !json.data?.user?.contributionsCollection) {
+        console.error("GraphQL errors:", json.errors);
+        return [];
+      }
 
-      const monthMap = new Map<string, any>();
+      const collection = json.data.user.contributionsCollection;
+      
+      const monthData: MonthlyActivity = {
+        month: currentMonthLabel,
+        commits: 0,
+        commitRepos: [],
+        totalPrsOpened: 0,
+        totalPrRepos: 0,
+        prsOpened: [],
+        totalIssuesOpened: 0,
+        totalIssueRepos: 0,
+        issuesOpened: [],
+        totalReposCreated: 0,
+        reposCreated: [],
+        totalPrReviews: 0,
+        totalReviewRepos: 0,
+        prReviews: [],
+        issueComments: []
+      };
 
-      for (const event of events) {
-        const date = new Date(event.created_at);
-        // group by month/year like "March 2026"
-        const monthLabel = date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+      for (const edge of collection.commitContributionsByRepository || []) {
+        const repoName = edge.repository.nameWithOwner;
+        const count = edge.contributions.totalCount;
+        monthData.commits += count;
+        monthData.commitRepos.push({ name: repoName, count });
+      }
+      monthData.commitRepos.sort((a, b) => b.count - a.count);
 
-        if (!monthMap.has(monthLabel)) {
-          monthMap.set(monthLabel, {
-            commits: 0,
-            commitRepos: new Map<string, number>(), // relative repo path -> count
-            prsOpened: [],
-            issuesOpened: [],
-            reposCreated: [],
-            prReviews: [],
-            issueComments: []
-          });
+      for (const node of collection.repositoryContributions?.nodes || []) {
+        if (node.repository?.nameWithOwner) {
+          monthData.reposCreated.push(node.repository.nameWithOwner);
         }
+      }
+      monthData.totalReposCreated = monthData.reposCreated.length;
 
-        const month = monthMap.get(monthLabel);
-
-        switch (event.type) {
-          case "PushEvent":
-            if (event.payload.commits) {
-              const count = event.payload.commits.length;
-              month.commits += count;
-
-              const currentCount = month.commitRepos.get(event.repo.name) || 0;
-              month.commitRepos.set(event.repo.name, currentCount + count);
-            }
-            break;
-          case "PullRequestEvent":
-            if (event.payload.action === "opened" && event.payload.pull_request) {
-              month.prsOpened.push({
-                title: event.payload.pull_request.title || `PR #${event.payload.pull_request.number}`,
-                number: event.payload.pull_request.number,
-                url: event.payload.pull_request.html_url || `https://github.com/${event.repo.name}/pull/${event.payload.pull_request.number}`,
-                repo: event.repo.name
-              });
-            }
-            break;
-          case "IssuesEvent":
-            if (event.payload.action === "opened" && event.payload.issue) {
-              month.issuesOpened.push({
-                title: event.payload.issue.title || `Issue #${event.payload.issue.number}`,
-                number: event.payload.issue.number,
-                url: event.payload.issue.html_url || `https://github.com/${event.repo.name}/issues/${event.payload.issue.number}`,
-                repo: event.repo.name
-              });
-            }
-            break;
-          case "IssueCommentEvent":
-            if (event.payload.issue) {
-              month.issueComments.push({
-                title: event.payload.issue.title || `Issue #${event.payload.issue.number}`,
-                number: event.payload.issue.number,
-                url: event.payload.issue.html_url || `https://github.com/${event.repo.name}/issues/${event.payload.issue.number}`,
-                repo: event.repo.name
-              });
-            }
-            break;
-          case "PullRequestReviewEvent":
-          case "PullRequestReviewCommentEvent":
-            if (event.payload.pull_request) {
-              month.prReviews.push({
-                title: event.payload.pull_request.title || `PR #${event.payload.pull_request.number}`,
-                number: event.payload.pull_request.number,
-                url: event.payload.pull_request.html_url || `https://github.com/${event.repo.name}/pull/${event.payload.pull_request.number}`,
-                repo: event.repo.name
-              });
-            }
-            break;
-          case "CreateEvent":
-            if (event.payload.ref_type === "repository") {
-              month.reposCreated.push(event.repo.name);
-            }
-            break;
+      for (const edge of collection.pullRequestContributionsByRepository || []) {
+        const repoName = edge.repository.nameWithOwner;
+        const totalPrs = edge.contributions?.totalCount || 0;
+        if (totalPrs > 0) {
+          monthData.totalPrsOpened += totalPrs;
+          monthData.totalPrRepos += 1;
+        }
+        for (const prNode of edge.contributions?.nodes || []) {
+          const pr = prNode.pullRequest;
+          monthData.prsOpened.push({
+            title: pr.title,
+            url: pr.url,
+            number: pr.number,
+            repo: repoName
+          });
         }
       }
 
-      // convert to array, serializable
-      return Array.from(monthMap.entries()).map(([monthLabel, data]) => ({
-        month: monthLabel,
-        commits: data.commits,
-        commitRepos: Array.from(data.commitRepos.entries()).
-          map(([name, count]) => ({ name, count })).
-          sort((a, b: any) => b.count - (a as any).count), // highest commits first
-        prsOpened: data.prsOpened,
-        issuesOpened: data.issuesOpened,
-        reposCreated: data.reposCreated,
-        prReviews: data.prReviews,
-        issueComments: data.issueComments
-      }));
-    } catch (error) {
-      console.error("Failed to fetch public events", error);
+      for (const edge of collection.issueContributionsByRepository || []) {
+        const repoName = edge.repository.nameWithOwner;
+        const totalIssues = edge.contributions?.totalCount || 0;
+        if (totalIssues > 0) {
+          monthData.totalIssuesOpened += totalIssues;
+          monthData.totalIssueRepos += 1;
+        }
+        for (const issueNode of edge.contributions?.nodes || []) {
+          const issue = issueNode.issue;
+          monthData.issuesOpened.push({
+            title: issue.title,
+            url: issue.url,
+            number: issue.number,
+            repo: repoName
+          });
+        }
+      }
+
+      for (const edge of collection.pullRequestReviewContributionsByRepository || []) {
+        const repoName = edge.repository.nameWithOwner;
+        const totalReviews = edge.contributions?.totalCount || 0;
+        if (totalReviews > 0) {
+          monthData.totalPrReviews += totalReviews;
+          monthData.totalReviewRepos += 1;
+        }
+        for (const reviewNode of edge.contributions?.nodes || []) {
+          const pr = reviewNode.pullRequest;
+          monthData.prReviews.push({
+            title: pr.title,
+            url: pr.url,
+            number: pr.number,
+            repo: repoName
+          });
+        }
+      }
+
+      return [monthData];
+    } catch (e) {
+      console.error("Error formatting GraphQL contributions", e);
       return [];
     }
   });

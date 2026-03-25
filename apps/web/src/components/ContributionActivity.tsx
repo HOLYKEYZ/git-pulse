@@ -58,11 +58,10 @@ function MonthSection({ month }: { month: MonthlyActivity }) {
 
   const hasContent =
     month.commits > 0 ||
-    month.prsOpened.length > 0 ||
-    month.issuesOpened.length > 0 ||
-    month.issueComments.length > 0 ||
-    month.prReviews.length > 0 ||
-    month.reposCreated.length > 0;
+    month.totalPrsOpened > 0 ||
+    month.totalIssuesOpened > 0 ||
+    month.totalPrReviews > 0 ||
+    month.totalReposCreated > 0;
 
   if (!hasContent) return null;
 
@@ -128,13 +127,13 @@ function MonthSection({ month }: { month: MonthlyActivity }) {
         )}
 
         {/* ── repos created ── */}
-        {month.reposCreated.length > 0 && (
+        {month.totalReposCreated > 0 && (
           <div className="relative pb-6">
             <TimelineIcon icon={<RepoIcon size={16} />} />
             <div className="pt-1">
               <span className="text-sm text-git-text">
-                Created <strong>{month.reposCreated.length}</strong>{" "}
-                repositor{month.reposCreated.length !== 1 ? "ies" : "y"}
+                Created <strong>{month.totalReposCreated.toLocaleString()}</strong>{" "}
+                repositor{month.totalReposCreated !== 1 ? "ies" : "y"}
               </span>
               <div className="mt-2 space-y-1">
                 {month.reposCreated.map((repo) => (
@@ -154,15 +153,15 @@ function MonthSection({ month }: { month: MonthlyActivity }) {
         )}
 
         {/* ── pull requests opened ── */}
-        {month.prsOpened.length > 0 && (
+        {month.totalPrsOpened > 0 && (
           <ActivityRow
             sectionKey="prs"
             icon={<GitPullRequestIcon size={16} />}
             label={
               <>
-                Opened <strong>{month.prsOpened.length}</strong> pull request{month.prsOpened.length !== 1 ? "s" : ""} in{" "}
-                <strong>{new Set(month.prsOpened.map((pr) => pr.repo)).size}</strong>{" "}
-                repositor{new Set(month.prsOpened.map((pr) => pr.repo)).size !== 1 ? "ies" : "y"}
+                Opened <strong>{month.totalPrsOpened.toLocaleString()}</strong> pull request{month.totalPrsOpened !== 1 ? "s" : ""} in{" "}
+                <strong>{month.totalPrRepos.toLocaleString()}</strong>{" "}
+                repositor{month.totalPrRepos !== 1 ? "ies" : "y"}
               </>
             }
             items={month.prsOpened}
@@ -172,15 +171,15 @@ function MonthSection({ month }: { month: MonthlyActivity }) {
         )}
 
         {/* ── issues opened ── */}
-        {month.issuesOpened.length > 0 && (
+        {month.totalIssuesOpened > 0 && (
           <ActivityRow
             sectionKey="issues"
             icon={<IssueOpenedIcon size={16} />}
             label={
               <>
-                Opened <strong>{month.issuesOpened.length}</strong> issue{month.issuesOpened.length !== 1 ? "s" : ""} in{" "}
-                <strong>{new Set(month.issuesOpened.map((i) => i.repo)).size}</strong>{" "}
-                repositor{new Set(month.issuesOpened.map((i) => i.repo)).size !== 1 ? "ies" : "y"}
+                Opened <strong>{month.totalIssuesOpened.toLocaleString()}</strong> issue{month.totalIssuesOpened !== 1 ? "s" : ""} in{" "}
+                <strong>{month.totalIssueRepos.toLocaleString()}</strong>{" "}
+                repositor{month.totalIssueRepos !== 1 ? "ies" : "y"}
               </>
             }
             items={month.issuesOpened}
@@ -189,34 +188,16 @@ function MonthSection({ month }: { month: MonthlyActivity }) {
           />
         )}
 
-        {/* ── comments ── */}
-        {month.issueComments.length > 0 && (
-          <ActivityRow
-            sectionKey="comments"
-            icon={<CommentIcon size={16} />}
-            label={
-              <>
-                Commented on <strong>{month.issueComments.length}</strong> issue{month.issueComments.length !== 1 ? "s" : ""} in{" "}
-                <strong>{new Set(month.issueComments.map((i) => i.repo)).size}</strong>{" "}
-                repositor{new Set(month.issueComments.map((i) => i.repo)).size !== 1 ? "ies" : "y"}
-              </>
-            }
-            items={month.issueComments}
-            expanded={!!expandedSections["comments"]}
-            onToggle={() => toggle("comments")}
-          />
-        )}
-
         {/* ── reviews ── */}
-        {month.prReviews.length > 0 && (
+        {month.totalPrReviews > 0 && (
           <ActivityRow
             sectionKey="reviews"
             icon={<EyeIcon size={16} />}
             label={
               <>
-                Reviewed <strong>{month.prReviews.length}</strong> pull request{month.prReviews.length !== 1 ? "s" : ""} in{" "}
-                <strong>{new Set(month.prReviews.map((pr) => pr.repo)).size}</strong>{" "}
-                repositor{new Set(month.prReviews.map((pr) => pr.repo)).size !== 1 ? "ies" : "y"}
+                Reviewed <strong>{month.totalPrReviews.toLocaleString()}</strong> pull request{month.totalPrReviews !== 1 ? "s" : ""} in{" "}
+                <strong>{month.totalReviewRepos.toLocaleString()}</strong>{" "}
+                repositor{month.totalReviewRepos !== 1 ? "ies" : "y"}
               </>
             }
             items={month.prReviews}

@@ -16,11 +16,12 @@ export async function GET(req: NextRequest) {
     const parsedUrl = new URL(url);
 
     // prevent obvious ssrf to local ip space
-      const isPrivateIP = ["127.0.0.1", "localhost", "::1"].includes(parsedUrl.hostname) || parsedUrl.hostname.startsWith("10.") || parsedUrl.hostname.startsWith("192.168.") || parsedUrl.hostname.startsWith("169.254.");
-      const is172Range = parsedUrl.hostname.split('.').length === 4 && parsedUrl.hostname.split('.')[0] === '172' && parseInt(parsedUrl.hostname.split('.')[1]) >= 16 && parseInt(parsedUrl.hostname.split('.')[1]) <= 31;
-      if (isPrivateIP || is172Range) {
-      return NextResponse.json({ error: "SSRF prevention" }, { status: 403 });
-    }
+const isPrivateIP = ["127.0.0.1", "localhost", "::1"].includes(parsedUrl.hostname) || parsedUrl.hostname.startsWith("10.") || parsedUrl.hostname.startsWith("192.168.") || parsedUrl.hostname.startsWith("169.254.") || parsedUrl.hostname.startsWith("0.") || (parsedUrl.hostname.startsWith("198.18.") || parsedUrl.hostname.startsWith("198.19.")) || parsedUrl.hostname.startsWith("100.64.") && parseInt(parsedUrl.hostname.split('.')[1]) >= 0 && parseInt(parsedUrl.hostname.split('.')[1]) <= 127;
+const is172Range = parsedUrl.hostname.split('.').length === 4 && parsedUrl.hostname.split('.')[0] === '172' && parseInt(parsedUrl.hostname.split('.')[1]) >= 16 && parseInt(parsedUrl.hostname.split('.')[1]) <= 31;
+const isIPv6LinkLocal = parsedUrl.hostname.toLowerCase().startsWith("fe80:");
+if (isPrivateIP || is172Range || isIPv6LinkLocal) {
+return NextResponse.json({ error: "SSRF prevention" }, { status: 403 });
+}
 
     const response = await fetch(url, {
       headers: {

@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 
 export default function ShipItForm() {
   const router = useRouter();
-  const [repo, setRepo] = useState('');
+const [selectedRepoFullName, setSelectedRepoFullName] = useState('');
+const [selectedRepoDisplayName, setSelectedRepoDisplayName] = useState('');
   const [version, setVersion] = useState('');
   const [changelog, setChangelog] = useState('');
   const [repos, setRepos] = useState<{name: string, full_name: string}[]>([]);
@@ -28,18 +29,18 @@ export default function ShipItForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!repo || !version || !changelog.trim() || isSubmitting) return;
+    if (!selectedRepoFullName || !version || !changelog.trim() || isSubmitting) return;
     
     setIsSubmitting(true);
     try {
       const res = await fetch('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          content: `Shipped a new release of ${repo}!`,
-          type: 'ship',
-          shipDetails: { version, changelog }
-        }),
+          body: JSON.stringify({ 
+            content: `Shipped a new release of ${selectedRepoDisplayName}!`, 
+            type: 'ship',
+            shipDetails: { version, changelog, repoFullName: selectedRepoFullName }
+          }),
       });
 
       if (res.ok) {
@@ -69,14 +70,20 @@ export default function ShipItForm() {
         <div className="flex gap-4">
           <div className="flex-1 flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-git-text">Repository</label>
-            <select 
-              value={repo}
-              onChange={(e) => setRepo(e.target.value)}
+          <select 
+              value={selectedRepoFullName}
+              onChange={(e) => {
+                const selectedRepo = repos.find(r => r.full_name === e.target.value);
+                if (selectedRepo) {
+                  setSelectedRepoFullName(e.target.value);
+                  setSelectedRepoDisplayName(selectedRepo.name);
+                }
+              }}
               className="w-full bg-git-bg text-git-text text-sm p-2 rounded-md border border-git-border focus:outline-none focus:ring-2 focus:ring-git-accent focus:border-transparent appearance-none"
             >
               <option value="" disabled>Select a repository...</option>
               {repos.map(r => (
-                <option key={r.name} value={r.name}>{r.name}</option>
+                <option key={r.full_name} value={r.full_name}>{r.name}</option>
               ))}
             </select>
           </div>
@@ -110,7 +117,7 @@ export default function ShipItForm() {
           
           <button
             type="submit"
-            disabled={!repo || !version || !changelog.trim()}
+            disabled={!selectedRepoFullName || !version || !changelog.trim()}
             className="rounded-md bg-git-green px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-[#2ea043] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:bg-[#238636] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
           >
             🚢 Ship It

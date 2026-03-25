@@ -447,13 +447,13 @@ export async function getContributionActivity(username: string, token: string): 
       });
 
       if (!res.ok) {
-        console.error("Failed to fetch GraphQL contributions", res.status);
+        console.error("[contribution-activity] graphql fetch failed", res.status, await res.text());
         return [];
       }
 
       const json = await res.json();
       if (json.errors || !json.data?.user?.contributionsCollection) {
-        console.error("GraphQL errors:", json.errors);
+        console.error("[contribution-activity] graphql response error:", JSON.stringify(json.errors || json, null, 2));
         return [];
       }
 
@@ -478,8 +478,9 @@ export async function getContributionActivity(username: string, token: string): 
       };
 
       for (const edge of collection.commitContributionsByRepository || []) {
+        if (!edge.repository?.nameWithOwner) continue;
         const repoName = edge.repository.nameWithOwner;
-        const count = edge.contributions.totalCount;
+        const count = edge.contributions?.totalCount || 0;
         monthData.commits += count;
         monthData.commitRepos.push({ name: repoName, count });
       }
@@ -493,6 +494,7 @@ export async function getContributionActivity(username: string, token: string): 
       monthData.totalReposCreated = monthData.reposCreated.length;
 
       for (const edge of collection.pullRequestContributionsByRepository || []) {
+        if (!edge.repository?.nameWithOwner) continue;
         const repoName = edge.repository.nameWithOwner;
         const totalPrs = edge.contributions?.totalCount || 0;
         if (totalPrs > 0) {
@@ -500,10 +502,11 @@ export async function getContributionActivity(username: string, token: string): 
           monthData.totalPrRepos += 1;
         }
         for (const prNode of edge.contributions?.nodes || []) {
-          const pr = prNode.pullRequest;
+          const pr = prNode?.pullRequest;
+          if (!pr) continue;
           monthData.prsOpened.push({
-            title: pr.title,
-            url: pr.url,
+            title: pr.title || `PR #${pr.number}`,
+            url: pr.url || `https://github.com/${repoName}/pull/${pr.number}`,
             number: pr.number,
             repo: repoName
           });
@@ -511,6 +514,7 @@ export async function getContributionActivity(username: string, token: string): 
       }
 
       for (const edge of collection.issueContributionsByRepository || []) {
+        if (!edge.repository?.nameWithOwner) continue;
         const repoName = edge.repository.nameWithOwner;
         const totalIssues = edge.contributions?.totalCount || 0;
         if (totalIssues > 0) {
@@ -518,10 +522,11 @@ export async function getContributionActivity(username: string, token: string): 
           monthData.totalIssueRepos += 1;
         }
         for (const issueNode of edge.contributions?.nodes || []) {
-          const issue = issueNode.issue;
+          const issue = issueNode?.issue;
+          if (!issue) continue;
           monthData.issuesOpened.push({
-            title: issue.title,
-            url: issue.url,
+            title: issue.title || `Issue #${issue.number}`,
+            url: issue.url || `https://github.com/${repoName}/issues/${issue.number}`,
             number: issue.number,
             repo: repoName
           });
@@ -529,6 +534,7 @@ export async function getContributionActivity(username: string, token: string): 
       }
 
       for (const edge of collection.pullRequestReviewContributionsByRepository || []) {
+        if (!edge.repository?.nameWithOwner) continue;
         const repoName = edge.repository.nameWithOwner;
         const totalReviews = edge.contributions?.totalCount || 0;
         if (totalReviews > 0) {
@@ -536,10 +542,11 @@ export async function getContributionActivity(username: string, token: string): 
           monthData.totalReviewRepos += 1;
         }
         for (const reviewNode of edge.contributions?.nodes || []) {
-          const pr = reviewNode.pullRequest;
+          const pr = reviewNode?.pullRequest;
+          if (!pr) continue;
           monthData.prReviews.push({
-            title: pr.title,
-            url: pr.url,
+            title: pr.title || `PR #${pr.number}`,
+            url: pr.url || `https://github.com/${repoName}/pull/${pr.number}`,
             number: pr.number,
             repo: repoName
           });

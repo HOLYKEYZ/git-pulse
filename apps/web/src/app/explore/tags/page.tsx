@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Metadata } from "next";
+import LRU from 'lru-cache';
 
 export const metadata: Metadata = {
   title: "Explore Trending Tags | GitPulse",
@@ -10,8 +11,11 @@ export const metadata: Metadata = {
 export default async function TagsPage() {
   // basic aggregation of hashtags
   // in production, this would be a materialized view or indexed aggregation query
+const cache = new LRU({ max: 1, ttl: 300000 }); // 5 minutes
+const cacheKey = 'trending_tags';
+let trending = cache.get(cacheKey);
+if (!trending) {
   const posts = await prisma.post.findMany({ select: { hashtags: true } });
-
   const tagCounts: Record<string, number> = {};
   for (const p of posts) {
     for (const t of p.hashtags || []) {
@@ -19,11 +23,11 @@ export default async function TagsPage() {
       tagCounts[normalized] = (tagCounts[normalized] || 0) + 1;
     }
   }
-
-  // sort by count descending
-  const trending = Object.entries(tagCounts).
+  trending = Object.entries(tagCounts).
   sort((a, b) => b[1] - a[1]).
   slice(0, 50); // top 50 trending
+  cache.set(cacheKey, trending);
+}
 
   return (
     <div className="flex flex-col animate-slide-up pb-12 w-full max-w-3xl mx-auto">

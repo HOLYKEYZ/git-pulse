@@ -44,7 +44,8 @@ const [selectedRepoDisplayName, setSelectedRepoDisplayName] = useState('');
       });
 
       if (res.ok) {
-        setRepo('');
+        setSelectedRepoFullName('');
+        setSelectedRepoDisplayName('');
         setVersion('');
         setChangelog('');
         router.refresh();
@@ -84,7 +85,6 @@ const [selectedRepoDisplayName, setSelectedRepoDisplayName] = useState('');
               <option value="" disabled>Select a repository...</option>
               {repos.map(r => (
                 <option key={r.full_name} value={r.full_name}>{r.full_name}</option>
-                <option key={r.full_name} value={r.full_name}>{r.name}</option>
               ))}
             </select>
           </div>

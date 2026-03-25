@@ -19,3 +19,13 @@ export function getRelativeTime(date: Date | string | number): string {
     const diffInYears = Math.floor(diffInDays / 365);
     return `${diffInYears}y ago`;
 }
+
+export function isValidHttpUrl(string: string) {
+    let url;
+    try {
+        url = new URL(string);
+    } catch (_) {
+        return false;
+    }
+    return url.protocol === "http:" || url.protocol === "https:";
+}

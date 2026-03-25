@@ -10,12 +10,12 @@ const LANGUAGE_COLORS: Record<string, string> = {
   "C++": "#f34b7d", C: "#555555", Ruby: "#701516"
 };
 
-export default async function ReposPage({ params }: {params: Promise<{username: string;}>;}) {
+export default async function ReposPage({ params }: {params: {username: string};}) {
   const session = await auth();
-  const { username } = await params;
+const { username } = params;
   const token = session?.user?.accessToken;
 
-  const repos = token ? await getGitHubAllRepos(username, token, 1, 30, "updated") : [];
+let repos = []; try { repos = token ? await getGitHubAllRepos(username, token, 1, 30, "updated") : []; } catch (error) { console.error('Error fetching repositories:', error); }
 
   // collect unique languages for the filter display
   const languages = [...new Set(repos.map((r) => r.language).filter(Boolean))] as string[];
@@ -74,11 +74,13 @@ export default async function ReposPage({ params }: {params: Promise<{username: 
         )}
             </div>
 
-            {repos.length === 0 &&
-      <div className="text-center text-git-muted text-sm py-12">
-                    No repositories found. Sign in to view repos.
-                </div>
-      }
+            {repos.length === 0 && (
+                token ? (
+                    <div className="text-center text-git-muted text-sm py-12">No public repositories found.</div>
+                ) : (
+                    <div className="text-center text-git-muted text-sm py-12">Sign in to view repositories.</div>
+                )
+            )}
         </div>);
 
 }

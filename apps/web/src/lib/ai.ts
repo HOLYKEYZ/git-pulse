@@ -33,10 +33,10 @@ export async function generateRepoPitch(repo: RepoContext): Promise<string> {
         try {
           return await geminiPitch(repo);
         } catch (error) {
-          console.error("[AI] Gemini failed, falling back to heuristic:", error);
-        }
+          console.error("[AI] Gemini failed, no pitch generated:", error);
+          return "";
       }
-      return heuristicPitch(repo);
+      return "";
     },
     1000 * 60 * 60 * 24 // 24-hour cache ttl
   );
@@ -66,7 +66,7 @@ Write exactly 2 sentences. The first sentence should explain WHAT the project do
 
   // sanity check — if the model returns something too long or weird, fall back
   if (text.length > 400 || text.length < 20) {
-    return heuristicPitch(repo);
+    return "";
   }
 
   return text;
@@ -74,24 +74,3 @@ Write exactly 2 sentences. The first sentence should explain WHAT the project do
 
 // heuristic fallback — no llm needed(only if llms fail, dont wanna use heuristics at all)
 
-function heuristicPitch(repo: RepoContext): string {
-  const lang = repo.language || "multi-language";
-  const desc = repo.description || `A ${lang} project`;
-
-  // first sentence: what it does
-  const what = desc.endsWith(".") ? desc : `${desc}.`;
-
-  // second sentence: why it matters
-  let why: string;
-  if (repo.stars > 1000) {
-    why = `With ${repo.stars.toLocaleString()} stars, it's a proven tool in the ${lang} ecosystem.`;
-  } else if (repo.forks > 100) {
-    why = `Actively forked by ${repo.forks} developers — a growing community project.`;
-  } else if (repo.topics.length > 0) {
-    why = `Built for ${repo.topics.slice(0, 3).join(", ")} developers looking for a solid ${lang} solution.`;
-  } else {
-    why = `A ${lang} project worth exploring for developers interested in this space.`;
-  }
-
-  return `${what} ${why}`;
-}

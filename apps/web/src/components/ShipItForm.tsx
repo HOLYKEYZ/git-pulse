@@ -76,7 +76,7 @@ export default function ShipItForm() {
             >
               <option value="" disabled>Select a repository...</option>
               {repos.map(r => (
-                <option key={r.name} value={r.name}>{r.name}</option>
+                <option key={r.full_name} value={r.full_name}>{r.full_name}</option>
               ))}
             </select>
           </div>

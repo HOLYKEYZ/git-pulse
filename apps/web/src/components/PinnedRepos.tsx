@@ -36,7 +36,7 @@ export default function PinnedRepos({ repos }: PinnedReposProps) {
                                 </span>
                             </div>
                             {/* Drag handle / context menu placeholder matching github */}
-                            <GrabberIcon size={16} aria-hidden="true" className="fill-git-muted shrink-0 cursor-grab hover:fill-git-text transition-colors" />
+                            <GrabberIcon size={16} aria-label="Drag to reorder repository" className="fill-git-muted shrink-0 cursor-grab hover:fill-git-text transition-colors" />
                         </div>
 
                         {repo.description && (

@@ -52,18 +52,21 @@ export default function UserStatus({ initialEmoji, initialText, isOwnProfile }: 
       {/* status display / toggle */}
       {isOwnProfile ? (
         <button
+          id="set-status-button"
           onClick={() => setIsOpen(true)}
-          className="group flex items-center gap-2 w-full px-3 py-1.5 rounded-md border border-git-border bg-git-card hover:bg-git-hover transition-all text-left"
+          className="group flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full border border-git-border bg-git-bg hover:border-git-accent transition-all shadow-sm overflow-hidden"
+          title="Set status"
         >
-          <span className="text-lg">{emoji || <SmileyIcon size={18} className="text-git-muted" />}</span>
-          <span className="text-xs text-git-muted truncate">
-            {text || "Set status"}
-          </span>
+          {emoji ? (
+            <span className="text-lg">{emoji}</span>
+          ) : (
+            <SmileyIcon size={18} className="text-git-muted group-hover:text-git-accent" />
+          )}
         </button>
       ) : (
         (initialEmoji || initialText) && (
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-git-border bg-git-card/50">
-            <span className="text-lg">{initialEmoji}</span>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-git-border bg-git-card/50 shadow-sm max-w-[200px]">
+            <span className="text-lg shrink-0">{initialEmoji}</span>
             <span className="text-xs text-git-text truncate">{initialText}</span>
           </div>
         )
@@ -71,8 +74,14 @@ export default function UserStatus({ initialEmoji, initialText, isOwnProfile }: 
 
       {/* modal overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-sm bg-git-card border border-git-border rounded-xl shadow-2xl overflow-hidden">
+        <div 
+          id="status-modal-overlay"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 animate-fade-in"
+        >
+          <div 
+            id="status-modal-content"
+            className="w-full max-w-sm bg-git-card border border-git-border rounded-xl shadow-2xl overflow-hidden"
+          >
             <div className="flex items-center justify-between px-4 py-3 border-b border-git-border bg-git-bg/50">
               <h3 className="text-sm font-semibold text-git-text">Edit status</h3>
               <button onClick={() => setIsOpen(false)} className="text-git-muted hover:text-git-text transition-colors">
@@ -81,8 +90,9 @@ export default function UserStatus({ initialEmoji, initialText, isOwnProfile }: 
             </div>
 
             <div className="p-4 flex flex-col gap-4">
-              <div className="flex items-center gap-2 p-2 rounded-md bg-git-bg border border-git-border">
+              <div className="flex items-center gap-2 p-2 rounded-md bg-git-bg border border-git-border focus-within:border-git-accent transition-colors">
                 <input
+                  id="status-emoji-input"
                   type="text"
                   value={emoji}
                   onChange={(e) => setEmoji(e.target.value)}
@@ -91,12 +101,14 @@ export default function UserStatus({ initialEmoji, initialText, isOwnProfile }: 
                   maxLength={2}
                 />
                 <input
+                  id="status-text-input"
                   type="text"
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   placeholder="What's happening?"
                   className="flex-1 bg-transparent border-none outline-none text-sm text-git-text"
                   maxLength={80}
+                  autoFocus
                 />
               </div>
 
@@ -116,6 +128,7 @@ export default function UserStatus({ initialEmoji, initialText, isOwnProfile }: 
 
               <div className="flex items-center justify-between mt-2 pt-4 border-t border-git-border">
                 <button
+                  id="clear-status-button"
                   onClick={handleClear}
                   className="text-xs text-git-muted hover:text-red-400 transition-colors"
                 >
@@ -129,9 +142,10 @@ export default function UserStatus({ initialEmoji, initialText, isOwnProfile }: 
                     Cancel
                   </button>
                   <button
+                    id="save-status-button"
                     onClick={handleSave}
                     disabled={loading}
-                    className="px-4 py-1.5 rounded-md text-xs font-medium bg-git-accent text-white hover:bg-git-accent/90 disabled:opacity-50 transition-all"
+                    className="px-4 py-1.5 rounded-md text-xs font-medium bg-git-accent text-white hover:bg-git-accent/90 disabled:opacity-50 transition-all font-semibold"
                   >
                     {loading ? "Saving..." : "Set status"}
                   </button>

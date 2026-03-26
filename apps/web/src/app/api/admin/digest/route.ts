@@ -17,12 +17,12 @@ export async function GET(req: Request) {
   const secret = searchParams.get("secret");
 
   // basic auth — either via cron secret or session
-if (secret !== process.env.CRON_SECRET && !auth().user.isAdmin) {
+import { auth } from '@/lib/auth';
+const session = await auth();
+const isAuthenticatedAdmin = session && session.user && session.user.isAdmin;
+if (secret !== process.env.CRON_SECRET && !isAuthenticatedAdmin) {
   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 }
-  if (secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
     const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
     const posts = await prisma.post.findMany({

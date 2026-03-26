@@ -763,3 +763,69 @@ export async function getUserStats(username: string, token: string): Promise<Use
     organizations
   };
 }
+
+/**
+ * fetch total number of commits for a repository
+ */
+export async function getRepoCommitCount(owner: string, repo: string, token: string): Promise<number> {
+  const cacheKey = `repo-commits:${owner}:${repo}`;
+  return withCache(cacheKey, async () => {
+    try {
+      // we use per_page=1 and read the 'link' header to get the total count efficiently
+      const res = await fetch(`${GITHUB_API_URL}/repos/${owner}/${repo}/commits?per_page=1`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/vnd.github.v3+json"
+        },
+        next: { revalidate: 86400 } // cache for 24h
+      });
+
+      if (!res.ok) return 0;
+
+      const link = res.headers.get("link");
+      if (!link) return 1; // if no link header, there's only 1 page (1 commit)
+
+      const lastPageMatch = link.match(/page=(\d+)>; rel="last"/);
+      if (lastPageMatch) {
+        return parseInt(lastPageMatch[1], 10);
+      }
+
+      return 1;
+    } catch (err) {
+      console.error(`Error fetching commit count for ${owner}/${repo}:`, err);
+      return 0;
+    }
+  });
+}
+
+/**
+ * fetch repository participation stats and calculate consistency ratio
+ * (active weeks out of the last 52 weeks)
+ */
+export async function getRepoConsistency(owner: string, repo: string, token: string): Promise<number> {
+  const cacheKey = `repo-consistency:${owner}:${repo}`;
+  return withCache(cacheKey, async () => {
+    try {
+      const res = await fetch(`${GITHUB_API_URL}/repos/${owner}/${repo}/stats/participation`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/vnd.github.v3+json"
+        },
+        next: { revalidate: 86400 } // cache for 24h
+      });
+
+      if (!res.ok) return 0;
+
+      const data = await res.json();
+      const allCommits = data.all || [];
+      if (allCommits.length === 0) return 0;
+
+      // consistency = ratio of weeks with at least 1 commit
+      const activeWeeks = allCommits.filter((count: number) => count > 0).length;
+      return activeWeeks / allCommits.length;
+    } catch (err) {
+      console.error(`Error fetching participation stats for ${owner}/${repo}:`, err);
+      return 0;
+    }
+  });
+}

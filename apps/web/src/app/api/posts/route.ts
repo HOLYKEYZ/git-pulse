@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import rateLimit from "@/lib/rateLimit";
+import { getRepoCommitCount, getRepoConsistency } from "@/lib/github";
 
 export const dynamic = "force-dynamic";
 
@@ -92,6 +93,14 @@ export async function POST(req: Request) {
           const res = await fetch(`https://api.github.com/repos/${owner}/${repoName}`, { headers });
           if (res.ok) {
             const data = await res.json();
+            const token = session?.user?.accessToken || "";
+
+            // fetch additional metrics for the algo
+            const [commitCount, pushConsistency] = await Promise.all([
+              getRepoCommitCount(owner, repoName, token),
+              getRepoConsistency(owner, repoName, token)
+            ]);
+
             repoEmbed = {
               name: data.full_name,
               description: data.description,
@@ -100,7 +109,9 @@ export async function POST(req: Request) {
               stars: data.stargazers_count,
               forks: data.forks_count,
               lastPush: data.pushed_at || data.updated_at || new Date().toISOString(),
-              url: data.html_url
+              url: data.html_url,
+              commitCount,
+              pushConsistency
             };
           }
         }

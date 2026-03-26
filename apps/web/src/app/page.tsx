@@ -150,7 +150,9 @@ function mapPrismaPostToProps(p: {
       forks: r.forks || 0,
       daysSincePush,
       hasDescription: !!r.description,
-      daysSincePost
+      daysSincePost,
+      commitCount: r.commitCount,
+      pushConsistency: r.pushConsistency
     });
   } else {
     // base score for non-repo posts (images, text) decaying over time

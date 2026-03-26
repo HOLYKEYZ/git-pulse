@@ -17,7 +17,7 @@ const TABS = [
     { key: "stars", label: "Stars", Icon: StarIcon },
 ] as const;
 
-export default function ProfileTabs({ username, activeTab, repoCount }: ProfileTabsProps) {
+export default function ProfileTabs({ username, activeTab, repoCount, starCount }: ProfileTabsProps) {
     return (
         <nav className="mb-6 border-b border-git-border/50">
             <div className="flex gap-4 overflow-x-auto">
@@ -42,9 +42,14 @@ export default function ProfileTabs({ username, activeTab, repoCount }: ProfileT
                         >
                             <IconComponent size={16} className="fill-current" />
                             {tab.label}
-                            {(tab.key === "repositories" || tab.key === "stars") && (
+                            {tab.key === "repositories" && (
                                 <span className="ml-1 px-1.5 py-0.5 text-xs font-medium bg-[#30363d] rounded-full text-git-muted">
-                                    {tab.key === "repositories" ? repoCount : starCount}
+                                    {repoCount}
+                                </span>
+                            )}
+                            {tab.key === "stars" && starCount !== undefined && (
+                                <span className="ml-1 px-1.5 py-0.5 text-xs font-medium bg-[#30363d] rounded-full text-git-muted">
+                                    {starCount}
                                 </span>
                             )}
                         </Link>

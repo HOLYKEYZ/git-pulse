@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { getGitHubStarredRepos } from "@/lib/github";
 import RepoCard from "@/components/RepoCard";
-import Link from "next/link";
+import ProfileTabs from "@/components/ProfileTabs";
 
 const LANGUAGE_COLORS: Record<string, string> = {
   TypeScript: "#3178c6", JavaScript: "#f1e05a", Python: "#3572A5",
@@ -30,17 +30,7 @@ export default async function StarsPage({ params }: {params: {username: string};
 
   return (
     <div className="flex flex-col gap-4 p-4 sm:p-6 animate-slide-up">
-      {/* header */}
-      <div className="flex items-center gap-3">
-        <Link href={`/profile/${username}`} className="text-git-muted hover:text-git-accent transition-colors">
-          <svg height="20" viewBox="0 0 16 16" width="20" className="fill-current">
-            <path d="M7.78 12.53a.75.75 0 0 1-1.06 0L2.47 8.28a.75.75 0 0 1 0-1.06l4.25-4.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042L4.81 7h7.44a.75.75 0 0 1 0 1.5H4.81l2.97 2.97a.75.75 0 0 1 0 1.06Z" />
-          </svg>
-        </Link>
-        <h1 className="text-lg font-semibold text-git-text">
-          {username} <span className="text-git-muted font-normal">/ Stars</span>
-        </h1>
-      </div>
+      <ProfileTabs username={username} activeTab="stars" repoCount={0} starCount={repos?.length || 0} />
 
       {/* language filter chips */}
       {languages.length > 0 &&

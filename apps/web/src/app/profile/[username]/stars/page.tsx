@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { getGitHubStarredRepos } from "@/lib/github";
+import { getGitHubStarredRepos, getGitHubUser } from "@/lib/github";
 import RepoCard from "@/components/RepoCard";
 import ProfileTabs from "@/components/ProfileTabs";
 
@@ -17,9 +17,17 @@ export default async function StarsPage({ params }: {params: {username: string};
 
   let repos = []; 
   let hasError = false; 
+  let ghUser = null;
   
   try { 
-    repos = token ? await getGitHubStarredRepos(username, token, 1, 100) : []; 
+    if (token) {
+      const [starredData, userData] = await Promise.all([
+        getGitHubStarredRepos(username, token, 1, 100),
+        getGitHubUser(username, token)
+      ]);
+      repos = starredData || [];
+      ghUser = userData;
+    }
   } catch (error) { 
     console.error('Error fetching starred repositories:', error); 
     hasError = true; 
@@ -30,7 +38,7 @@ export default async function StarsPage({ params }: {params: {username: string};
 
   return (
     <div className="flex flex-col gap-4 p-4 sm:p-6 animate-slide-up">
-      <ProfileTabs username={username} activeTab="stars" repoCount={0} starCount={repos?.length || 0} />
+      <ProfileTabs username={username} activeTab="stars" repoCount={ghUser?.public_repos || 0} starCount={repos?.length || 0} />
 
       {/* language filter chips */}
       {languages.length > 0 &&

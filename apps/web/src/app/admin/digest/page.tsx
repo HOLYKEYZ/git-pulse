@@ -19,7 +19,7 @@ export default function DigestPage() {
     setLoading(true);
     setCopied(false);
     try {
-      const res = await fetch("/api/admin/digest?secret=admin");
+const res = await fetch("/api/admin/digest");
       if (res.ok) {
         const json = await res.json();
         setData(json);

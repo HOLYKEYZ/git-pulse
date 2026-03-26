@@ -18,7 +18,7 @@ export async function GET() {
       orderBy: {
         createdAt: "desc"
       },
-      take: 20 // get the latest 20 notifications
+      take: 30 // get the latest 30 notifications
     });
 
     return NextResponse.json(notifications);

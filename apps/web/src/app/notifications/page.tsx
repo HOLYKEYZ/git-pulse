@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getRelativeTime } from "@/lib/utils";
+import { getRelativeTime, isValidHttpUrl } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -66,7 +66,7 @@ export default async function NotificationsPage() {
                             </div>
                         );
 
-                        return n.linkUrl ? (
+return n.linkUrl && isValidHttpUrl(n.linkUrl) ? (
                             <div key={n.id}>
                                 <Link href={n.linkUrl}>{inner}</Link>
                             </div>

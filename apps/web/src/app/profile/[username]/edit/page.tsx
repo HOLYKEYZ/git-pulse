@@ -78,6 +78,10 @@ export default function EditProfilePage({ params }: { params: { username: string
             }
 
             setSuccess(true);
+setTimeout(() => {
+                if (profile) {
+                    router.push(`/profile/${profile.login}`);
+                }
             setTimeout(() => {
                 router.push(`/profile/${params.username}`);
             }, 1500);

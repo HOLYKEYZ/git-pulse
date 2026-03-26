@@ -26,6 +26,8 @@ model User {
   following Follow[]  @relation("follower")  // users this user follows
   notifications Notification[]
   apiKey    String?  @unique  // Hashed API key for programmatic access
+  statusEmoji String?
+  statusText  String?
 }
 
 model Post {

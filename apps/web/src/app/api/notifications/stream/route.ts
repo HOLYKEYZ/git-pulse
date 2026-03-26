@@ -48,6 +48,36 @@ const stream = new ReadableStream({
     });
   }
 });
+  const stream = new ReadableStream({
+    async start(controller) {
+      const sendCount = async () => {
+        try {
+          const unreadCount = await prisma.notification.count({
+            where: { userId, read: false }
+          });
+          const data = `data: ${JSON.stringify({ unreadCount })}\n\n`;
+                  controller.enqueue(new TextEncoder().encode(data));
+                  timeoutId = setTimeout(sendCount, 10000);
+                } catch (error) {
+                  console.error("[SSE] Error sending notification count:", error);
+                  if (timeoutId) clearTimeout(timeoutId);
+          try {controller.close();} catch {}
+        }
+              };
+              let timeoutId: NodeJS.Timeout | null = null;
+
+              // send initial count immediately
+              await sendCount();
+
+              // poll database every 10 seconds and push updates
+
+      // clean up on disconnect
+            req.signal.addEventListener("abort", () => {
+              if (timeoutId) clearTimeout(timeoutId);
+              controller.close();
+            });
+    }
+  });
 
   return new Response(stream, { headers });
 }

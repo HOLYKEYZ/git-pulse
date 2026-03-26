@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   // fallback: bearer token auth for programmatic access (github action)
   if (!username) {
     const authHeader = req.headers.get("authorization");
-    if (authHeader?.startsWith("Bearer gp_")) {
+    if (authHeader && authHeader.toLowerCase().startsWith("bearer ") && authHeader.slice(7).startsWith("gp_")) {
       const apiKey = authHeader.slice(7); // remove "bearer "
       const tokenUser = await prisma.user.findUnique({
         where: { apiKey },

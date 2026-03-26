@@ -15,7 +15,7 @@ interface ProfileData {
     login: string;
 }
 
-export default function EditProfilePage({ params }: { params: Promise<{ username: string }> }) {
+export default function EditProfilePage({ params }: { params: { username: string } }) {
     const router = useRouter();
     const [profile, setProfile] = useState<ProfileData | null>(null);
     const [loading, setLoading] = useState(true);
@@ -78,8 +78,12 @@ export default function EditProfilePage({ params }: { params: Promise<{ username
             }
 
             setSuccess(true);
+setTimeout(() => {
+                if (profile) {
+                    router.push(`/profile/${profile.login}`);
+                }
             setTimeout(() => {
-                params.then(({ username }) => router.push(`/profile/${username}`));
+                router.push(`/profile/${params.username}`);
             }, 1500);
         } catch (err) {
             setError(err instanceof Error ? err.message : "failed to update profile");

@@ -18,6 +18,36 @@ export async function GET(req: Request) {
     "Connection": "keep-alive"
   });
 
+const stream = new ReadableStream({
+  async start(controller) {
+    let interval: NodeJS.Timeout | undefined;
+    const sendCount = async () => {
+      try {
+        const unreadCount = await prisma.notification.count({
+          where: { userId, read: false }
+        });
+        const data = `data: ${JSON.stringify({ unreadCount })}\n\n`;
+        controller.enqueue(new TextEncoder().encode(data));
+      } catch (error) {
+        console.error("[SSE] Error sending notification count:", error);
+        if (interval) clearInterval(interval);
+        try {controller.close();} catch {}
+      }
+    };
+
+    // send initial count immediately
+    await sendCount();
+
+    // poll database every 10 seconds and push updates
+    interval = setInterval(sendCount, 10000);
+
+    // clean up on disconnect
+    req.signal.addEventListener("abort", () => {
+      if (interval) clearInterval(interval);
+      controller.close();
+    });
+  }
+});
   const stream = new ReadableStream({
     async start(controller) {
       const sendCount = async () => {
@@ -26,25 +56,26 @@ export async function GET(req: Request) {
             where: { userId, read: false }
           });
           const data = `data: ${JSON.stringify({ unreadCount })}\n\n`;
-          controller.enqueue(new TextEncoder().encode(data));
-        } catch (error) {
-          console.error("[SSE] Error sending notification count:", error);
-          clearInterval(interval);
+                  controller.enqueue(new TextEncoder().encode(data));
+                  timeoutId = setTimeout(sendCount, 10000);
+                } catch (error) {
+                  console.error("[SSE] Error sending notification count:", error);
+                  if (timeoutId) clearTimeout(timeoutId);
           try {controller.close();} catch {}
         }
-      };
+              };
+              let timeoutId: NodeJS.Timeout | null = null;
 
-      // send initial count immediately
-      await sendCount();
+              // send initial count immediately
+              await sendCount();
 
-      // poll database every 10 seconds and push updates
-      const interval = setInterval(sendCount, 10000);
+              // poll database every 10 seconds and push updates
 
       // clean up on disconnect
-      req.signal.addEventListener("abort", () => {
-        clearInterval(interval);
-        controller.close();
-      });
+            req.signal.addEventListener("abort", () => {
+              if (timeoutId) clearTimeout(timeoutId);
+              controller.close();
+            });
     }
   });
 

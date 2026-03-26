@@ -62,10 +62,7 @@ function mapEventToPost(event: GitHubEvent): PostProps | null {
       username: event.actor.login,
       avatar: event.actor.avatar_url
     },
-    timestamp: new Date(event.created_at).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric"
-    }),
+    timestamp: getRelativeTime(new Date(event.created_at)),
     likes: 0,
     comments: 0
   };

@@ -13,7 +13,7 @@ export async function GET() {
   try {
     const notifications = await prisma.notification.findMany({
       where: {
-        userId: session.user.id
+        user: { username: session.user.login }
       },
       orderBy: {
         createdAt: "desc"
@@ -40,21 +40,21 @@ export async function PUT(req: Request) {
 
     if (notificationId) {
       // mark specific notification as read
-      const notification = await prisma.notification.update({
+      await prisma.notification.updateMany({
         where: {
           id: notificationId,
-          userId: session.user.id // ensure they own it
+          user: { username: session.user.login } // ensure they own it
         },
         data: {
           read: true
         }
       });
-      return NextResponse.json({ success: true, notification });
+      return NextResponse.json({ success: true });
     } else {
       // mark all notifications as read
       await prisma.notification.updateMany({
         where: {
-          userId: session.user.id,
+          user: { username: session.user.login },
           read: false
         },
         data: {

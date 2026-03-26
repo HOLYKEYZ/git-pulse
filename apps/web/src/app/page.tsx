@@ -170,7 +170,8 @@ function mapPrismaPostToProps(p: {
     author: {
       username: p.author.username,
       avatar: p.author.avatar ?? "",
-      statusEmoji: p.author.statusEmoji
+      statusEmoji: p.author.statusEmoji,
+      statusText: p.author.statusText
     },
     content: p.content,
     timestamp: getRelativeTime(p.createdAt),

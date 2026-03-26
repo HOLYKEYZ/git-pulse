@@ -25,13 +25,22 @@ export default function UserStatus({ initialEmoji, initialText, isOwnProfile }: 
     setMounted(true);
   }, []);
 
-  const handleSave = async () => {
+  // Sync with initial props when they change (e.g. after refresh)
+  useEffect(() => {
+    setEmoji(initialEmoji || "");
+    setText(initialText || "");
+  }, [initialEmoji, initialText]);
+
+  const handleSave = async (overrides?: { emoji?: string; text?: string }) => {
     setLoading(true);
+    const finalEmoji = overrides?.hasOwnProperty("emoji") ? overrides.emoji : emoji;
+    const finalText = overrides?.hasOwnProperty("text") ? overrides.text : text;
+
     try {
       const res = await fetch("/api/user/status", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ emoji, text }),
+        body: JSON.stringify({ emoji: finalEmoji, text: finalText }),
       });
 
       if (res.ok) {
@@ -48,6 +57,7 @@ export default function UserStatus({ initialEmoji, initialText, isOwnProfile }: 
   const handleClear = async () => {
     setEmoji("");
     setText("");
+    await handleSave({ emoji: "", text: "" });
   };
 
   if (!isOwnProfile && !initialEmoji && !initialText) return null;
@@ -78,9 +88,10 @@ export default function UserStatus({ initialEmoji, initialText, isOwnProfile }: 
               type="text"
               value={emoji}
               onChange={(e) => setEmoji(e.target.value)}
-              placeholder="✨"
+              placeholder=":) "
               className="w-10 text-center bg-transparent border-none outline-none text-xl"
-              maxLength={2}
+              maxLength={4}
+              title="Type or paste any emoji"
             />
             <input
               id="status-text-input"
@@ -107,12 +118,14 @@ export default function UserStatus({ initialEmoji, initialText, isOwnProfile }: 
               </button>
             ))}
           </div>
+          <p className="text-[10px] text-git-muted italic px-1">Tip: Use Win + . or Control + Cmd + Space for more emojis</p>
 
           <div className="flex items-center justify-between mt-2 pt-4 border-t border-git-border">
             <button
               id="clear-status-button"
               onClick={handleClear}
-              className="text-xs text-git-muted hover:text-red-400 transition-colors"
+              disabled={loading}
+              className="text-xs text-git-muted hover:text-red-400 transition-colors disabled:opacity-50"
             >
               Clear status
             </button>
@@ -125,7 +138,7 @@ export default function UserStatus({ initialEmoji, initialText, isOwnProfile }: 
               </button>
               <button
                 id="save-status-button"
-                onClick={handleSave}
+                onClick={() => handleSave()}
                 disabled={loading}
                 className="px-4 py-1.5 rounded-md text-xs font-medium bg-git-accent text-white hover:bg-git-accent/90 disabled:opacity-50 transition-all font-semibold"
               >
@@ -145,20 +158,26 @@ export default function UserStatus({ initialEmoji, initialText, isOwnProfile }: 
         <button
           id="set-status-button"
           onClick={() => setIsOpen(true)}
-          className="group flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full border border-git-border bg-git-bg hover:border-git-accent transition-all shadow-sm overflow-hidden"
-          title="Set status"
+          className="group flex items-center gap-2 px-3 py-1.5 rounded-full border border-git-border bg-git-bg hover:border-git-accent transition-all shadow-sm max-w-[240px]"
+          title={text || "Set status"}
         >
-          {emoji ? (
-            <span className="text-lg">{emoji}</span>
-          ) : (
-            <SmileyIcon size={18} className="text-git-muted group-hover:text-git-accent" />
-          )}
+          {initialEmoji ? (
+            <span className="text-lg shrink-0">{initialEmoji}</span>
+          ) : !initialText ? (
+            <SmileyIcon size={18} className="text-git-muted group-hover:text-git-accent shrink-0" />
+          ) : null}
+          
+          {initialText ? (
+            <span className="text-xs text-git-text truncate font-normal">{initialText}</span>
+          ) : !initialEmoji ? (
+            <span className="text-xs text-git-muted font-normal group-hover:text-git-accent">Set status</span>
+          ) : null}
         </button>
       ) : (
         (initialEmoji || initialText) && (
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-git-border bg-git-card/50 shadow-sm max-w-[200px]">
-            <span className="text-lg shrink-0">{initialEmoji}</span>
-            <span className="text-xs text-git-text truncate">{initialText}</span>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-git-border bg-git-card/50 shadow-sm max-w-[240px]">
+            {initialEmoji && <span className="text-lg shrink-0">{initialEmoji}</span>}
+            {initialText && <span className="text-xs text-git-text truncate">{initialText}</span>}
           </div>
         )
       )}
@@ -168,4 +187,5 @@ export default function UserStatus({ initialEmoji, initialText, isOwnProfile }: 
     </div>
   );
 }
+
 

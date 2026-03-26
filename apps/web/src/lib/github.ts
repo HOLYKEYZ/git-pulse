@@ -149,6 +149,10 @@ async function fetchWithAuth(endpoint: string, token: string) {
   });
 }
 
+export async function getGitHubStarredRepos(username: string, token: string, page = 1, perPage = 30): Promise<GitHubRepo[] | null> {
+  return fetchWithAuth(`/users/${username}/starred?page=${page}&per_page=${perPage}`, token);
+}
+
 async function fetchGraphQL(query: string, variables: Record<string, unknown>, token: string) {
   // use a hash or enough of the query to guarantee uniqueness across different queries 
   const cacheKey = `gql:${token.slice(-10)}:${query.slice(0, 150).replace(/\s+/g, '')}:${JSON.stringify(variables)}`;

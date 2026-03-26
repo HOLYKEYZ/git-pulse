@@ -48,7 +48,9 @@ function mapPrismaPostToProps(p: any): PostProps {
     type: p.type as "standard" | "ship",
     author: {
       username: p.author.username,
-      avatar: p.author.avatar ?? ""
+      avatar: p.author.avatar ?? "",
+      statusEmoji: p.author.statusEmoji,
+      statusText: p.author.statusText
     },
     content: p.content,
     timestamp: getRelativeTime(p.createdAt),

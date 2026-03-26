@@ -8,6 +8,7 @@ interface ProfileTabsProps {
     username: string;
     activeTab: "overview" | "repositories" | "stars";
     repoCount: number;
+    starCount?: number;
 }
 
 const TABS = [
@@ -41,9 +42,9 @@ export default function ProfileTabs({ username, activeTab, repoCount }: ProfileT
                         >
                             <IconComponent size={16} className="fill-current" />
                             {tab.label}
-                            {tab.key === "repositories" && (
+                            {(tab.key === "repositories" || tab.key === "stars") && (
                                 <span className="ml-1 px-1.5 py-0.5 text-xs font-medium bg-[#30363d] rounded-full text-git-muted">
-                                    {repoCount}
+                                    {tab.key === "repositories" ? repoCount : starCount}
                                 </span>
                             )}
                         </Link>

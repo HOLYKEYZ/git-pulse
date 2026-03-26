@@ -61,7 +61,9 @@ export async function GET(request: Request) {
       content: p.content,
       author: {
         username: p.author.username,
-        avatar: p.author.avatar ?? ""
+        avatar: p.author.avatar ?? "",
+        statusEmoji: p.author.statusEmoji,
+        statusText: p.author.statusText
       },
       timestamp: p.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
       likes: p._count.reactions,

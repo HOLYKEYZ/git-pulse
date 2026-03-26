@@ -19,6 +19,7 @@ export interface PostProps {
     username: string;
     avatar: string;
     statusEmoji?: string | null;
+    statusText?: string | null;
   };
   content: string;
   timestamp: string;
@@ -101,7 +102,7 @@ export default function PostCard({ post }: {post: PostProps;}) {
               <span className="flex items-center gap-1.5">
                 <span>{post.author.username}</span>
                 {post.author.statusEmoji && (
-                  <span className="text-[14px] leading-none" title="User status">
+                  <span className="text-[14px] leading-none" title={post.author.statusText || "User status"}>
                     {post.author.statusEmoji}
                   </span>
                 )}

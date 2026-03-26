@@ -20,6 +20,7 @@ import RepoCard from "@/components/RepoCard";
 import FollowButton from "@/components/FollowButton";
 import { PeopleIcon, OrganizationIcon, LocationIcon, LinkIcon } from "@primer/octicons-react";
 import ProfileTabs from "@/components/ProfileTabs";
+import UserStatus from "@/components/UserStatus";
 
 export default async function ProfilePage({ params }: {params: {username: string;};}) {
   const session = await auth();
@@ -65,6 +66,12 @@ export default async function ProfilePage({ params }: {params: {username: string
     }
   }
 
+  // fetch user from prisma for status
+  const dbProfileUser = await prisma.user.findUnique({
+    where: { username },
+    select: { statusEmoji: true, statusText: true }
+  });
+
   const joinDate = new Date(ghUser.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" });
 
   return (
@@ -79,6 +86,14 @@ export default async function ProfilePage({ params }: {params: {username: string
               alt={ghUser.login}
               className="relative w-full h-full rounded-full border border-git-border shadow-sm object-cover bg-git-card" />
             
+                        {/* status component — absolutely positioned over avatar on desktop / below on mobile */}
+                        <div className="absolute -bottom-2 -right-3 md:right-0 z-10">
+                            <UserStatus 
+                                initialEmoji={dbProfileUser?.statusEmoji || null} 
+                                initialText={dbProfileUser?.statusText || null} 
+                                isOwnProfile={isOwnProfile} 
+                            />
+                        </div>
                     </div>
 
                     <div className="flex flex-col py-3">

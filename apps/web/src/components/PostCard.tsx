@@ -18,6 +18,7 @@ export interface PostProps {
   author: {
     username: string;
     avatar: string;
+    statusEmoji?: string | null;
   };
   content: string;
   timestamp: string;
@@ -97,7 +98,14 @@ export default function PostCard({ post }: {post: PostProps;}) {
           {/* header */}
           <div className="flex items-center gap-2 mb-2 w-full">
             <Link href={`/profile/${post.author.username}`} className="font-semibold text-git-text hover:text-git-accent transition-colors text-[15px]">
-              {post.author.username}
+              <span className="flex items-center gap-1.5">
+                <span>{post.author.username}</span>
+                {post.author.statusEmoji && (
+                  <span className="text-[14px] leading-none" title="User status">
+                    {post.author.statusEmoji}
+                  </span>
+                )}
+              </span>
             </Link>
             {post.passedBadge &&
           <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-git-green/10 border border-git-green/20 text-git-green text-[10px] font-bold uppercase tracking-wider select-none shrink-0" title="Score passed quality threshold">

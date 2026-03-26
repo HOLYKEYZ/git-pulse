@@ -132,7 +132,8 @@ export async function POST(req: Request) {
         hashtags
       },
       include: {
-        author: true
+        author: true,
+        _count: { select: { comments: true, reactions: true } }
       }
     });
 

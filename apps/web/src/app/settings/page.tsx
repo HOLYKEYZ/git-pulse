@@ -205,7 +205,19 @@ export default function SettingsPage() {
                     <div className="rounded-lg border border-[#f85149]/30 bg-[#f85149]/5 p-5">
                         <h2 className="text-base font-semibold text-[#f85149] mb-1">danger zone</h2>
                         <p className="text-xs text-git-muted mb-4">permanently delete your account and all associated data.</p>
-                        <button className="px-4 py-2 rounded-md border border-[#f85149] text-[#f85149] text-sm font-medium hover:bg-[#f85149]/10 transition-colors">
+                        <button
+                            onClick={async () => {
+                                if (confirm("Are you absolutely sure you want to permanently delete your account and all associated data? This cannot be undone.")) {
+                                    const res = await fetch("/api/user/settings", { method: "DELETE" });
+                                    if (res.ok) {
+                                        window.location.href = "/api/auth/signout";
+                                    } else {
+                                        alert("Failed to delete account. Please try again.");
+                                    }
+                                }
+                            }}
+                            className="px-4 py-2 rounded-md border border-[#f85149] text-[#f85149] text-sm font-medium hover:bg-[#f85149]/10 transition-colors"
+                        >
                             Delete Account
                         </button>
                     </div>

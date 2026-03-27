@@ -7,29 +7,53 @@ export async function GET() {
         return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
 
-            try {
-                const res = await fetch("https://api.github.com/user/repos?sort=updated&per_page=100&affiliation=owner,collaborator", {
-                    headers: {
-                        Authorization: `Bearer ${session.user.accessToken}`,
-                        Accept: "application/vnd.github+json",
-                    },
-                    // next 14 fetch options
-                    cache: 'no-store'
-                });
+try {
+  let nextPageUrl = "https://api.github.com/user/repos?sort=updated&per_page=100&affiliation=owner,collaborator";
+  let allRepos = [];
 
-                if (!res.ok) {
-                    return NextResponse.json({ error: "failed to fetch repos" }, { status: res.status });
-                }
+  while (nextPageUrl) {
+    const res = await fetch(nextPageUrl, {
+      headers: {
+        Authorization: `Bearer ${session.user.accessToken}`,
+        Accept: "application/vnd.github+json",
+      },
+      // next 14 fetch options
+      cache: 'no-store'
+    });
 
-                const data = await res.json();
-                const repos = data.map((r: any) => ({
-                    name: r.name,
-                    full_name: r.full_name
-                }));
-                
-                return NextResponse.json(repos);
-            } catch (error: unknown) {
-                console.error("Error fetching GitHub repositories:", error);
-                return NextResponse.json({ error: "server error" }, { status: 500 });
-            }
+    if (!res.ok) {
+      return NextResponse.json({ error: "failed to fetch repos" }, { status: res.status });
+    }
+
+    const data = await res.json();
+    const repos = data.map((r: any) => ({
+      name: r.name,
+      full_name: r.full_name
+    }));
+
+    allRepos = allRepos.concat(repos);
+
+    const linkHeader = res.headers.get('Link');
+    if (linkHeader) {
+      const nextPage = linkHeader.match(/<([^>]+)>;\s*rel="next"/);
+      if (nextPage) {
+        nextPageUrl = nextPage[1];
+      } else {
+        nextPageUrl = null;
+      }
+    } else {
+      nextPageUrl = null;
+    }
+  }
+
+  const mappedRepos = allRepos.map((repo) => ({
+    name: repo.name,
+    full_name: repo.full_name
+  }));
+
+  return NextResponse.json(mappedRepos);
+} catch (error: unknown) {
+  console.error("Error fetching GitHub repositories:", error);
+  return NextResponse.json({ error: "server error" }, { status: 500 });
+}
 }

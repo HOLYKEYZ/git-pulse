@@ -211,7 +211,7 @@ export default function SearchBar() {
                                         <span className="text-[10px] text-git-muted ml-2">{post.timestamp}</span>
                                         <p className="text-xs text-git-muted line-clamp-2 mt-0.5">{post.content}</p>
                                     </div>
-                                </div>
+                                </Link>
           )}
                         </div>
         }

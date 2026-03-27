@@ -21,7 +21,7 @@ return (
         <div className="h-4 w-12 bg-git-muted/10 rounded" />
       </div>
     </div>
-  </div>;
+  </div>);
 
 }
 
@@ -40,7 +40,7 @@ return (
         </div>
       )}
     </div>
-  </div>;
+  </div>);
 
 }
 

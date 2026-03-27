@@ -217,7 +217,7 @@ export default function PostCard({ post }: {post: PostProps;}) {
             <button
               onClick={(e) => {
                 e.preventDefault();
-                navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
+                navigator.clipboard.writeText(`${window.location.origin}/profile/${post.author.username}`);
                 // optional toast here
               }}
               className="flex items-center gap-1.5 text-git-muted hover:text-git-accent transition-colors group"

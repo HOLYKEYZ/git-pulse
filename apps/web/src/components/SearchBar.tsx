@@ -177,8 +177,9 @@ export default function SearchBar() {
                                 Posts
                             </div>
                             {results.posts.map((post) =>
-          <div
+          <Link
             key={post.id}
+            href={`/profile/${post.author.username}`}
             className="flex items-start gap-3 px-3 py-2 hover:bg-git-bg transition-colors cursor-pointer"
             onClick={() => {setIsOpen(false);setQuery("");}}>
             

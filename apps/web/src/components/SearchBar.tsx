@@ -135,6 +135,14 @@ export default function SearchBar() {
                                     </div>
                                 </Link>
           )}
+                            {results.users.length > 0 && 
+                                <Link
+                                  href={`/search?q=${encodeURIComponent(query.trim())}&type=users`}
+                                  onClick={() => {setIsOpen(false);setQuery("");}}
+                                  className="block text-center py-2 text-sm text-git-accent hover:bg-git-bg transition-colors border-t border-git-border">
+                                  View all users
+                                </Link>
+                            }
                         </div>
         }
 
@@ -162,12 +170,20 @@ export default function SearchBar() {
                                         </div>
                                         {repo.description && <div className="text-[10px] text-git-muted line-clamp-1">{repo.description}</div>}
                                     </div>
-                                    <div className="text-[10px] text-git-muted shrink-0 flex items-center gap-1">
-                                        ☆ {repo.stars}
+                                    <div className="">
                                     </div>
                                 </Link>
           )}
+                            {results.repos.length > 3 && 
+                                <Link
+                                  href={`/search?q=${encodeURIComponent(query.trim())}&type=repos`}
+                                  onClick={() => {setIsOpen(false);setQuery("");}}
+                                  className="block text-center py-2 text-sm text-git-accent hover:bg-git-bg transition-colors border-t border-git-border">
+                                  View all repositories
+                                </Link>
+                            }
                         </div>
+        }
         }
 
                     {/* posts */}

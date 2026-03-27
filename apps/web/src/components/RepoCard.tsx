@@ -1,7 +1,6 @@
 import React from 'react';
-import Link from 'next/link';
 import { getLanguageColor } from '@/lib/colors';
-import { isValidHttpUrl } from '@/lib/utils';
+import { isValidHttpUrl, formatRelativeTime } from '@/lib/utils';
 import { StarIcon, RepoForkedIcon } from '@primer/octicons-react';
 
 interface RepoCardProps {
@@ -27,6 +26,7 @@ export default function RepoCard({
 }: RepoCardProps) {
     const resolvedColor = languageColor || getLanguageColor(language);
 
+const formattedLastPush = formatRelativeTime(new Date(lastPush));
     const CardContent = (
         <>
             <div className="flex items-center justify-between mb-3">
@@ -37,11 +37,11 @@ export default function RepoCard({
                     Public
                 </span>
             </div>
-
+            
             <p className="text-xs text-git-muted mb-3 flex-1 line-clamp-2 leading-relaxed">
                 {description}
             </p>
-
+            
             <div className="flex items-center gap-4 text-[11px] text-git-muted mt-auto">
                 {language && (
                     <div className="flex items-center gap-1.5">
@@ -61,7 +61,7 @@ export default function RepoCard({
                         <span>{forks.toLocaleString()}</span>
                     </div>
                 )}
-                <div className="ml-auto">Updated {lastPush}</div>
+                <div className="ml-auto">Updated {formattedLastPush}</div>
             </div>
         </>
     );

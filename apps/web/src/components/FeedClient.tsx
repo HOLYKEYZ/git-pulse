@@ -97,7 +97,6 @@ export default function FeedClient({ discoverPosts, followingPosts, activityPost
             <div className="sticky top-0 z-10 bg-git-bg/80 backdrop-blur-md border-b border-git-border px-4 flex">
                 {TABS.map((tab) =>
         <button
-        <button
           key={tab.key}
           onClick={() => handleTabChange(tab.key)}
           className={`flex-1 py-4 text-[15px] font-bold transition-colors relative hover:bg-white/[0.03] ${

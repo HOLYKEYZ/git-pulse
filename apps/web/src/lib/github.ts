@@ -329,6 +329,60 @@ export async function getGitHubTrendingRepos(token: string, limit = 5): Promise<
 }
 
 /**
+ * scrape github.com/trending/developers for real trending devs
+ */
+export async function getGitHubTrendingDevelopers(token: string, limit = 5): Promise<any[]> {
+  try {
+    const res = await fetch('https://github.com/trending/developers', {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Accept": "text/html"
+      },
+      next: { revalidate: 3600 }
+    });
+
+    if (!res.ok) {
+      console.error("Failed to fetch trending developers page", res.status);
+      return [];
+    }
+    
+    const html = await res.text();
+    const cheerio = require('cheerio');
+    const $ = cheerio.load(html);
+    
+    const devs: any[] = [];
+    $('article.Box-row').each((i: number, el: any) => {
+      if (i >= limit) return false;
+      
+      const usernameEl = $(el).find('h1.h3 a');
+      const username = usernameEl.text().trim();
+      const avatar = $(el).find('img').attr('src') || '';
+      const name = $(el).find('p.f4').text().trim() || username;
+      
+      // popular repo
+      const repoEl = $(el).find('h1.h4 a');
+      const repoName = repoEl.text().trim();
+      const repoDesc = $(el).find('span.f6').text().trim();
+      
+      devs.push({
+        id: username,
+        username,
+        avatar,
+        name,
+        popular_repo: repoName || null,
+        popular_repo_description: repoDesc || null,
+        html_url: `https://github.com/${username}`,
+      });
+    });
+    
+    return devs;
+  } catch (err) {
+    console.error("Error scraping GitHub Trending Developers:", err);
+    return [];
+  }
+}
+
+/**
  * fetch high-potential lower-starred upcoming projects
  */
 export async function getUpcomingGitHubProjects(token: string, limit = 5): Promise<any[]> {
@@ -403,6 +457,40 @@ export async function getContributionData(username: string, token: string): Prom
   const data = await fetchGraphQL(CONTRIBUTION_QUERY, { username }, token);
   if (!data?.user?.contributionsCollection?.contributionCalendar) {
     console.error(`[getContributionData] No contribution data returned for ${username}. Response:`, JSON.stringify(data)?.slice(0, 200));
+    return null;
+  }
+
+  return data.user.contributionsCollection.contributionCalendar;
+}
+
+/**
+ * fetch contribution data for a specific year via graphql
+ */
+export async function getContributionDataForYear(username: string, token: string, year: number): Promise<ContributionData | null> {
+  const from = `${year}-01-01T00:00:00Z`;
+  const to = `${year}-12-31T23:59:59Z`;
+  
+  const query = `
+  query($username: String!, $from: DateTime!, $to: DateTime!) {
+    user(login: $username) {
+      contributionsCollection(from: $from, to: $to) {
+        contributionCalendar {
+          totalContributions
+          weeks {
+            contributionDays {
+              contributionCount
+              contributionLevel
+              date
+              weekday
+            }
+          }
+        }
+      }
+    }
+  }`;
+  
+  const data = await fetchGraphQL(query, { username, from, to }, token);
+  if (!data?.user?.contributionsCollection?.contributionCalendar) {
     return null;
   }
 

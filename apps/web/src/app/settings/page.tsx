@@ -45,8 +45,10 @@ export default function SettingsPage() {
     // privacy toggles
     const [showActivity, setShowActivity] = useState(true);
     const [showContributions, setShowContributions] = useState(true);
+    const [privacySaving, setPrivacySaving] = useState(false);
 
     useEffect(() => {
+        // load api key status
         fetch("/api/auth/token")
             .then((r) => r.json())
             .then((data) => {
@@ -54,6 +56,15 @@ export default function SettingsPage() {
                 setKeyPreview(data.keyPreview);
             })
             .finally(() => setLoading(false));
+
+        // load privacy settings from db
+        fetch("/api/user/settings")
+            .then((r) => r.json())
+            .then((data) => {
+                if (data.showActivity !== undefined) setShowActivity(data.showActivity);
+                if (data.showContributions !== undefined) setShowContributions(data.showContributions);
+            })
+            .catch(() => {});
     }, []);
 
     const generateKey = async () => {
@@ -215,7 +226,17 @@ export default function SettingsPage() {
                                     <p className="text-xs text-git-muted">let others see your recent GitHub activity</p>
                                 </div>
                                 <button
-                                    onClick={() => setShowActivity(!showActivity)}
+                                    onClick={() => {
+                                        const next = !showActivity;
+                                        setShowActivity(next);
+                                        setPrivacySaving(true);
+                                        fetch("/api/user/settings", {
+                                            method: "PATCH",
+                                            headers: { "Content-Type": "application/json" },
+                                            body: JSON.stringify({ showActivity: next }),
+                                        }).finally(() => setPrivacySaving(false));
+                                    }}
+                                    disabled={privacySaving}
                                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${showActivity ? "bg-git-accent" : "bg-git-border"}`}
                                 >
                                     <span className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${showActivity ? "translate-x-6" : "translate-x-1"}`} />
@@ -230,7 +251,17 @@ export default function SettingsPage() {
                                     <p className="text-xs text-git-muted">display your contribution heatmap on your profile</p>
                                 </div>
                                 <button
-                                    onClick={() => setShowContributions(!showContributions)}
+                                    onClick={() => {
+                                        const next = !showContributions;
+                                        setShowContributions(next);
+                                        setPrivacySaving(true);
+                                        fetch("/api/user/settings", {
+                                            method: "PATCH",
+                                            headers: { "Content-Type": "application/json" },
+                                            body: JSON.stringify({ showContributions: next }),
+                                        }).finally(() => setPrivacySaving(false));
+                                    }}
+                                    disabled={privacySaving}
                                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${showContributions ? "bg-git-accent" : "bg-git-border"}`}
                                 >
                                     <span className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${showContributions ? "translate-x-6" : "translate-x-1"}`} />

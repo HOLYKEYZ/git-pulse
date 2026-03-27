@@ -28,6 +28,8 @@ model User {
   apiKey    String?  @unique  // Hashed API key for programmatic access
   statusEmoji String?
   statusText  String?
+  showActivity      Boolean @default(true)
+  showContributions Boolean @default(true)
 }
 
 model Post {

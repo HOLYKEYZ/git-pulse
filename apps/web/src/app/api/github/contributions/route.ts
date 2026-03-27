@@ -1,0 +1,31 @@
+import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { getContributionDataForYear } from "@/lib/github";
+
+export async function GET(req: Request) {
+  const session = await auth();
+  if (!session?.user?.accessToken) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const username = searchParams.get("username");
+  const year = searchParams.get("year");
+
+  if (!username || !year) {
+    return NextResponse.json({ error: "username and year are required" }, { status: 400 });
+  }
+
+  const yearNum = parseInt(year);
+  if (isNaN(yearNum) || yearNum < 2008 || yearNum > new Date().getFullYear()) {
+    return NextResponse.json({ error: "invalid year" }, { status: 400 });
+  }
+
+  const data = await getContributionDataForYear(username, session.user.accessToken, yearNum);
+  
+  if (!data) {
+    return NextResponse.json({ error: "no contribution data found" }, { status: 404 });
+  }
+
+  return NextResponse.json(data);
+}

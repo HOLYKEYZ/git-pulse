@@ -73,6 +73,7 @@ export default async function ProfilePage({ params }: {params: {username: string
   });
 
   const joinDate = new Date(ghUser.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  const joinYear = new Date(ghUser.created_at).getFullYear();
 
   return (
     <div className="w-full max-w-[1280px] mx-auto p-4 sm:p-6 lg:p-10 animate-fade-in">
@@ -110,7 +111,20 @@ export default async function ProfilePage({ params }: {params: {username: string
                     {/* action buttons */}
                     <div className="mt-1 w-full flex flex-col gap-2">
                         {!isOwnProfile ?
-            <FollowButton targetUsername={username} initialIsFollowing={initialIsFollowing} className="w-full shadow-sm hover:shadow-md transition-shadow" /> :
+                          <div className="flex gap-2 w-full">
+                            <FollowButton targetUsername={username} initialIsFollowing={initialIsFollowing} className="flex-1 shadow-sm hover:shadow-md transition-shadow" />
+                            <a
+                              href={`https://github.com/sponsors/${username}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1.5 px-3 py-1.5 border border-git-border rounded-md text-sm font-medium text-[#db61a2] hover:bg-[#db61a2]/10 hover:border-[#db61a2]/30 transition-all"
+                            >
+                              <svg viewBox="0 0 16 16" width="16" height="16" className="fill-[#db61a2]">
+                                <path d="m8 14.25.345.666a.75.75 0 0 1-.69 0l-.008-.004-.018-.01a7.152 7.152 0 0 1-.31-.17 22.055 22.055 0 0 1-3.434-2.414C2.045 10.731 0 8.35 0 5.5 0 2.836 2.086 1 4.25 1 5.797 1 7.153 1.802 8 3.02 8.847 1.802 10.203 1 11.75 1 13.914 1 16 2.836 16 5.5c0 2.85-2.045 5.231-3.885 6.818a22.066 22.066 0 0 1-3.744 2.584l-.018.01-.006.003h-.002ZM4.25 2.5c-1.336 0-2.75 1.164-2.75 3 0 2.15 1.58 4.144 3.365 5.682A20.58 20.58 0 0 0 8 13.393a20.58 20.58 0 0 0 3.135-2.211C12.92 9.644 14.5 7.65 14.5 5.5c0-1.836-1.414-3-2.75-3-1.373 0-2.609.986-3.029 2.456a.749.749 0 0 1-1.442 0C6.859 3.486 5.623 2.5 4.25 2.5Z" />
+                              </svg>
+                              Sponsor
+                            </a>
+                          </div> :
 
             <Link
               href={`/profile/${username}/edit`}
@@ -211,7 +225,9 @@ export default async function ProfilePage({ params }: {params: {username: string
                     {contributions &&
           <ContributionHeatmap
             weeks={contributions.weeks}
-            totalContributions={contributions.totalContributions} />
+            totalContributions={contributions.totalContributions}
+            username={username}
+            joinYear={joinYear} />
 
           }
 

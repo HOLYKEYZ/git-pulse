@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getContributionDataForYear } from "@/lib/github";
+import contributionCache from "@/lib/contributionCache";
 
 export async function GET(req: Request) {
   const session = await auth();
@@ -21,11 +22,17 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "invalid year" }, { status: 400 });
   }
 
+  const cacheKey = `${username}-${yearNum}`;
+  const cachedData = contributionCache.get(cacheKey);
+  if (cachedData) {
+    return NextResponse.json(cachedData);
+  }
+
   const data = await getContributionDataForYear(username, session.user.accessToken, yearNum);
-  
   if (!data) {
     return NextResponse.json({ error: "no contribution data found" }, { status: 404 });
   }
+  contributionCache.set(cacheKey, data);
 
   return NextResponse.json(data);
 }

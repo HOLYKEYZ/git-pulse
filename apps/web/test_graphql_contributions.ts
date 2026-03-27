@@ -2,8 +2,9 @@ import { PrismaClient } from "@prisma/client";
 
 async function test() {
   const prisma = new PrismaClient();
+  const githubUsername = process.env.GITHUB_TEST_USERNAME || 'HOLYKEYZ';
   const session = await prisma.session.findFirst({
-    where: { user: { username: "HOLYKEYZ" } },
+    where: { user: { username: githubUsername } },
     include: { user: true }
   });
 
@@ -14,7 +15,7 @@ async function test() {
 
   const query = `
     query {
-      user(login: "HOLYKEYZ") {
+      user(login: "${githubUsername}") {
         contributionsCollection {
           commitContributionsByRepository {
             repository { name }
@@ -29,7 +30,7 @@ async function test() {
           }
         }
       }
-    }
+    }`;
   `;
 
   const res = await fetch("https://api.github.com/graphql", {

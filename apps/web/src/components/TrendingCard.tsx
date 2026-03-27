@@ -25,10 +25,21 @@ interface TrendingDev {
 interface TrendingCardProps {
   repos: TrendingRepo[];
   devs: TrendingDev[];
-  getLanguageColor: (lang: string) => string;
 }
 
-export default function TrendingCard({ repos, devs, getLanguageColor }: TrendingCardProps) {
+const LANGUAGE_COLORS: Record<string, string> = {
+  TypeScript: "#3178c6", JavaScript: "#f1e05a", Python: "#3572A5",
+  Rust: "#dea584", Go: "#00ADD8", Shell: "#89e051",
+  HTML: "#e34c26", CSS: "#563d7c", Java: "#b07219",
+  "C++": "#f34b7d", C: "#555555", Ruby: "#701516",
+  PHP: "#4F5D95", Swift: "#F05138", Kotlin: "#A97BFF",
+};
+
+export default function TrendingCard({ repos, devs }: TrendingCardProps) {
+  const getLanguageColor = (lang?: string | null) => {
+    if (!lang) return "#8b949e";
+    return LANGUAGE_COLORS[lang] || "#8b949e";
+  };
   const [view, setView] = useState<"repos" | "devs">("repos");
 
   return (

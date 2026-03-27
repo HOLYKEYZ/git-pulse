@@ -60,7 +60,7 @@ export default async function RightSidebar() {
       <div className="sticky top-0 pt-3 flex flex-col gap-4">
 
         {/* trending repos + devs — real data with toggle */}
-        <TrendingCard repos={trendingRepos} devs={trendingDevs} getLanguageColor={getLanguageColor} />
+        <TrendingCard repos={trendingRepos} devs={trendingDevs} />
 
         {/* upcoming projects */}
         <div className="rounded-2xl border border-git-border bg-git-card overflow-hidden">

@@ -15,75 +15,119 @@ export interface ScoreFactors {
  * calculates a "quality score" for a post based on its embedded repository.
  * v2: weighs by commits, consistency, and stars 20-1k sweet spot.
  */
-export function calculatePostScore(factors: ScoreFactors): number {
+export interface AlgorithmConfig {
+  noveltyLanguages: string[];
+  commonLanguages: string[];
+  noveltyLanguageBoost: number;
+  uncommonLanguageBoost: number;
+  starSweetSpotMin: number;
+  starSweetSpotMax: number;
+  starSweetSpotBaseBoost: number;
+  starSweetSpotMultiplier: number;
+  starSweetSpotCap: number;
+  starOver1kBoost: number;
+  smallRepoStarMultiplier: number;
+  forkScoreMultiplier: number;
+  forkScoreCap: number;
+  descriptionBoost: number;
+  commitCountLogBase: number;
+  commitCountMultiplier: number;
+  commitCountCap: number;
+  pushConsistencyMultiplier: number;
+  pushConsistencyCap: number;
+  recentActivity7DaysBoost: number;
+  recentActivity30DaysBoost: number;
+  oldActivityPenalty: number;
+  followerBiasHighThreshold: number;
+  followerBiasHighPenalty: number;
+  followerBiasLowThreshold: number;
+  followerBiasLowBoost: number;
+  timeDecayExponent: number;
+}
+
+const DEFAULT_ALGORITHM_CONFIG: AlgorithmConfig = {
+  noveltyLanguages: ["Rust", "Zig", "Elixir", "Go", "Gleam", "Ocaml", "Haskell", "F#", "HolyC", "Vue", "Angular", "Svelte"],
+  commonLanguages: ["JavaScript", "TypeScript", "Python", "Java", "C++", "C#", "PHP", "Ruby", "C", "React", "NextJs", "NodeJs", "Express"],
+  noveltyLanguageBoost: 25,
+  uncommonLanguageBoost: 10,
+  starSweetSpotMin: 20,
+  starSweetSpotMax: 1000,
+  starSweetSpotBaseBoost: 15,
+  starSweetSpotMultiplier: 0.03,
+  starSweetSpotCap: 30,
+  starOver1kBoost: 20,
+  smallRepoStarMultiplier: 0.5,
+  forkScoreMultiplier: 1.0,
+  forkScoreCap: 20,
+  descriptionBoost: 10,
+  commitCountLogBase: 2,
+  commitCountMultiplier: 5,
+  commitCountCap: 35,
+  pushConsistencyMultiplier: 50,
+  pushConsistencyCap: 50,
+  recentActivity7DaysBoost: 20,
+  recentActivity30DaysBoost: 10,
+  oldActivityPenalty: -20,
+  followerBiasHighThreshold: 10000,
+  followerBiasHighPenalty: -15,
+  followerBiasLowThreshold: 100,
+  followerBiasLowBoost: 10,
+  timeDecayExponent: 1.2,
+};
+
+export function calculatePostScore(factors: ScoreFactors, config: Partial<AlgorithmConfig> = {}): number {
+  const effectiveConfig = { ...DEFAULT_ALGORITHM_CONFIG, ...config };
   let score = 0;
 
-  // 1. tech stack novelty (reward less common, high-interest languages & frameworks)
-  const noveltyLanguages = ["Rust", "Zig", "Elixir", "Go", "Gleam", "Ocaml", "Haskell", "F#", "HolyC", "Vue", "Angular", "Svelte"];
-  const commonLanguages = ["JavaScript", "TypeScript", "Python", "Java", "C++", "C#", "PHP", "Ruby", "C", "React", "NextJs", "NodeJs", "Express"];
-
   if (factors.language) {
-    if (noveltyLanguages.includes(factors.language)) {
-      score += 25;
-    } else if (!commonLanguages.includes(factors.language)) {
-      score += 10;
+    if (effectiveConfig.noveltyLanguages.includes(factors.language)) {
+      score += effectiveConfig.noveltyLanguageBoost;
+    } else if (!effectiveConfig.commonLanguages.includes(factors.language)) {
+      score += effectiveConfig.uncommonLanguageBoost;
     }
   }
 
-  // 2. star sweet spot (20-1k gets max boost, <20 is too obscure, >1k is already mainstream)
-  if (factors.stars >= 20 && factors.stars <= 1000) {
-    // parabolic boost peaking around 200 stars
-    const normalizedStar = Math.min(factors.stars, 1000);
-    score += 15 + Math.min(normalizedStar * 0.03, 30); // max ~45 pts in sweet spot
-  } else if (factors.stars > 1000) {
-    // diminishing returns past 1k — still gets some credit but capped
-    score += 20;
+  if (factors.stars >= effectiveConfig.starSweetSpotMin && factors.stars <= effectiveConfig.starSweetSpotMax) {
+    const normalizedStar = Math.min(factors.stars, effectiveConfig.starSweetSpotMax);
+    score += effectiveConfig.starSweetSpotBaseBoost + Math.min(normalizedStar * effectiveConfig.starSweetSpotMultiplier, effectiveConfig.starSweetSpotCap);
+  } else if (factors.stars > effectiveConfig.starSweetSpotMax) {
+    score += effectiveConfig.starOver1kBoost;
   } else if (factors.stars > 0) {
-    // tiny repos get minimal credit
-    score += factors.stars * 0.5;
+    score += factors.stars * effectiveConfig.smallRepoStarMultiplier;
   }
 
-  // 3. fork traction
-  const forkScore = Math.min(factors.forks * 1.0, 20);
+  const forkScore = Math.min(factors.forks * effectiveConfig.forkScoreMultiplier, effectiveConfig.forkScoreCap);
   score += forkScore;
 
-  // 4. completeness
   if (factors.hasDescription) {
-    score += 10;
+    score += effectiveConfig.descriptionBoost;
   }
 
-  // 5. commit volume — reward active development
   if (factors.commitCount !== undefined && factors.commitCount > 0) {
-    // logarithmic scale so 10 commits vs 1000 commits doesn't skew wildly
-    score += Math.min(Math.log2(factors.commitCount) * 5, 35); // max ~50 pts
+    score += Math.min(Math.log2(factors.commitCount) * effectiveConfig.commitCountMultiplier, effectiveConfig.commitCountCap);
   }
 
-  // 6. push consistency — reward regular contributors (0 to 1 ratio)
   if (factors.pushConsistency !== undefined && factors.pushConsistency > 0) {
-    // linear: a dev who pushes 80% of weeks gets 40 pts
-    score += factors.pushConsistency * 50; // max 50 pts for perfect consistency
+    score += factors.pushConsistency * effectiveConfig.pushConsistencyMultiplier;
   }
 
-  // 7. recent activity (active development boost)
   if (factors.daysSincePush <= 7) {
-    score += 20;
+    score += effectiveConfig.recentActivity7DaysBoost;
   } else if (factors.daysSincePush <= 30) {
-    score += 10;
+    score += effectiveConfig.recentActivity30DaysBoost;
   } else if (factors.daysSincePush > 365) {
-    score -= 20;
+    score += effectiveConfig.oldActivityPenalty;
   }
 
-  // 8. follower bias (the "anti-clout" mechanic)
   if (factors.authorFollowers !== undefined) {
-    if (factors.authorFollowers > 10000) {
-      score -= 15;
-    } else if (factors.authorFollowers < 100) {
-      score += 10;
+    if (factors.authorFollowers > effectiveConfig.followerBiasHighThreshold) {
+      score += effectiveConfig.followerBiasHighPenalty;
+    } else if (factors.authorFollowers < effectiveConfig.followerBiasLowThreshold) {
+      score += effectiveConfig.followerBiasLowBoost;
     }
   }
 
-  // 9. time decay (gravity)
-  const decayFactor = Math.pow(Math.max(factors.daysSincePost, 1), 1.2);
+  const decayFactor = Math.pow(Math.max(factors.daysSincePost, 1), effectiveConfig.timeDecayExponent);
 
   return Math.max(score / decayFactor, 0);
 }

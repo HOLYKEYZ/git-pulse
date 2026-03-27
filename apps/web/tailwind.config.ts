@@ -20,7 +20,9 @@ const config: Config = {
                     text: "var(--text)",
                     muted: "var(--muted)",
                     notification: "var(--notification)",
-                    hover: "var(--hover)",
+                                hover: "var(--hover)",
+                                'tab-active-border': '#f78166',
+                                'tab-count-bg': '#30363d',
                     contribution: {
                         0: "#161B22",
                         1: "#0e4429",

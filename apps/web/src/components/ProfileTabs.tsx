@@ -34,16 +34,16 @@ export default function ProfileTabs({ username, activeTab, repoCount, starCount 
                         <Link
                             key={tab.key}
                             href={href}
-                            className={`flex items-center gap-2 pb-3 pt-2 text-sm font-medium border-b-[3px] transition-colors whitespace-nowrap outline-none ${
-                                isActive
-                                    ? "border-[#f78166] text-git-text"
-                                    : "border-transparent text-git-muted hover:text-git-text hover:border-git-border/50"
-                            }`}
+className={`flex items-center gap-2 pb-3 pt-2 text-sm font-medium border-b-[3px] transition-colors whitespace-nowrap outline-none ${
+        isActive
+          ? "border-git-tab-active-border text-git-text"
+          : "border-transparent text-git-muted hover:text-git-text hover:border-git-border/50"
+      }`}
                         >
                             <IconComponent size={16} className="fill-current" />
                             {tab.label}
                             {tab.key === "repositories" && (
-                                <span className="ml-1 px-1.5 py-0.5 text-xs font-medium bg-[#30363d] rounded-full text-git-muted">
+<span className="ml-1 px-1.5 py-0.5 text-xs font-medium bg-git-tab-count-bg rounded-full text-git-muted">
                                     {repoCount}
                                 </span>
                             )}

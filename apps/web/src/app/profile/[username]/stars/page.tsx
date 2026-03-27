@@ -20,13 +20,10 @@ export default async function StarsPage({ params }: {params: {username: string};
   let ghUser = null;
   
   try { 
+    ghUser = await getGitHubUser(username, token);
+    
     if (token) {
-      const [starredData, userData] = await Promise.all([
-        getGitHubStarredRepos(username, token, 1, 100),
-        getGitHubUser(username, token)
-      ]);
-      repos = starredData || [];
-      ghUser = userData;
+      repos = await getGitHubStarredRepos(username, token, 1, 100) || [];
     }
   } catch (error) { 
     console.error('Error fetching starred repositories:', error); 

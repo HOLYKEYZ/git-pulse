@@ -4,14 +4,14 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(req: Request, { params }: { params: { params: { id: string } } }) {
     const session = await auth();
     if (!session?.user?.login) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     try {
-        const { id: postId } = await params;
+        const { id: postId } = params.params;
         const body = await req.json();
         const { content, parentId } = body;
 

@@ -396,16 +396,44 @@ export async function getUpcomingGitHubProjects(token: string, limit = 5): Promi
 
 /**
  * fetch suggested users (Mid-tier Devs like you)
+ * V2: explicitly filters out 0-commit clout chasers
  */
-export async function getSuggestedGitHubUsers(token: string, language?: string, limit = 3): Promise<any[]> {
-  const q = language ? `language:${language} followers:5..2000 type:user` : `followers:5..2000 type:user`;
+export async function getSuggestedGitHubUsers(token: string, language?: string, limit = 5): Promise<any[]> {
+  const q = language ? `language:${language} followers:5..2000 repos:>0 type:user` : `followers:5..2000 repos:>0 type:user`;
   // deterministic page seed changing every 30 minutes
   const randomPage = (Math.floor(Date.now() / (1000 * 60 * 30)) % 10) + 1;
-  const users = await fetchWithAuth(
-    `/search/users?q=${q}&sort=followers&order=desc&per_page=${limit}&page=${randomPage}`,
+  const usersRes = await fetchWithAuth(
+    `/search/users?q=${q}&sort=followers&order=desc&per_page=15&page=${randomPage}`,
     token
   );
-  return users?.items || [];
+  
+  const items = usersRes?.items || [];
+  if (items.length === 0) return [];
+
+  // parallel fetch to verify active contribution
+  const activeChecks = await Promise.all(
+    items.slice(0, 10).map(async (user: any) => {
+      try {
+        const contrib = await getContributionData(user.login, token);
+        if (contrib && contrib.totalContributions > 0) return user;
+      } catch {}
+      return null;
+    })
+  );
+
+  return activeChecks.filter(Boolean).slice(0, limit);
+}
+
+/**
+ * fetch proxy for top repos by daily commits (recently pushed with high stars)
+ */
+export async function getTopReposByDailyCommits(token: string, limit = 5): Promise<any[]> {
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+  const repos = await fetchWithAuth(
+    `/search/repositories?q=pushed:>=${oneDayAgo} stars:>500&sort=updated&order=desc&per_page=${limit}`,
+    token
+  );
+  return repos?.items || [];
 }
 
 // ─── graphql functions ───────────────────────────────────────────────────────

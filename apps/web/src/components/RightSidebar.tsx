@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getGitHubTrendingRepos, getGitHubTrendingDevelopers, getSuggestedGitHubUsers, getUpcomingGitHubProjects } from "@/lib/github";
+import { getGitHubTrendingRepos, getGitHubTrendingDevelopers, getSuggestedGitHubUsers, getUpcomingGitHubProjects, getTopReposByDailyCommits } from "@/lib/github";
 import { getLanguageColor } from "@/lib/colors";
 import CollabWidget from "./CollabWidget";
 import TrendingCard from "./TrendingCard";
@@ -21,6 +21,9 @@ export default async function RightSidebar() {
   
   // fetch upcoming projects with low stars
   const upcomingProjects = token ? await getUpcomingGitHubProjects(token, 3) : [];
+
+  // fetch most active repos today
+  const activeProjects = token ? await getTopReposByDailyCommits(token, 5) : [];
 
   let suggestedUsers = await prisma.user.findMany({
     take: 5,
@@ -90,6 +93,41 @@ export default async function RightSidebar() {
               </a>
             ) :
               <div className="px-4 py-6 text-[13px] text-git-muted">No upcoming projects found.</div>
+            }
+          </div>
+        </div>
+
+        {/* most active today */}
+        <div className="rounded-2xl border border-git-border bg-git-card overflow-hidden">
+          <h3 className="font-bold text-xl text-git-text px-4 pt-3 pb-2">
+            Most Active Today
+          </h3>
+          <div className="stagger-children">
+            {activeProjects.length > 0 ? activeProjects.map((repo: any) =>
+              <a
+                key={repo.id}
+                href={repo.html_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block px-4 py-3 hover:bg-white/[0.03] transition-colors">
+                <div className="text-[15px] font-bold text-[#4493f8] mb-0.5 truncate">
+                  {repo.full_name}
+                </div>
+                {repo.description &&
+                  <p className="text-[13px] text-git-muted line-clamp-2 mb-1.5 leading-snug">{repo.description}</p>
+                }
+                <div className="flex items-center gap-3 text-[13px] text-git-muted">
+                  {repo.language &&
+                    <span className="flex items-center gap-1">
+                      <span className="w-3 h-3 rounded-full" style={{ backgroundColor: getLanguageColor(repo.language) }} />
+                      {repo.language}
+                    </span>
+                  }
+                  <span>⏱️ updated today</span>
+                </div>
+              </a>
+            ) :
+              <div className="px-4 py-6 text-[13px] text-git-muted">No active projects found.</div>
             }
           </div>
         </div>

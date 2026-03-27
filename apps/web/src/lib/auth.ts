@@ -9,8 +9,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, account, profile }) {
       // call the base config logic if any
       if (authConfig.callbacks.jwt) {
-        // @ts-ignore
-        token = await authConfig.callbacks.jwt({ token, profile });
+      token = await authConfig.callbacks.jwt({ token, profile });
       }
 
       if (account && profile) {
@@ -22,11 +21,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const user = await prisma.user.upsert({
             where: { githubId: account.providerAccountId },
             update: {
-              username: (profile as any).login,
+              username: profile?.login,
               name: profile.name ?? null,
               email: profile.email ?? null,
-              avatar: (profile as any).avatar_url ?? profile.image ?? null,
-              bio: (profile as any).bio ?? null
+              avatar: profile?.avatar_url ?? profile.image ?? null,
+              bio: profile?.bio ?? null
             },
             create: {
               githubId: account.providerAccountId,

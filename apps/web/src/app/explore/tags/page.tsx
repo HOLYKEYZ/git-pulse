@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Metadata } from "next";
 import LRU from 'lru-cache';
+const cache = new LRU({ max: 1, ttl: 300000 }); // 5 minutes
 
 export const metadata: Metadata = {
   title: "Explore Trending Tags | GitPulse",
@@ -11,7 +12,6 @@ export const metadata: Metadata = {
 export default async function TagsPage() {
   // basic aggregation of hashtags
   // in production, this would be a materialized view or indexed aggregation query
-const cache = new LRU({ max: 1, ttl: 300000 }); // 5 minutes
 const cacheKey = 'trending_tags';
 let trending = cache.get(cacheKey);
 if (!trending) {

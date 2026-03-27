@@ -38,6 +38,14 @@ function formatRelativeTimestamp(timestamp: string) {
 export default function FeedClient({ discoverPosts, followingPosts, activityPosts, userName, userAvatar }: FeedClientProps) {
   const [activeTab, setActiveTab] = useState<TabType>('discover');
   const [composeMode, setComposeMode] = useState<'standard' | 'ship'>('standard');
+  const [isTabLoading, setIsTabLoading] = useState(false);
+
+  const handleTabChange = (key: TabType) => {
+    if (key === activeTab) return;
+    setActiveTab(key);
+    setIsTabLoading(true);
+    setTimeout(() => setIsTabLoading(false), 300);
+  };
 
   // live state
   const [liveDiscover, setLiveDiscover] = useState<PostProps[]>(discoverPosts);
@@ -89,8 +97,9 @@ export default function FeedClient({ discoverPosts, followingPosts, activityPost
             <div className="sticky top-0 z-10 bg-git-bg/80 backdrop-blur-md border-b border-git-border px-4 flex">
                 {TABS.map((tab) =>
         <button
+        <button
           key={tab.key}
-          onClick={() => setActiveTab(tab.key)}
+          onClick={() => handleTabChange(tab.key)}
           className={`flex-1 py-4 text-[15px] font-bold transition-colors relative hover:bg-white/[0.03] ${
           activeTab === tab.key ?
           'text-git-text' :
@@ -128,17 +137,34 @@ export default function FeedClient({ discoverPosts, followingPosts, activityPost
       }
 
             {/* feed list */}
-            <div className="flex flex-col stagger-children">
-                {currentPosts.length === 0 &&
-        <div className="p-8 text-center text-git-muted text-[15px] border-b border-git-border animate-fade-in">
-                        {emptyMessages[activeTab]}
+            {isTabLoading ? (
+              <div className="flex flex-col">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="p-4 border-b border-git-border animate-pulse flex gap-3">
+                    <div className="w-10 h-10 rounded-full bg-git-border shrink-0" />
+                    <div className="flex-1 space-y-3 py-1">
+                      <div className="h-4 bg-[#21262d] rounded w-1/4" />
+                      <div className="space-y-2">
+                        <div className="h-3 bg-[#21262d] rounded w-full" />
+                        <div className="h-3 bg-[#21262d] rounded w-5/6" />
+                      </div>
                     </div>
-        }
+                  </div>
+                ))}
+              </div>
+            ) : (
+                <div className="flex flex-col stagger-children">
+                    {currentPosts.length === 0 &&
+                    <div className="p-8 text-center text-git-muted text-[15px] border-b border-git-border animate-fade-in">
+                            {emptyMessages[activeTab]}
+                        </div>
+                    }
 
-                {currentPosts.map((post) =>
-        <PostCard key={post.id} post={post} />
-        )}
-            </div>
+                    {currentPosts.map((post) =>
+                    <PostCard key={post.id} post={post} />
+                    )}
+                </div>
+            )}
         </div>);
 
 }

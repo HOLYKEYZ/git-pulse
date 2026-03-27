@@ -54,3 +54,21 @@ export async function PATCH(req: Request) {
 
   return NextResponse.json(updated);
 }
+
+// delete account
+export async function DELETE() {
+  const session = await auth();
+  if (!session?.user?.login) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  try {
+    await prisma.user.delete({
+      where: { username: session.user.login },
+    });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting account:", error);
+    return NextResponse.json({ error: "failed to delete account" }, { status: 500 });
+  }
+}

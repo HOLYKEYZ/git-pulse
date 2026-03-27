@@ -50,7 +50,7 @@ export default function NotificationBell() {
   return (
     <Link
       href="/notifications"
-      className="flex items-center gap-5 px-4 py-3 rounded-full hover:bg-git-hover transition-colors w-full">
+      className="flex items-center gap-5 px-4 py-3 rounded-full hover:bg-git-hover transition-colors w-full group">
       
             <div className="relative">
                 <svg height="26" viewBox="0 0 16 16" width="26" className="fill-current text-git-text">

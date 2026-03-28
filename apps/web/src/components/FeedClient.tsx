@@ -27,9 +27,6 @@ function formatRelativeTimestamp(timestamp: string | Date | number) {
   const now = new Date();
   const diffMs = now.getTime() - d.getTime();
   const minutes = Math.floor(diffMs / 60000);
-const now = new Date(post.timestamp);
-const diff = now.getTime() - post.timestamp.getTime();
-const minutes = Math.floor((now.getTime() - post.timestamp.getTime()) / 1000 / 60);
 if (minutes < 1) return 'Just now';
 if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
 const hours = Math.floor(minutes / 60);

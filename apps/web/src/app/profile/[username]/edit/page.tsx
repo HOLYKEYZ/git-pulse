@@ -78,12 +78,10 @@ export default function EditProfilePage({ params }: { params: { username: string
             }
 
             setSuccess(true);
-setTimeout(() => {
+            setTimeout(() => {
                 if (profile) {
                     router.push(`/profile/${profile.login}`);
                 }
-            setTimeout(() => {
-                router.push(`/profile/${params.username}`);
             }, 1500);
         } catch (err) {
             setError(err instanceof Error ? err.message : "failed to update profile");

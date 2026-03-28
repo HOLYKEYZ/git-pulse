@@ -60,8 +60,7 @@ if (loading) {
                 </div>
             );
         }
-        if (matches.length === 0) return null;
-    if (matches.length === 0) return null;
+if (matches.length === 0) return null;
 
     return (
         <div className="border border-git-border rounded-lg p-4 bg-git-card">

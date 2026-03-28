@@ -3,11 +3,11 @@ import Link from "next/link";
 import PostCard from "@/components/PostCard";
 
 interface PageProps {
-  params: Promise<{tag: string;}>;
+  params: {tag: string;}
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const { tag } = await params;
+const { tag } = params;
   return {
     title: `#${tag} | GitPulse`,
     description: `Explore posts tagged with #${tag}`
@@ -64,7 +64,7 @@ function mapPrismaPostToProps(p: any): PostProps {
 }
 
 export default async function TagFeedPage({ params }: PageProps) {
-  const { tag: rawTag } = await params;
+const { tag: rawTag } = params;
   const normalizedTag = `#${rawTag.toLowerCase()}`;
 
   // fetch posts that contain this exact tag (case insensitive through prisma)

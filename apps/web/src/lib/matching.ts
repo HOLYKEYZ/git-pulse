@@ -113,14 +113,31 @@ limit = 5)
 
   const matches: CollabMatch[] = [];
 
+  // Fetch all posts for all users in one query
+  const allPosts = await prisma.post.findMany({
+    where: {
+      author: { username: { in: users.map((u) => u.username) } }
+    },
+    select: {
+      id: true,
+      repoEmbed: true,
+      author: {
+        select: { username: true }
+      }
+    }
+  });
+
+  // Group posts by user
+  const postsByUser: Record<string, any[]> = {};
+  allPosts.forEach((post) => {
+    if (!postsByUser[post.author.username]) {
+      postsByUser[post.author.username] = [];
+    }
+    postsByUser[post.author.username].push(post);
+  });
+
   for (const user of users) {
-    // i can't fetch their repos without their token, so we'll
-    // use a heuristic based on their posts' repo languages
-    const posts = await prisma.post.findMany({
-      where: { author: { username: user.username } },
-      select: { repoEmbed: true },
-      take: 20
-    });
+    const posts = postsByUser[user.username] || [];
 
     // build a lightweight stack from their post repo embeds
     const langCounts: Record<string, number> = {};

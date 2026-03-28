@@ -96,7 +96,7 @@ export default function ComposeFeed() {
 
         <div className="w-full min-h-[100px] bg-git-bg text-git-text text-sm p-3 rounded-md border border-git-border overflow-y-auto custom-scrollbar markdown-body" style={{ background: '#010409', padding: '12px' }}>
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {content.replace(/(^|\s)(#[\w-]+)/g, '$1[$2]($2)').replace(/(^|\s)(@[\w-]+)/g, '$1[$2]($2)')}
+                    {content.replace(/(^|\s)(#[\w-]+)/g, '$1[#$2](/search?q=%23$2)').replace(/(^|\s)(@[\w-]+)/g, '$1[@$2](/profile/$2)')}
                 </ReactMarkdown>
             </div>
         }

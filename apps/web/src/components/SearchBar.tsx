@@ -147,14 +147,14 @@ export default function SearchBar() {
         }
 
                     {/* repos */}
-                    {results.repos.length > 0 &&
-        <div>
-                            <div className="px-3 py-2 text-[10px] font-semibold text-git-muted uppercase tracking-wider border-b border-git-border">
-                                Repositories
-                            </div>
-                            {results.repos.slice(0, 3).map((repo) =>
-          <Link
-            key={repo.name}
+                            {results.repos.length > 3 &&
+        <Link
+          href={`/search?q=${encodeURIComponent(query.trim())}&type=repos`}
+          onClick={() => {setIsOpen(false);setQuery("");}}
+          className="block text-center py-2 text-sm text-git-accent hover:bg-git-bg transition-colors border-t border-git-border">
+          View all repositories
+        </Link>
+      }
             href={repo.url}
             target="_blank"
             rel="noopener noreferrer"
@@ -187,14 +187,14 @@ export default function SearchBar() {
         }
 
                     {/* posts */}
-                    {results.posts.length > 0 &&
-        <div>
-                            <div className="px-3 py-2 text-[10px] font-semibold text-git-muted uppercase tracking-wider border-b border-git-border">
-                                Posts
-                            </div>
-                            {results.posts.map((post) =>
-          <Link
-            key={post.id}
+                            {results.posts.length > 3 &&
+        <Link
+          href={`/search?q=${encodeURIComponent(query.trim())}&type=posts`}
+          onClick={() => {setIsOpen(false);setQuery("");}}
+          className="block text-center py-2 text-sm text-git-accent hover:bg-git-bg transition-colors border-t border-git-border">
+          View all posts
+        </Link>
+      }
             href={`/profile/${post.author.username}`}
             className="flex items-start gap-3 px-3 py-2 hover:bg-git-bg transition-colors cursor-pointer"
             onClick={() => {setIsOpen(false);setQuery("");}}>

@@ -59,22 +59,6 @@ export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDeta
   }
   score += breakdown.language;
 
-  if (factors.stars >= effectiveConfig.starSweetSpotMin && factors.stars <= effectiveConfig.starSweetSpotMax) {
-    const normalizedStar = Math.min(factors.stars, effectiveConfig.starSweetSpotMax);
-    score += effectiveConfig.starSweetSpotBaseBoost + Math.min(normalizedStar * effectiveConfig.starSweetSpotMultiplier, effectiveConfig.starSweetSpotCap);
-  } else if (factors.stars > effectiveConfig.starSweetSpotMax) {
-    score += effectiveConfig.starOver1kBoost;
-  } else if (factors.stars > 0) {
-    score += factors.stars * effectiveConfig.smallRepoStarMultiplier;
-  // 2. Stars (Reduced max weight to prevent pure popularity dominance)
-  if (factors.stars >= 20 && factors.stars <= 1000) {
-    const normalizedStar = Math.min(factors.stars, 1000);
-    breakdown.stars = 10 + Math.min(normalizedStar * 0.02, 20); // max 30 pts
-  } else if (factors.stars > 1000) {
-    breakdown.stars = 15; // diminishing returns
-  } else if (factors.stars > 0) {
-    breakdown.stars = factors.stars * 0.3;
-  }
   score += breakdown.stars;
 
   // 3. Forks
@@ -126,18 +110,14 @@ export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDeta
   }
   score += breakdown.followerBias;
 
-  const decayFactor = Math.pow(Math.max(factors.daysSincePost, 1), effectiveConfig.timeDecayExponent);
-
-  return Math.max(score / decayFactor, 0);
 }
   // 9. Time decay
-  const decayFactor = Math.pow(Math.max(factors.daysSincePost, 1), 1.2);
-  breakdown.decayMultiplier = 1 / decayFactor;
-
-  const finalScore = Math.max(score / decayFactor, 0);
-
-  return {
-    score: finalScore,
+const decayMultiplier = 1;
+const finalScore = score;
+return {
+  score: finalScore,
+  breakdown
+};
     breakdown
   };
 }

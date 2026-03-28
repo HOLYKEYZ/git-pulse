@@ -5,6 +5,7 @@ import SearchBar from '@/components/SearchBar';
 import ComposeFeed from '@/components/ComposeFeed';
 import ShipItForm from '@/components/ShipItForm';
 import PostCard, { PostProps } from '@/components/PostCard';
+import { formatRelativeTime } from '@/lib/utils';
 
 type TabType = 'discover' | 'following' | 'activity';
 
@@ -22,18 +23,6 @@ const TABS: {key: TabType;label: string;}[] = [
 { key: "activity", label: "Activity" }];
 
 
-function formatRelativeTimestamp(timestamp: string) {
-  const date = new Date(timestamp);
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
-  const minutes = Math.floor(diff / 1000 / 60);
-  if (minutes < 1) return 'Just now';
-  if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-  const days = Math.floor(hours / 24);
-  return `${days} day${days > 1 ? 's' : ''} ago`;
-}
 
 export default function FeedClient({ discoverPosts, followingPosts, activityPosts, userName, userAvatar }: FeedClientProps) {
   const [activeTab, setActiveTab] = useState<TabType>('discover');
@@ -48,7 +37,7 @@ export default function FeedClient({ discoverPosts, followingPosts, activityPost
   };
 
   // live state
-  const [liveDiscover, setLiveDiscover] = useState<PostProps[]>(discoverPosts);
+  const [liveDiscover, setLiveDiscover] = useState<PostProps[]>(discoverPosts.map(post => ({ ...post, timestamp: formatRelativeTime(post.timestamp) })));
 
   useEffect(() => {
     const eventSource = new EventSource("/api/feed/stream");
@@ -60,7 +49,7 @@ export default function FeedClient({ discoverPosts, followingPosts, activityPost
           setLiveDiscover((prev) => {
             // deduplicate protection
             if (prev.find((p) => p.id === data.post.id)) return prev;
-            const formattedPost = { ...data.post, timestamp: formatRelativeTimestamp(data.post.timestamp) };
+            const formattedPost = { ...data.post, timestamp: formatRelativeTime(data.post.timestamp) };
             return [formattedPost, ...prev];
           });
         }
@@ -74,8 +63,8 @@ export default function FeedClient({ discoverPosts, followingPosts, activityPost
 
   const postsMap: Record<TabType, PostProps[]> = {
     discover: liveDiscover,
-    following: followingPosts,
-    activity: activityPosts
+    following: followingPosts.map(post => ({ ...post, timestamp: formatRelativeTime(post.timestamp) })),
+    activity: activityPosts.map(post => ({ ...post, timestamp: formatRelativeTime(post.timestamp) }))
   };
 
   const currentPosts = postsMap[activeTab];

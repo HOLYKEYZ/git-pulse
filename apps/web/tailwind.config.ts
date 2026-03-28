@@ -8,9 +8,11 @@ const config: Config = {
     ],
     theme: {
         extend: {
-            colors: {
-                background: "var(--bg)",
-                foreground: "var(--text)",
+        colors: {
+          githubBlue: '#2f81f7',
+          githubDarkBg: '#161b22',
+          // Add custom colors here
+        },
                 git: {
                     bg: "var(--bg)",
                     card: "var(--card)",

@@ -51,7 +51,7 @@ export async function POST(req: Request, { params }: {params: {id: string;};}) {
       data: {
         emoji,
         postId,
-userId: session.user.id
+userId: user.id
       }
     });
 

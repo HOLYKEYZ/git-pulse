@@ -11,6 +11,12 @@ export async function PUT(req: Request) {
   try {
     const { emoji, text } = await req.json();
 
+    if (emoji && typeof emoji === 'string' && emoji.length > 1) {
+      return NextResponse.json({ error: 'Status emoji must be a single character' }, { status: 400 });
+    }
+    if (text && typeof text === 'string' && text.length > 80) {
+      return NextResponse.json({ error: 'Status text cannot exceed 80 characters' }, { status: 400 });
+    }
     const user = await prisma.user.update({
       where: { username: session.user.login },
       data: {

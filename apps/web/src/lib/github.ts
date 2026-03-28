@@ -149,8 +149,8 @@ async function fetchWithAuth(endpoint: string, token: string) {
   });
 }
 
-export async function getGitHubStarredRepos(username: string, token: string, page = 1, perPage = 30): Promise<GitHubRepo[] | null> {
-  return fetchWithAuth(`/users/${username}/starred?page=${page}&per_page=${perPage}`, token);
+export async function getGitHubStarredRepos(username: string, token: string, page = 1, perPage = 30): Promise<GitHubRepo[]> {
+  return (await fetchWithAuth(`/users/${username}/starred?page=${page}&per_page=${perPage}`, token)) || [];
 }
 
 async function fetchGraphQL(query: string, variables: Record<string, unknown>, token: string) {

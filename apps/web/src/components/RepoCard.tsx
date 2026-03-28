@@ -30,12 +30,12 @@ const formattedLastPush = getRelativeTime(new Date(lastPush));
     const CardContent = (
         <>
             <div className="flex items-center justify-between mb-3">
-                <h3 className="text-[#2f81f7] font-semibold text-[15px] hover:underline break-words break-all truncate">
-                    {name}
-                </h3>
-                <span className="rounded-full border border-git-border/60 px-2.5 py-0.5 text-[10px] text-git-muted font-medium whitespace-nowrap ml-2 bg-[#161b22]/50">
-                    Public
-                </span>
+            <h3 className="text-github-blue font-semibold text-[15px] hover:underline break-words break-all truncate">
+                {name}
+            </h3>
+            <span className="rounded-full border border-git-border/60 px-2.5 py-0.5 text-[10px] text-git-muted font-medium whitespace-nowrap ml-2 bg-github-dark-bg/50">
+                Public
+            </span>
             </div>
             
             <p className="text-xs text-git-muted mb-3 flex-1 line-clamp-2 leading-relaxed">

@@ -75,9 +75,9 @@ export default async function RightSidebar() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block px-4 py-3 hover:bg-white/[0.03] transition-colors">
-                <div className="text-[15px] font-bold text-[#2ea043] mb-0.5 truncate">
-                  {repo.full_name}
-                </div>
+              <div className="text-[15px] font-bold text-git-success mb-0.5 truncate">
+                {repo.full_name}
+              </div>
                 {repo.description &&
                   <p className="text-[13px] text-git-muted line-clamp-2 mb-1.5 leading-snug">{repo.description}</p>
                 }
@@ -110,9 +110,9 @@ export default async function RightSidebar() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block px-4 py-3 hover:bg-white/[0.03] transition-colors">
-                <div className="text-[15px] font-bold text-[#4493f8] mb-0.5 truncate">
-                  {repo.full_name}
-                </div>
+              <div className="text-[15px] font-bold text-git-info mb-0.5 truncate">
+                {repo.full_name}
+              </div>
                 {repo.description &&
                   <p className="text-[13px] text-git-muted line-clamp-2 mb-1.5 leading-snug">{repo.description}</p>
                 }

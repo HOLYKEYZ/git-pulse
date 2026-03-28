@@ -1,6 +1,6 @@
 import React from 'react';
 import { getLanguageColor } from '@/lib/colors';
-import { isValidHttpUrl, formatRelativeTime } from '@/lib/utils';
+import { isValidHttpUrl, getRelativeTime } from '@/lib/utils';
 import { StarIcon, RepoForkedIcon } from '@primer/octicons-react';
 
 interface RepoCardProps {
@@ -26,7 +26,7 @@ export default function RepoCard({
 }: RepoCardProps) {
     const resolvedColor = languageColor || getLanguageColor(language);
 
-const formattedLastPush = formatRelativeTime(new Date(lastPush));
+const formattedLastPush = getRelativeTime(new Date(lastPush));
     const CardContent = (
         <>
             <div className="flex items-center justify-between mb-3">

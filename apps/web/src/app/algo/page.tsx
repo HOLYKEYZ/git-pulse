@@ -8,13 +8,14 @@ export const revalidate = 0;
 
 export default async function AlgoVisualizationPage() {
   const posts = await prisma.post.findMany({
-    where: { repoEmbed: { not: null } },
     include: { author: true },
     orderBy: { createdAt: "desc" },
-    take: 50
+    take: 100
   });
 
-  const scoredPosts = posts.map(p => {
+  const scoredPosts = posts
+    .filter(p => p.repoEmbed !== null && typeof p.repoEmbed === "object" && !Array.isArray(p.repoEmbed))
+    .map(p => {
     const r = p.repoEmbed as Record<string, any>;
     const daysSincePost = Math.max((Date.now() - p.createdAt.getTime()) / (1000 * 60 * 60 * 24), 1);
     const pushDate = r.lastPush ? new Date(r.lastPush) : p.createdAt;

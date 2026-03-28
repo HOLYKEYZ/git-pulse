@@ -17,10 +17,11 @@ export default async function AchievementsWidget({ username }: { username: strin
                     <div key={badge.name} className="relative group cursor-pointer inline-block">
                         {/* We don't use rounded-full because GitHub badges are officially natively hexagonal. */}
                         <div className="w-[64px] h-[64px] flex items-center justify-center transition-transform hover:scale-110">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
+                            <Image
                                 src={badge.badgeUrl}
                                 alt={badge.name}
+                                width={64}
+                                height={64}
                                 className="w-full h-full object-contain drop-shadow-sm"
                             />
                         </div>

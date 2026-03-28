@@ -11,81 +11,53 @@ export interface ScoreFactors {
   pushConsistency?: number;   // ratio of active weeks out of last 52 (0-1)
 }
 
-/**
- * calculates a "quality score" for a post based on its embedded repository.
- * v2: weighs by commits, consistency, and stars 20-1k sweet spot.
- */
-export interface AlgorithmConfig {
-  noveltyLanguages: string[];
-  commonLanguages: string[];
-  noveltyLanguageBoost: number;
-  uncommonLanguageBoost: number;
-  starSweetSpotMin: number;
-  starSweetSpotMax: number;
-  starSweetSpotBaseBoost: number;
-  starSweetSpotMultiplier: number;
-  starSweetSpotCap: number;
-  starOver1kBoost: number;
-  smallRepoStarMultiplier: number;
-  forkScoreMultiplier: number;
-  forkScoreCap: number;
-  descriptionBoost: number;
-  commitCountLogBase: number;
-  commitCountMultiplier: number;
-  commitCountCap: number;
-  pushConsistencyMultiplier: number;
-  pushConsistencyCap: number;
-  recentActivity7DaysBoost: number;
-  recentActivity30DaysBoost: number;
-  oldActivityPenalty: number;
-  followerBiasHighThreshold: number;
-  followerBiasHighPenalty: number;
-  followerBiasLowThreshold: number;
-  followerBiasLowBoost: number;
-  timeDecayExponent: number;
+export interface PostScoreDetail {
+  score: number;
+  breakdown: {
+    language: number;
+    stars: number;
+    forks: number;
+    completeness: number;
+    commitVolume: number;
+    pushConsistency: number;
+    recentActivity: number;
+    followerBias: number;
+    penalty: number;
+    decayMultiplier: number;
+  };
 }
 
-const DEFAULT_ALGORITHM_CONFIG: AlgorithmConfig = {
-  noveltyLanguages: ["Rust", "Zig", "Elixir", "Go", "Gleam", "Ocaml", "Haskell", "F#", "HolyC", "Vue", "Angular", "Svelte"],
-  commonLanguages: ["JavaScript", "TypeScript", "Python", "Java", "C++", "C#", "PHP", "Ruby", "C", "React", "NextJs", "NodeJs", "Express"],
-  noveltyLanguageBoost: 25,
-  uncommonLanguageBoost: 10,
-  starSweetSpotMin: 20,
-  starSweetSpotMax: 1000,
-  starSweetSpotBaseBoost: 15,
-  starSweetSpotMultiplier: 0.03,
-  starSweetSpotCap: 30,
-  starOver1kBoost: 20,
-  smallRepoStarMultiplier: 0.5,
-  forkScoreMultiplier: 1.0,
-  forkScoreCap: 20,
-  descriptionBoost: 10,
-  commitCountLogBase: 2,
-  commitCountMultiplier: 5,
-  commitCountCap: 35,
-  pushConsistencyMultiplier: 50,
-  pushConsistencyCap: 50,
-  recentActivity7DaysBoost: 20,
-  recentActivity30DaysBoost: 10,
-  oldActivityPenalty: -20,
-  followerBiasHighThreshold: 10000,
-  followerBiasHighPenalty: -15,
-  followerBiasLowThreshold: 100,
-  followerBiasLowBoost: 10,
-  timeDecayExponent: 1.2,
-};
-
-export function calculatePostScore(factors: ScoreFactors, config: Partial<AlgorithmConfig> = {}): number {
-  const effectiveConfig = { ...DEFAULT_ALGORITHM_CONFIG, ...config };
+/**
+ * Calculates a "quality score" for a post based on its embedded repository with full transparency.
+ * v3: Heavily penalizes 0 commits, heavily weighs commit count and consistency, mitigates follower clout.
+ */
+export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDetail {
   let score = 0;
+  const breakdown = {
+    language: 0,
+    stars: 0,
+    forks: 0,
+    completeness: 0,
+    commitVolume: 0,
+    pushConsistency: 0,
+    recentActivity: 0,
+    followerBias: 0,
+    penalty: 0,
+    decayMultiplier: 1,
+  };
+
+  // 1. Tech stack novelty
+  const noveltyLanguages = ["Rust", "Zig", "Elixir", "Go", "Gleam", "Ocaml", "Haskell", "F#", "HolyC", "Vue", "Angular", "Svelte"];
+  const commonLanguages = ["JavaScript", "TypeScript", "Python", "Java", "C++", "C#", "PHP", "Ruby", "C", "React", "NextJs", "NodeJs", "Express"];
 
   if (factors.language) {
-    if (effectiveConfig.noveltyLanguages.includes(factors.language)) {
-      score += effectiveConfig.noveltyLanguageBoost;
-    } else if (!effectiveConfig.commonLanguages.includes(factors.language)) {
-      score += effectiveConfig.uncommonLanguageBoost;
+    if (noveltyLanguages.includes(factors.language)) {
+      breakdown.language = 25;
+    } else if (!commonLanguages.includes(factors.language)) {
+      breakdown.language = 10;
     }
   }
+  score += breakdown.language;
 
   if (factors.stars >= effectiveConfig.starSweetSpotMin && factors.stars <= effectiveConfig.starSweetSpotMax) {
     const normalizedStar = Math.min(factors.stars, effectiveConfig.starSweetSpotMax);
@@ -94,40 +66,86 @@ export function calculatePostScore(factors: ScoreFactors, config: Partial<Algori
     score += effectiveConfig.starOver1kBoost;
   } else if (factors.stars > 0) {
     score += factors.stars * effectiveConfig.smallRepoStarMultiplier;
+  // 2. Stars (Reduced max weight to prevent pure popularity dominance)
+  if (factors.stars >= 20 && factors.stars <= 1000) {
+    const normalizedStar = Math.min(factors.stars, 1000);
+    breakdown.stars = 10 + Math.min(normalizedStar * 0.02, 20); // max 30 pts
+  } else if (factors.stars > 1000) {
+    breakdown.stars = 15; // diminishing returns
+  } else if (factors.stars > 0) {
+    breakdown.stars = factors.stars * 0.3;
   }
+  score += breakdown.stars;
 
-  const forkScore = Math.min(factors.forks * effectiveConfig.forkScoreMultiplier, effectiveConfig.forkScoreCap);
-  score += forkScore;
+  // 3. Forks
+  breakdown.forks = Math.min(factors.forks * 1.0, 15);
+  score += breakdown.forks;
 
+  // 4. Completeness
   if (factors.hasDescription) {
-    score += effectiveConfig.descriptionBoost;
+    breakdown.completeness = 10;
+    score += breakdown.completeness;
   }
 
-  if (factors.commitCount !== undefined && factors.commitCount > 0) {
-    score += Math.min(Math.log2(factors.commitCount) * effectiveConfig.commitCountMultiplier, effectiveConfig.commitCountCap);
-  }
-
-  if (factors.pushConsistency !== undefined && factors.pushConsistency > 0) {
-    score += factors.pushConsistency * effectiveConfig.pushConsistencyMultiplier;
-  }
-
-  if (factors.daysSincePush <= 7) {
-    score += effectiveConfig.recentActivity7DaysBoost;
-  } else if (factors.daysSincePush <= 30) {
-    score += effectiveConfig.recentActivity30DaysBoost;
-  } else if (factors.daysSincePush > 365) {
-    score += effectiveConfig.oldActivityPenalty;
-  }
-
-  if (factors.authorFollowers !== undefined) {
-    if (factors.authorFollowers > effectiveConfig.followerBiasHighThreshold) {
-      score += effectiveConfig.followerBiasHighPenalty;
-    } else if (factors.authorFollowers < effectiveConfig.followerBiasLowThreshold) {
-      score += effectiveConfig.followerBiasLowBoost;
+  // 5. Commit Volume (Heavily prioritized max 80 pts)
+  if (factors.commitCount !== undefined) {
+    if (factors.commitCount === 0) {
+      breakdown.penalty = -100; // Heavily penalize 0 commits
+      score += breakdown.penalty;
+    } else {
+      // Steeper log scale to reward solid commit activity
+      breakdown.commitVolume = Math.min(Math.log2(factors.commitCount) * 10, 80);
+      score += breakdown.commitVolume;
     }
   }
+
+  // 6. Push Consistency (Max 80 pts)
+  if (factors.pushConsistency !== undefined && factors.pushConsistency > 0) {
+    breakdown.pushConsistency = factors.pushConsistency * 80;
+    score += breakdown.pushConsistency;
+  }
+
+  // 7. Recent activity
+  if (factors.daysSincePush <= 7) {
+    breakdown.recentActivity = 20;
+  } else if (factors.daysSincePush <= 30) {
+    breakdown.recentActivity = 10;
+  } else if (factors.daysSincePush > 365) {
+    breakdown.recentActivity = -30; // Stronger penalty for dead projects
+  }
+  score += breakdown.recentActivity;
+
+  // 8. Follower bias ("anti-clout" mechanic)
+  if (factors.authorFollowers !== undefined) {
+    if (factors.authorFollowers > 1000) {
+      // Heavily penalize huge accounts who post repos with low activity
+      breakdown.followerBias = factors.commitCount === 0 ? -50 : -20;
+    } else if (factors.authorFollowers < 100) {
+      breakdown.followerBias = 15; // Boost small creators
+    }
+  }
+  score += breakdown.followerBias;
 
   const decayFactor = Math.pow(Math.max(factors.daysSincePost, 1), effectiveConfig.timeDecayExponent);
 
   return Math.max(score / decayFactor, 0);
+}
+  // 9. Time decay
+  const decayFactor = Math.pow(Math.max(factors.daysSincePost, 1), 1.2);
+  breakdown.decayMultiplier = 1 / decayFactor;
+
+  const finalScore = Math.max(score / decayFactor, 0);
+
+  return {
+    score: finalScore,
+    breakdown
+  };
+}
+
+/**
+ * Calculates a "quality score" for a post based on its embedded repository.
+ * Wrapper for backward compatibility.
+ */
+export function calculatePostScore(factors: ScoreFactors): number {
+  return calculatePostScoreDetailed(factors).score;
 }

@@ -31,11 +31,13 @@ export default async function Sidebar() {
                         </div>
                     </Link>
                     
-                    {session?.user && (
-                        <div className="group flex items-center w-fit">
-                            <NotificationBell />
-                        </div>
-                    )}
+    {session?.user && (
+        <div className="group flex items-center w-fit">
+            <div className="flex items-center gap-5 px-4 py-3 rounded-full hover:bg-git-hover transition-colors">
+                <NotificationBell />
+            </div>
+        </div>
+    )}
                     
                     {session?.user?.login && (
                         <Link href={`/profile/${session.user.login}`} className="group flex items-center w-fit">

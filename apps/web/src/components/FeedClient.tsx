@@ -22,7 +22,11 @@ const TABS: {key: TabType;label: string;}[] = [
 { key: "activity", label: "Activity" }];
 
 
-const date = new Date(post.timestamp);
+function formatRelativeTimestamp(timestamp: string | Date | number) {
+  const d = new Date(timestamp);
+  const now = new Date();
+  const diffMs = now.getTime() - d.getTime();
+  const minutes = Math.floor(diffMs / 60000);
 const now = new Date(post.timestamp);
 const diff = now.getTime() - post.timestamp.getTime();
 const minutes = Math.floor((now.getTime() - post.timestamp.getTime()) / 1000 / 60);

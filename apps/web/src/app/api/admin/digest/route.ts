@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { calculatePostScore } from "@/lib/algo";
+import { auth } from '@/lib/auth';
 
 export const dynamic = "force-dynamic";
 
@@ -17,8 +18,7 @@ export async function GET(req: Request) {
   const secret = searchParams.get("secret");
 
   // basic auth — either via cron secret or session
-import { auth } from '@/lib/auth';
-const session = await auth();
+  const session = await auth();
 const isAuthenticatedAdmin = session && session.user && session.user.isAdmin;
 if (secret !== process.env.CRON_SECRET && !isAuthenticatedAdmin) {
   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

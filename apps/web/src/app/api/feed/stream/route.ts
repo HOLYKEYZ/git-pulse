@@ -22,6 +22,7 @@ export async function GET(req: NextRequest) {
   let lastCheckedTime = new Date();
 
   const fetchPostsInterval = setInterval(async () => {
+    lastCheckedTime = new Date(); // Always update the lastCheckedTime
     try {
       // find any pure-feed visible posts created after lastcheckedtime
       const newPosts = await prisma.post.findMany({
@@ -36,8 +37,6 @@ export async function GET(req: NextRequest) {
       });
 
       if (newPosts.length > 0) {
-        lastCheckedTime = new Date(); // update watermark
-
         // blast posts down the pipe
         for (const post of newPosts) {
           writeEvent({
@@ -50,7 +49,7 @@ export async function GET(req: NextRequest) {
                 avatar: `https://avatars.githubusercontent.com/u/${post.author.githubId}?v=4`
               },
               content: post.content,
-timestamp: post.createdAt.toISOString(),
+              timestamp: post.createdAt.toISOString(),
               likes: post.reactions.length,
               comments: 0,
               reactions: post.reactions,
@@ -66,7 +65,7 @@ timestamp: post.createdAt.toISOString(),
     } catch (error) {
       console.error("Feed SSE Error:", error);
     }
-  }, 5000); // poll db every 5 seconds for absolute newest items
+  }, 5000);
 
   req.signal.addEventListener("abort", () => {
     clearInterval(fetchPostsInterval);

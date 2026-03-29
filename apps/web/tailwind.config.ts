@@ -7,14 +7,19 @@ const config: Config = {
         "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     ],
     theme: {
-        extend: {
+extend: {
         colors: {
+          git: {
+            'dark-bg-primary': '#0d1117',
+            'dark-bg-secondary': '#010409',
+            // Add your custom colors here
+          },
           githubBlue: '#2f81f7',
           githubDarkBg: '#161b22',
         // Add custom colors here
         'git-link-blue': '#2f81f7',
         },
-                git: {
+      },
                     bg: "var(--bg)",
                     card: "var(--card)",
                     border: "var(--border)",

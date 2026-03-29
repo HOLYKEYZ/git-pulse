@@ -147,15 +147,10 @@ export default function SearchBar() {
         }
 
                     {/* repos */}
-                            {results.repos.length > 3 &&
-        <Link
-          href={`/search?q=${encodeURIComponent(query.trim())}&type=repos`}
-          onClick={() => {setIsOpen(false);setQuery("");}}
-          className="block text-center py-2 text-sm text-git-accent hover:bg-git-bg transition-colors border-t border-git-border">
-          View all repositories
-        </Link>
-      }
-            href={repo.url}
+                            {results.repos.map((repo) =>
+                                <Link
+                                    key={repo.name}
+                                    href={repo.url}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => {setIsOpen(false);setQuery("");}}

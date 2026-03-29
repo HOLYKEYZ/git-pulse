@@ -99,7 +99,11 @@ export default async function AlgoVisualizationPage() {
             </div>
           ))}
           {scoredPosts.length === 0 && (
-            <div className="p-8 text-center text-git-muted">No repository posts found.</div>
+            <div className="p-12 text-center flex flex-col items-center animate-fade-in mt-10">
+              <svg viewBox="0 0 16 16" width="48" height="48" className="fill-git-muted opacity-50 mb-4"><path d="M2.75 2.5a.25.25 0 0 0-.25.25v10.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25V2.75a.25.25 0 0 0-.25-.25H2.75Zm-.25-1.5h10.5a1.75 1.75 0 0 1 1.75 1.75v10.5a1.75 1.75 0 0 1-1.75 1.75H2.75A1.75 1.75 0 0 1 1 13.25V2.75C1 1.784 1.784 1 2.75 1ZM8 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3ZM4.75 8.5C4.75 7.672 5.422 7 6.25 7h3.5c.828 0 1.5.672 1.5 1.5v2.25c0 .414-.336.75-.75.75H5.5a.75.75 0 0 1-.75-.75V8.5Z"></path></svg>
+              <h3 className="text-xl font-bold text-git-text mb-2">No Repository Posts Found</h3>
+              <p className="text-git-muted max-w-sm">The v3 recommendation algorithm exclusively scores embedded GitHub repositories. Standard text posts are not ranked.</p>
+            </div>
           )}
         </div>
       </div>

@@ -159,11 +159,22 @@ const formattedPost = { ...data.post, timestamp: formatRelativeTimestamp(data.po
               </div>
             ) : (
                 <div className="flex flex-col stagger-children">
-                    {currentPosts.length === 0 &&
-                    <div className="p-8 text-center text-git-muted text-[15px] border-b border-git-border animate-fade-in">
-                            {emptyMessages[activeTab]}
+                    {currentPosts.length === 0 && (
+                      <div className="p-12 text-center border-b border-git-border animate-fade-in flex flex-col items-center justify-center min-h-[300px]">
+                        <div className="w-16 h-16 rounded-full bg-git-border flex items-center justify-center mb-4">
+                          <svg viewBox="0 0 16 16" width="24" height="24" className="fill-git-muted"><path d="M2.75 2.5a.25.25 0 0 0-.25.25v10.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25V2.75a.25.25 0 0 0-.25-.25H2.75Zm-.25-1.5h10.5a1.75 1.75 0 0 1 1.75 1.75v10.5a1.75 1.75 0 0 1-1.75 1.75H2.75A1.75 1.75 0 0 1 1 13.25V2.75C1 1.784 1.784 1 2.75 1ZM8 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3ZM4.75 8.5C4.75 7.672 5.422 7 6.25 7h3.5c.828 0 1.5.672 1.5 1.5v2.25c0 .414-.336.75-.75.75H5.5a.75.75 0 0 1-.75-.75V8.5Z"></path></svg>
                         </div>
-                    }
+                        <h3 className="text-xl font-bold text-git-text mb-2">Welcome to your feed!</h3>
+                        <p className="text-[15px] text-git-muted max-w-sm mb-6">
+                            {emptyMessages[activeTab]}
+                        </p>
+                        {activeTab === 'following' && (
+                          <a href="/explore" className="bg-git-text text-black font-bold px-5 py-2.5 rounded-full hover:bg-[#d7dbdc] transition-colors">
+                            Find people to follow
+                          </a>
+                        )}
+                      </div>
+                    )}
 
                     {currentPosts.map((post) =>
                     <PostCard key={post.id} post={post} />

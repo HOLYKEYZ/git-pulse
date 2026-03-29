@@ -82,9 +82,9 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
   const processedHtml = $('body').html() || content;
 
   return (
-    <div className="w-full animate-fade-in relative">
+    <div className="w-full animate-fade-in relative overflow-hidden">
       <div 
-        className="markdown-body p-1"
+        className="markdown-body px-4 py-2 overflow-x-auto"
         style={{ backgroundColor: 'transparent', color: 'inherit' }}
         dangerouslySetInnerHTML={{ __html: processedHtml }}
       />

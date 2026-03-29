@@ -387,9 +387,9 @@ export async function getGitHubTrendingDevelopers(token: string, limit = 5): Pro
  * fetch high-potential lower-starred upcoming projects
  */
 export async function getUpcomingGitHubProjects(token: string, limit = 5): Promise<any[]> {
-  const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+  const fiveMonthsAgo = new Date(Date.now() - 150 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
   const repos = await fetchWithAuth(
-    `/search/repositories?q=created:>${oneMonthAgo}+stars:10..500&sort=stars&order=desc&per_page=${limit}`,
+    `/search/repositories?q=created:>${fiveMonthsAgo}+stars:10..500&sort=stars&order=desc&per_page=${limit}`,
     token
   );
   return repos?.items || [];

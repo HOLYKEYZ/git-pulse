@@ -24,11 +24,9 @@ export default async function Sidebar() {
 
                 {/* nav links — filled octicon svgs */}
                 <div className="flex flex-col gap-1 w-full mt-2">
-                    <Link href="/" className="group flex items-center w-fit">
-                        <div className="flex items-center gap-5 px-4 py-3 rounded-full hover:bg-git-hover transition-colors">
-                            <HomeIcon size={24} className="fill-current" />
-                            <span className="text-xl font-medium text-git-text">Home</span>
-                        </div>
+                    <Link href="/" className="group flex items-center gap-5 px-4 py-3 rounded-full hover:bg-git-hover transition-colors w-fit">
+                        <HomeIcon size={24} className="fill-current" />
+                        <span className="text-xl font-medium text-git-text pr-2">Home</span>
                     </Link>
                     
     {session?.user && (
@@ -38,20 +36,16 @@ export default async function Sidebar() {
     )}
                     
                     {session?.user?.login && (
-                        <Link href={`/profile/${session.user.login}`} className="group flex items-center w-fit">
-                            <div className="flex items-center gap-5 px-4 py-3 rounded-full hover:bg-git-hover transition-colors">
-                                <PersonIcon size={24} className="fill-current" />
-                                <span className="text-xl font-medium text-git-text">Profile</span>
-                            </div>
+                        <Link href={`/profile/${session.user.login}`} className="group flex items-center gap-5 px-4 py-3 rounded-full hover:bg-git-hover transition-colors w-fit">
+                            <PersonIcon size={24} className="fill-current" />
+                            <span className="text-xl font-medium text-git-text pr-2">Profile</span>
                         </Link>
                     )}
                     
                     {session?.user && (
-                        <Link href="/settings" className="group flex items-center w-fit">
-                            <div className="flex items-center gap-5 px-4 py-3 rounded-full hover:bg-git-hover transition-colors">
-                                <GearIcon size={24} className="fill-current" />
-                                <span className="text-xl font-medium text-git-text">Settings</span>
-                            </div>
+                        <Link href="/settings" className="group flex items-center gap-5 px-4 py-3 rounded-full hover:bg-git-hover transition-colors w-fit">
+                            <GearIcon size={24} className="fill-current" />
+                            <span className="text-xl font-medium text-git-text pr-2">Settings</span>
                         </Link>
                     )}
                     

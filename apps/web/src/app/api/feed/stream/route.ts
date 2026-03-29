@@ -22,12 +22,12 @@ export async function GET(req: NextRequest) {
   let lastCheckedTime = new Date();
 
   const fetchPostsInterval = setInterval(async () => {
-    lastCheckedTime = new Date(); // Always update the lastCheckedTime
+    const now = new Date();
     try {
-      // find any pure-feed visible posts created after lastcheckedtime
+      // find any pure-feed visible posts created between lastCheckedTime and now
       const newPosts = await prisma.post.findMany({
         where: {
-          createdAt: { gt: lastCheckedTime }
+          createdAt: { gt: lastCheckedTime, lte: now }
         },
         include: {
           author: { select: { username: true, githubId: true } },
@@ -35,6 +35,8 @@ export async function GET(req: NextRequest) {
         },
         orderBy: { createdAt: "desc" }
       });
+
+      lastCheckedTime = now;
 
       if (newPosts.length > 0) {
         // blast posts down the pipe

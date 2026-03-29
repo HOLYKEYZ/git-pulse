@@ -59,9 +59,9 @@ export default async function NotificationsPage() {
         </div>
     ) : (
         <div className="divide-y divide-git-border">
-            {notifications.map((n) => (
-                // ...
-                            <div className="flex items-start gap-3 px-4 py-3 hover:bg-git-hover transition-colors">
+            {notifications.map((n) => {
+                const inner = (
+                    <div className="flex items-start gap-3 px-4 py-3 hover:bg-git-hover transition-colors">
                                 <span className="text-lg shrink-0 mt-0.5">
                                     {TYPE_ICONS[n.type] || "📢"}
                                 </span>

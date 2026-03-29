@@ -112,12 +112,13 @@ export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDeta
 
 }
   // 9. Time decay
-const decayMultiplier = 1;
-const finalScore = score;
-return {
-  score: finalScore,
-  breakdown
-};
+  const decayFactor = Math.pow(Math.max(factors.daysSincePost, 1), 1.2);
+  breakdown.decayMultiplier = 1 / decayFactor;
+
+  const finalScore = Math.max(score / decayFactor, 0);
+
+  return {
+    score: finalScore,
     breakdown
   };
 }

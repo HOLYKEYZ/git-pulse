@@ -45,22 +45,30 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
     }
   });
 
-  // 3. Proxy source srcsets
-  $('source').each((_, el) => {
-    const srcset = $(el).attr('srcset');
-    if (srcset && !srcset.startsWith('/') && !srcset.startsWith('data:')) {
-      const proxySet = srcset.split(',').map(part => {
-        const [url, size] = part.trim().split(/\s+/);
-        if (url && url.startsWith('http')) {
-          const proxiedUrl = `/api/image-proxy?url=${encodeURIComponent(url)}`;
-          return size ? `${proxiedUrl} ${size}` : proxiedUrl;
-        }
-        return part;
-      }).join(', ');
-      
-      $(el).attr('srcset', proxySet);
-    }
-  });
+            // 3. Proxy source srcsets
+            $('source').each((_, el) => {
+                const srcset = $(el).attr('srcset');
+                if (srcset) {
+                    const proxySet = srcset.split(',').map(part => {
+                        const [url, size] = part.trim().split(/\s+/);
+                        if (url) {
+                            if (url.startsWith('data:')) {
+                                return part;
+                            } else if (!url.startsWith('http')) {
+                                if (url.startsWith('/')) {
+                                    url = `https://github.com${url}`;
+                                } else {
+                                    url = `https://raw.githubusercontent.com/${username}/${username}/main/${url}`;
+                                }
+                            }
+                            const proxiedUrl = `/api/image-proxy?url=${encodeURIComponent(url)}`;
+                            return size ? `${proxiedUrl} ${size}` : proxiedUrl;
+                        }
+                        return part;
+                    }).join(', ');
+                    $(el).attr('srcset', proxySet);
+                }
+            });
 
   // 4. Ensure all links open in a new tab securely
   $('a').each((_, el) => {

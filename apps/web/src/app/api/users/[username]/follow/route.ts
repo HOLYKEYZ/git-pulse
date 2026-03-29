@@ -50,7 +50,7 @@ export async function POST(req: Request, { params }: {params: {username: string;
           Authorization: `Bearer ${session.user.accessToken}`,
           Accept: "application/vnd.github.v3+json"
         }
-      }).catch((err) => console.error("GitHub unfollow sync failed:", err))]
+      }).catch((err) => console.error(`GitHub unfollow sync failed for ${targetUsername}:`, err))]
       );
       return NextResponse.json({ success: true, action: "unfollowed" });
     }
@@ -71,7 +71,7 @@ export async function POST(req: Request, { params }: {params: {username: string;
         Accept: "application/vnd.github.v3+json",
         "Content-Length": "0"
       }
-    }).catch((err) => console.error("GitHub follow sync failed:", err))]
+    }).catch((err) => console.error(`GitHub follow sync failed for ${targetUsername}:`, err))]
     );
 
     // create a follow notification for the target user (fire-and-forget)

@@ -59,8 +59,9 @@ export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDeta
   }
   score += breakdown.language;
 
-  score += breakdown.stars;
-
+breakdown.stars = Math.min(factors.stars * 0.1, 50);
+score += breakdown.stars;
+  // 3. Forks
   // 3. Forks
   breakdown.forks = Math.min(factors.forks * 1.0, 15);
   score += breakdown.forks;
@@ -108,18 +109,24 @@ export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDeta
       breakdown.followerBias = 15; // Boost small creators
     }
   }
+<<<<<<< HEAD
+score += breakdown.followerBias;
+  // 9. Time decay
+=======
   score += breakdown.followerBias;
 
+>>>>>>> c2fcd5f (updatr)
   // 9. Time decay
   const decayFactor = Math.pow(Math.max(factors.daysSincePost, 1), 1.2);
   breakdown.decayMultiplier = 1 / decayFactor;
 
   const finalScore = Math.max(score / decayFactor, 0);
 
-  return {
+return {
     score: finalScore,
     breakdown
   };
+}
 }
 
 /**

@@ -20,9 +20,11 @@ export async function GET(req: Request) {
   // basic auth — either via cron secret or session
   const session = await auth();
 const isAuthenticatedAdmin = session && session.user && session.user.isAdmin;
-if (secret !== process.env.CRON_SECRET && !isAuthenticatedAdmin) {
-  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-}
+  if (secret !== process.env.CRON_SECRET && !isAuthenticatedAdmin) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
     const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
     const posts = await prisma.post.findMany({

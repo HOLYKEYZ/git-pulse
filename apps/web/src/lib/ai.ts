@@ -35,6 +35,7 @@ export async function generateRepoPitch(repo: RepoContext): Promise<string> {
         } catch (error) {
           console.error("[AI] Gemini failed, no pitch generated:", error);
           return "";
+        }
       }
       return "";
     },

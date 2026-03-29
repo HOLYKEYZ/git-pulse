@@ -81,7 +81,6 @@ return n.linkUrl && isValidHttpUrl(n.linkUrl) ? (
                         );
                     })}
                 </div>
-            )}
         </div>
     );
 }

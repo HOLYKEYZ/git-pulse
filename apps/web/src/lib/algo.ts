@@ -110,7 +110,6 @@ export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDeta
   }
   score += breakdown.followerBias;
 
-}
   // 9. Time decay
   const decayFactor = Math.pow(Math.max(factors.daysSincePost, 1), 1.2);
   breakdown.decayMultiplier = 1 / decayFactor;

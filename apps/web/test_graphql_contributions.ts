@@ -31,7 +31,6 @@ async function test() {
         }
       }
     }`;
-  `;
 
   const res = await fetch("https://api.github.com/graphql", {
     method: "POST",

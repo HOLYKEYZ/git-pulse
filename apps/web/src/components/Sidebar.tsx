@@ -30,9 +30,9 @@ export default async function Sidebar() {
                     </Link>
                     
     {session?.user && (
-        <div className="group flex items-center w-fit">
+        <>
             <NotificationBell />
-        </div>
+        </>
     )}
                     
                     {session?.user?.login && (

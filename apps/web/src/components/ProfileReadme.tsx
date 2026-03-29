@@ -50,7 +50,7 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
                 const srcset = $(el).attr('srcset');
                 if (srcset) {
                     const proxySet = srcset.split(',').map(part => {
-                        const [url, size] = part.trim().split(/\s+/);
+                        let [url, size] = part.trim().split(/\s+/);
                         if (url) {
                             if (url.startsWith('data:')) {
                                 return part;

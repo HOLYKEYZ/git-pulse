@@ -1,67 +1,62 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-    content: [
-        "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-        "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-        "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-    ],
-    theme: {
-extend: {
-        colors: {
-          git: {
-            'dark-bg-primary': '#0d1117',
-            'dark-bg-secondary': '#010409',
-            // Add your custom colors here
+  content: [
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        git: {
+          'dark-bg-primary': '#0d1117',
+          'dark-bg-secondary': '#010409',
+          'link-blue': '#2f81f7',
+          bg: "var(--bg)",
+          card: "var(--card)",
+          border: "var(--border)",
+          green: "var(--green)",
+          accent: "var(--accent)",
+          text: "var(--text)",
+          muted: "var(--muted)",
+          notification: "var(--notification)",
+          hover: "var(--hover)",
+          'tab-active-border': '#f78166',
+          'tab-count-bg': '#30363d',
+          contribution: {
+            0: "#161B22",
+            1: "#0e4429",
+            2: "#006d32",
+            3: "#26a641",
+            4: "#39d353",
           },
-          githubBlue: '#2f81f7',
-          githubDarkBg: '#161b22',
-        // Add custom colors here
-        'git-link-blue': '#2f81f7',
         },
+        githubBlue: '#2f81f7',
+        githubDarkBg: '#161b22',
       },
-                    bg: "var(--bg)",
-                    card: "var(--card)",
-                    border: "var(--border)",
-                    green: "var(--green)",
-                    accent: "var(--accent)",
-                    text: "var(--text)",
-                    muted: "var(--muted)",
-                    notification: "var(--notification)",
-                                hover: "var(--hover)",
-                                'tab-active-border': '#f78166',
-                                'tab-count-bg': '#30363d',
-                    contribution: {
-                        0: "#161B22",
-                        1: "#0e4429",
-                        2: "#006d32",
-                        3: "#26a641",
-                        4: "#39d353",
-                    },
-                },
-            },
-            fontFamily: {
-                sans: [
-                    "Inter",
-                    "-apple-system",
-                    "BlinkMacSystemFont",
-                    "Segoe UI",
-                    "Noto Sans",
-                    "Helvetica",
-                    "Arial",
-                    "sans-serif",
-                ],
-                mono: [
-                    "SFMono-Regular",
-                    "Consolas",
-                    "Liberation Mono",
-                    "Menlo",
-                    "monospace",
-                ],
-            },
-        },
+      fontFamily: {
+        sans: [
+          "Inter",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Noto Sans",
+          "Helvetica",
+          "Arial",
+          "sans-serif",
+        ],
+        mono: [
+          "SFMono-Regular",
+          "Consolas",
+          "Liberation Mono",
+          "Menlo",
+          "monospace",
+        ],
+      },
     },
-    plugins: [],
+  },
+  plugins: [],
 };
 
 export default config;

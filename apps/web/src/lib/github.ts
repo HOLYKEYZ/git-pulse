@@ -285,7 +285,7 @@ export async function getGitHubTrendingRepos(token: string, limit = 5): Promise<
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         "Accept": "text/html"
       },
-      next: { revalidate: 3600 }
+      next: { revalidate: 300 }
     });
 
     if (!res.ok) {
@@ -338,7 +338,7 @@ export async function getGitHubTrendingDevelopers(token: string, limit = 5): Pro
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         "Accept": "text/html"
       },
-      next: { revalidate: 3600 }
+      next: { revalidate: 300 }
     });
 
     if (!res.ok) {

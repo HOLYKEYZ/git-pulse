@@ -60,7 +60,7 @@ export default function FeedClient({ discoverPosts, followingPosts, activityPost
           setLiveDiscover((prev) => {
             // deduplicate protection
             if (prev.find((p) => p.id === data.post.id)) return prev;
-const formattedPost = { ...data.post, timestamp: getRelativeTime(data.post.timestamp) };
+const formattedPost = { ...data.post, timestamp: formatRelativeTimestamp(data.post.timestamp) };
             return [formattedPost, ...prev];
           });
         }

@@ -10,17 +10,18 @@ const LANGUAGE_COLORS: Record<string, string> = {
   "C++": "#f34b7d", C: "#555555", Ruby: "#701516"
 };
 
-export default async function StarsPage({ params }: {params: {username: string};}) {
+export default async function StarsPage({ params }: {params: Promise<{username: string}>;}) {
   const session = await auth();
-  const { username } = params;
+  const resolvedParams = await params;
+  const { username } = resolvedParams;
   const token = session?.user?.accessToken;
 
-  let repos = []; 
+  let repos: any[] = []; 
   let hasError = false; 
   let ghUser = null;
   
   try { 
-    ghUser = await getGitHubUser(username, token);
+    ghUser = await getGitHubUser(username, token as string);
     
     if (token) {
       repos = await getGitHubStarredRepos(username, token, 1, 100) || [];

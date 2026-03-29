@@ -45,7 +45,7 @@ const res = await fetch("/api/admin/digest");
                 <div>
                     <h1 className="text-xl font-semibold text-git-text">Weekly Digest Generator</h1>
                     <p className="text-sm text-git-muted mt-1">
-                        Generate a curated "Top 10 Hidden Gems" thread for X.
+                        Generate a curated &quot;Top 10 Hidden Gems&quot; thread for X.
                     </p>
                 </div>
                 <button

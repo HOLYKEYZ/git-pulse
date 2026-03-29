@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -15,8 +15,10 @@ interface ProfileData {
     login: string;
 }
 
-export default function EditProfilePage({ params }: { params: { username: string } }) {
+export default function EditProfilePage({ params }: { params: Promise<{ username: string }> }) {
     const router = useRouter();
+    const resolvedParams = use(params);
+    const { username } = resolvedParams;
     const [profile, setProfile] = useState<ProfileData | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -232,7 +234,7 @@ export default function EditProfilePage({ params }: { params: { username: string
                         {saving ? "saving..." : "save changes"}
                     </button>
                     <button
-                        onClick={() => params.then(({ username }) => router.push(`/profile/${username}`))}
+                        onClick={() => router.push(`/profile/${username}`)}
                         className="px-4 py-2 rounded-md border border-git-border text-git-muted text-sm font-medium hover:text-git-text transition-colors"
                     >
                         cancel

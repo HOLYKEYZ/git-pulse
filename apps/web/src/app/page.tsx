@@ -132,7 +132,7 @@ function mapPrismaPostToProps(p: {
   images?: string[];
   hashtags?: string[];
   repoUrl?: string | null;
-  author: {username: string;avatar: string | null;};
+  author: {username: string;avatar: string | null; statusEmoji?: string | null; statusText?: string | null;};
   _count: {comments: number;reactions: number;};
 }): PostProps {
   let score = 0;

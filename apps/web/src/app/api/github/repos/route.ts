@@ -8,8 +8,8 @@ export async function GET() {
     }
 
 try {
-  let nextPageUrl = "https://api.github.com/user/repos?sort=updated&per_page=100&affiliation=owner,collaborator";
-  let allRepos = [];
+  let nextPageUrl: string | null = "https://api.github.com/user/repos?sort=updated&per_page=100&affiliation=owner,collaborator";
+  let allRepos: any[] = [];
 
   while (nextPageUrl) {
     const res = await fetch(nextPageUrl, {

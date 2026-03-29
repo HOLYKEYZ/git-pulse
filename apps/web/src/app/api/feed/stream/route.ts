@@ -55,9 +55,9 @@ export async function GET(req: NextRequest) {
               reactions: post.reactions,
               images: post.images,
               repoUrl: post.repoUrl,
-              repoEmbed: post.repoCache as any,
-              score: post.score,
-              passedBadge: post.passedBadge
+              repoEmbed: post.repoEmbed,
+              score: 0,
+              passedBadge: false
             }
           });
         }

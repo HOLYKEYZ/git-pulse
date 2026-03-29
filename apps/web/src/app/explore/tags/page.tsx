@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Metadata } from "next";
-import LRU from 'lru-cache';
-const cache = new LRU({ max: 1, ttl: 300000 }); // 5 minutes
+import { LRUCache } from 'lru-cache';
+const cache = new LRUCache<string, any>({ max: 1, ttl: 300000 }); // 5 minutes
 
 export const metadata: Metadata = {
   title: "Explore Trending Tags | GitPulse",
@@ -49,7 +49,7 @@ if (!trending) {
                     </div> :
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 stagger-children">
-                        {trending.map(([tag, count], index) =>
+                        {trending.map(([tag, count]: [string, any], index: number) =>
           <Link
             key={tag}
             href={`/explore/tags/${tag.replace('#', '')}`}

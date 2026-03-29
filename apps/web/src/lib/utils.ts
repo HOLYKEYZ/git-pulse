@@ -29,3 +29,7 @@ export function isValidHttpUrl(string: string) {
     }
     return url.protocol === "http:" || url.protocol === "https:";
 }
+
+export function hasPassedBadge(score: number): boolean {
+    return score >= 40;
+}

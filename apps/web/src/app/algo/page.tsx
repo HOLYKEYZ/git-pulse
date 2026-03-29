@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { calculatePostScoreDetailed } from "@/lib/algo";
-import { Sidebar } from "@/components/Sidebar";
+import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -8,7 +8,7 @@ export const revalidate = 0;
 
 export default async function AlgoVisualizationPage() {
   const posts = await prisma.post.findMany({
-    include: { author: true },
+    include: { author: { include: { _count: { select: { followers: true } } } } },
     orderBy: { createdAt: "desc" },
     take: 100
   });
@@ -30,7 +30,7 @@ export default async function AlgoVisualizationPage() {
       daysSincePost,
       commitCount: r.commitCount,
       pushConsistency: r.pushConsistency,
-      authorFollowers: p.author.followersCount || 0
+      authorFollowers: p.author._count?.followers || 0
     });
 
     return {

@@ -19,7 +19,7 @@ export async function GET(req: Request) {
 
   // basic auth — either via cron secret or session
   const session = await auth();
-const isAuthenticatedAdmin = session && session.user && session.user.isAdmin;
+const isAuthenticatedAdmin = session && session.user && (session.user as any).isAdmin;
   if (secret !== process.env.CRON_SECRET && !isAuthenticatedAdmin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

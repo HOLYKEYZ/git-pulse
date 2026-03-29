@@ -4,14 +4,15 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: Request, { params }: {params: {id: string;};}) {
+export async function POST(req: Request, { params }: {params: Promise<{id: string;}>}) {
   const session = await auth();
   if (!session?.user?.login) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    const { id: postId } = params;
+    const resolvedParams = await params;
+    const { id: postId } = resolvedParams;
     const body = await req.json();
     const { emoji } = body;
 

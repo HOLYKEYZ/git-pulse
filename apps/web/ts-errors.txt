@@ -1,0 +1,66 @@
+﻿.next/types/app/api/posts/[id]/comments/route.ts(166,7): error TS2344: Type '{ __tag__: "POST"; __param_position__: "second"; __param_type__: { params: { params: { id: string; }; }; }; }' does not satisfy the constraint 'ParamCheck<RouteContext>'.
+  The types of '__param_type__.params' are incompatible between these types.
+    Type '{ params: { id: string; }; }' is missing the following properties from type 'Promise<any>': then, catch, finally, [Symbol.toStringTag]
+.next/types/app/api/posts/[id]/reactions/route.ts(166,7): error TS2344: Type '{ __tag__: "POST"; __param_position__: "second"; __param_type__: { params: { id: string; }; }; }' does not satisfy the constraint 'ParamCheck<RouteContext>'.
+  The types of '__param_type__.params' are incompatible between these types.
+    Type '{ id: string; }' is missing the following properties from type 'Promise<any>': then, catch, finally, [Symbol.toStringTag]
+.next/types/app/api/users/[username]/follow/route.ts(166,7): error TS2344: Type '{ __tag__: "POST"; __param_position__: "second"; __param_type__: { params: { username: string; }; }; }' does not satisfy the constraint 'ParamCheck<RouteContext>'.
+  The types of '__param_type__.params' are incompatible between these types.
+    Type '{ username: string; }' is missing the following properties from type 'Promise<any>': then, catch, finally, [Symbol.toStringTag]
+.next/types/app/explore/tags/[tag]/page.ts(34,29): error TS2344: Type 'PageProps' does not satisfy the constraint 'import("C:/Users/USER/git-pulse/apps/web/.next/types/app/explore/tags/[tag]/page").PageProps'.
+  Types of property 'params' are incompatible.
+    Type '{ tag: string; }' is missing the following properties from type 'Promise<any>': then, catch, finally, [Symbol.toStringTag]
+.next/types/app/explore/tags/[tag]/page.ts(38,31): error TS2344: Type 'PageProps' does not satisfy the constraint 'import("C:/Users/USER/git-pulse/apps/web/.next/types/app/explore/tags/[tag]/page").PageProps'.
+  Types of property 'params' are incompatible.
+    Type '{ tag: string; }' is missing the following properties from type 'Promise<any>': then, catch, finally, [Symbol.toStringTag]
+.next/types/app/profile/[username]/edit/page.ts(34,29): error TS2344: Type '{ params: { username: string; }; }' does not satisfy the constraint 'PageProps'.
+  Types of property 'params' are incompatible.
+    Type '{ username: string; }' is missing the following properties from type 'Promise<any>': then, catch, finally, [Symbol.toStringTag]
+.next/types/app/profile/[username]/followers/page.ts(34,29): error TS2344: Type '{ params: { username: string; }; }' does not satisfy the constraint 'PageProps'.
+  Types of property 'params' are incompatible.
+    Type '{ username: string; }' is missing the following properties from type 'Promise<any>': then, catch, finally, [Symbol.toStringTag]
+.next/types/app/profile/[username]/page.ts(34,29): error TS2344: Type '{ params: { username: string; }; }' does not satisfy the constraint 'PageProps'.
+  Types of property 'params' are incompatible.
+    Type '{ username: string; }' is missing the following properties from type 'Promise<any>': then, catch, finally, [Symbol.toStringTag]
+.next/types/app/profile/[username]/repos/page.ts(34,29): error TS2344: Type '{ params: { username: string; }; }' does not satisfy the constraint 'PageProps'.
+  Types of property 'params' are incompatible.
+    Type '{ username: string; }' is missing the following properties from type 'Promise<any>': then, catch, finally, [Symbol.toStringTag]
+.next/types/app/profile/[username]/stars/page.ts(34,29): error TS2344: Type '{ params: { username: string; }; }' does not satisfy the constraint 'PageProps'.
+  Types of property 'params' are incompatible.
+    Type '{ username: string; }' is missing the following properties from type 'Promise<any>': then, catch, finally, [Symbol.toStringTag]
+src/app/algo/page.tsx(3,10): error TS2614: Module '"@/components/Sidebar"' has no exported member 'Sidebar'. Did you mean to use 'import Sidebar from "@/components/Sidebar"' instead?
+src/app/algo/page.tsx(33,33): error TS2339: Property 'followersCount' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; githubId: string; username: string; name: string | null; email: string | null; avatar: string | null; bio: string | null; apiKey: string | null; statusEmoji: string | null; statusText: string | null; showActivity: boolean; showContributions: boolean; }'.
+src/app/api/admin/digest/route.ts(22,70): error TS2339: Property 'isAdmin' does not exist on type '{ githubId: string; accessToken: string; login: string; } & User'.
+src/app/api/feed/stream/route.ts(58,31): error TS2339: Property 'repoCache' does not exist on type '{ author: { githubId: string; username: string; }; reactions: { id: string; createdAt: Date; userId: string; postId: string; emoji: string; }[]; } & { id: string; content: string; type: string; authorId: string; ... 6 more ...; updatedAt: Date; }'.
+src/app/api/feed/stream/route.ts(59,27): error TS2339: Property 'score' does not exist on type '{ author: { githubId: string; username: string; }; reactions: { id: string; createdAt: Date; userId: string; postId: string; emoji: string; }[]; } & { id: string; content: string; type: string; authorId: string; ... 6 more ...; updatedAt: Date; }'.
+src/app/api/feed/stream/route.ts(60,33): error TS2339: Property 'passedBadge' does not exist on type '{ author: { githubId: string; username: string; }; reactions: { id: string; createdAt: Date; userId: string; postId: string; emoji: string; }[]; } & { id: string; content: string; type: string; authorId: string; ... 6 more ...; updatedAt: Date; }'.
+src/app/api/github/contributions/route.ts(4,31): error TS2307: Cannot find module '@/lib/contributionCache' or its corresponding type declarations.
+src/app/api/github/repos/route.ts(12,7): error TS7034: Variable 'allRepos' implicitly has type 'any[]' in some locations where its type cannot be determined.
+src/app/api/github/repos/route.ts(34,16): error TS7005: Variable 'allRepos' implicitly has an 'any[]' type.
+src/app/api/github/repos/route.ts(42,9): error TS2322: Type 'null' is not assignable to type 'string'.
+src/app/api/github/repos/route.ts(45,7): error TS2322: Type 'null' is not assignable to type 'string'.
+src/app/explore/tags/[tag]/page.tsx(18,40): error TS2304: Cannot find name 'PostProps'.
+src/app/explore/tags/[tag]/page.tsx(28,13): error TS2304: Cannot find name 'calculatePostScore'.
+src/app/explore/tags/[tag]/page.tsx(53,16): error TS2304: Cannot find name 'getRelativeTime'.
+src/app/explore/tags/[tag]/page.tsx(62,18): error TS2304: Cannot find name 'hasPassedBadge'.
+src/app/explore/tags/page.tsx(4,8): error TS1192: Module '"C:/Users/USER/git-pulse/node_modules/.pnpm/lru-cache@11.2.7/node_modules/lru-cache/dist/esm/index"' has no default export.
+src/app/explore/tags/page.tsx(52,41): error TS7031: Binding element 'tag' implicitly has an 'any' type.
+src/app/explore/tags/page.tsx(52,46): error TS7031: Binding element 'count' implicitly has an 'any' type.
+src/app/explore/tags/page.tsx(52,54): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/app/page.tsx(173,29): error TS2339: Property 'statusEmoji' does not exist on type '{ username: string; avatar: string | null; }'.
+src/app/page.tsx(174,28): error TS2339: Property 'statusText' does not exist on type '{ username: string; avatar: string | null; }'.
+src/app/profile/[username]/edit/page.tsx(235,47): error TS2339: Property 'then' does not exist on type '{ username: string; }'.
+src/app/profile/[username]/edit/page.tsx(235,55): error TS7031: Binding element 'username' implicitly has an 'any' type.
+src/app/profile/[username]/repos/page.tsx(18,5): error TS7034: Variable 'repos' implicitly has type 'any[]' in some locations where its type cannot be determined.
+src/app/profile/[username]/repos/page.tsx(21,33): error TS7005: Variable 'repos' implicitly has an 'any[]' type.
+src/app/profile/[username]/repos/page.tsx(62,20): error TS7005: Variable 'repos' implicitly has an 'any[]' type.
+src/app/profile/[username]/stars/page.tsx(18,7): error TS7034: Variable 'repos' implicitly has type 'any[]' in some locations where its type cannot be determined.
+src/app/profile/[username]/stars/page.tsx(23,44): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/app/profile/[username]/stars/page.tsx(34,34): error TS7005: Variable 'repos' implicitly has an 'any[]' type.
+src/app/profile/[username]/stars/page.tsx(63,10): error TS7005: Variable 'repos' implicitly has an 'any[]' type.
+src/app/profile/[username]/stars/page.tsx(63,19): error TS7005: Variable 'repos' implicitly has an 'any[]' type.
+src/app/profile/[username]/stars/page.tsx(78,10): error TS7005: Variable 'repos' implicitly has an 'any[]' type.
+src/components/FeedClient.tsx(63,50): error TS2304: Cannot find name 'getRelativeTime'.
+src/lib/auth.ts(12,46): error TS2345: Argument of type '{ token: JWT; profile: Profile | undefined; }' is not assignable to parameter of type '{ token: JWT; user: User | AdapterUser; account?: Account | null | undefined; profile?: Profile | undefined; trigger?: "update" | "signIn" | "signUp" | undefined; isNewUser?: boolean | undefined; session?: any; }'.
+  Property 'user' is missing in type '{ token: JWT; profile: Profile | undefined; }' but required in type '{ token: JWT; user: User | AdapterUser; account?: Account | null | undefined; profile?: Profile | undefined; trigger?: "update" | "signIn" | "signUp" | undefined; isNewUser?: boolean | undefined; session?: any; }'.

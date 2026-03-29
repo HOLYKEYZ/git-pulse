@@ -34,6 +34,7 @@ const config: Config = {
         },
         githubBlue: '#2f81f7',
         githubDarkBg: '#161b22',
+        'star-active': '#e3b341',
       },
       fontFamily: {
         sans: [

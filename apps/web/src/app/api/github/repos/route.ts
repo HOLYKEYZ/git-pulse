@@ -12,7 +12,7 @@ try {
   let allRepos: any[] = [];
 
   while (nextPageUrl) {
-    const res = await fetch(nextPageUrl, {
+    const res: Response = await fetch(nextPageUrl as string, {
       headers: {
         Authorization: `Bearer ${session.user.accessToken}`,
         Accept: "application/vnd.github+json",

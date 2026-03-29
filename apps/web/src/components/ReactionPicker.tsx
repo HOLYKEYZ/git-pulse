@@ -26,9 +26,7 @@ export default function ReactionPicker({ postId, onReact, currentReactions = [] 
   return (
     <button
       onClick={handleStar}
-className={`flex items-center gap-1.5 transition-colors group ${
-      isStarred ? 'text-star-active' : 'text-git-muted hover:text-star-active'}
-      }
+className={`flex items-center gap-1.5 transition-colors group ${isStarred ? 'text-star-active' : 'text-git-muted hover:text-star-active'}`}
       title="Star">
       
             <div className={`relative flex items-center justify-center ${isAnimating ? 'scale-125 transition-transform duration-200' : 'transition-transform duration-200'}`}>

@@ -11,7 +11,8 @@ const config: Config = {
         colors: {
           githubBlue: '#2f81f7',
           githubDarkBg: '#161b22',
-          // Add custom colors here
+        // Add custom colors here
+        'git-link-blue': '#2f81f7',
         },
                 git: {
                     bg: "var(--bg)",

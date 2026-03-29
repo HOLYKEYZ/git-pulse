@@ -28,7 +28,7 @@ export default function PinnedRepos({ repos }: PinnedReposProps) {
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2 min-w-0 pr-2">
                                 <RepoIcon size={16} className="fill-git-muted shrink-0" />
-                                <span className="text-sm font-semibold text-[#2f81f7] hover:underline truncate">
+                                <span className="text-sm font-semibold text-git-link-blue hover:underline truncate">
                                     {repo.name}
                                 </span>
                                 <span className="rounded-full border border-git-border/60 px-2 py-0.5 text-[10px] sm:text-[11px] text-git-muted font-medium bg-transparent leading-none ml-1">

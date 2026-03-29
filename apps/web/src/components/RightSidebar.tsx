@@ -25,34 +25,17 @@ export default async function RightSidebar() {
   // fetch most active repos today
   const activeProjects = token ? await getTopReposByDailyCommits(token, 5) : [];
 
-  let suggestedUsers = await prisma.user.findMany({
-    take: 5,
-    where: {
-      NOT: {
-        username: session?.user?.login || ""
-      }
-    },
-    select: {
-      username: true,
-      avatar: true,
-      name: true
-    }
-  });
-
-  // if not enough local users, supplement with gh api "devs like you"
-  if (suggestedUsers.length < 5 && token) {
-    const fallbackLimit = 5 - suggestedUsers.length;
-    try {
-        const ghDevs = await getSuggestedGitHubUsers(token, undefined, fallbackLimit);
-        const ghMapped = ghDevs.map(dev => ({
-            username: dev.login,
-            avatar: dev.avatar_url,
-            name: dev.name || dev.login
-        }));
-        suggestedUsers = [...suggestedUsers, ...ghMapped];
-    } catch {
-        // fail silently if gh trending devs fails
-    }
+  // Fetch purely from github to enforce strict commit count requirement and clout-filtering
+  let suggestedUsers: any[] = [];
+  try {
+    const ghDevs = await getSuggestedGitHubUsers(token || "", undefined, 5);
+    suggestedUsers = ghDevs.map(dev => ({
+      username: dev.login,
+      avatar: dev.avatar_url,
+      name: dev.name || dev.login
+    }));
+  } catch (err) {
+    console.error("Failed to load suggested GH users", err);
   }
 
   return (

@@ -355,9 +355,10 @@ export async function getGitHubTrendingDevelopers(token: string, limit = 5): Pro
       if (i >= limit) return false;
       
       const usernameEl = $(el).find('h1.h3 a');
-      const username = usernameEl.text().trim();
+      const href = usernameEl.attr('href') || '';
+      const username = href.replace(/^\//, '').trim();
       const avatar = $(el).find('img').attr('src') || '';
-      const name = $(el).find('p.f4').text().trim() || username;
+      const name = usernameEl.text().replace(/\s+/g, ' ').trim() || username;
       
       // popular repo
       const repoEl = $(el).find('h1.h4 a');

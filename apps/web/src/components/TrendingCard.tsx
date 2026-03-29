@@ -25,6 +25,7 @@ interface TrendingDev {
 interface TrendingCardProps {
   repos: TrendingRepo[];
   devs: TrendingDev[];
+  isExplorePage?: boolean;
 }
 
 const LANGUAGE_COLORS: Record<string, string> = {
@@ -35,7 +36,7 @@ const LANGUAGE_COLORS: Record<string, string> = {
   PHP: "#4F5D95", Swift: "#F05138", Kotlin: "#A97BFF",
 };
 
-export default function TrendingCard({ repos, devs }: TrendingCardProps) {
+export default function TrendingCard({ repos, devs, isExplorePage }: TrendingCardProps) {
   const getLanguageColor = (lang?: string | null) => {
     if (!lang) return "#8b949e";
     return LANGUAGE_COLORS[lang] || "#8b949e";
@@ -132,6 +133,15 @@ export default function TrendingCard({ repos, devs }: TrendingCardProps) {
           )) : (
             <div className="px-4 py-6 text-[13px] text-git-muted">Loading trending developers...</div>
           )}
+        </div>
+      )}
+
+      {/* footer view all */ }
+      {!isExplorePage && (
+        <div className="px-4 py-3 border-t border-git-border">
+          <a href="/explore" className="text-[13px] text-git-accent hover:underline block truncate">
+            View all trending
+          </a>
         </div>
       )}
     </div>

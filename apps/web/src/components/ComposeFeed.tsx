@@ -85,7 +85,7 @@ export default function ComposeFeed() {
         </button>
       </div>
       
-      <form onSubmit={handleSubmit} className="p-4 flex flex-col gap-3 bg-[#0d1117]">
+      <form onSubmit={handleSubmit} className="p-4 flex flex-col gap-3 bg-git-dark-bg-primary">
         {!previewMode ?
         <textarea
           placeholder="What's happening? (Supports Markdown, #hashtags, @mentions)"
@@ -94,7 +94,7 @@ export default function ComposeFeed() {
           className="w-full min-h-[100px] resize-y bg-git-bg text-git-text font-mono text-sm p-3 rounded-md border border-git-border focus:outline-none focus:ring-2 focus:ring-git-accent focus:border-transparent placeholder:text-git-muted custom-scrollbar" /> :
 
 
-        <div className="w-full min-h-[100px] bg-git-bg text-git-text text-sm p-3 rounded-md border border-git-border overflow-y-auto custom-scrollbar markdown-body" style={{ background: '#010409', padding: '12px' }}>
+        <div className="w-full min-h-[100px] bg-git-dark-bg-secondary p-3 rounded-md border border-git-border overflow-y-auto custom-scrollbar markdown-body">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {content.replace(/(^|\s)(#[\w-]+)/g, '$1[#$2](/search?q=%23$2)').replace(/(^|\s)(@[\w-]+)/g, '$1[@$2](/profile/$2)')}
                 </ReactMarkdown>

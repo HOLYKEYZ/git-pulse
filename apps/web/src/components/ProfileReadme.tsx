@@ -28,22 +28,22 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
     }
   });
 
-  // 2. Proxy image URLs to handle CORS and relative path resolution
-  $('img').each((_, el) => {
-    let src = $(el).attr('src');
-    if (src && !src.startsWith('data:')) {
-      // if the image is a relative path (e.g. "cover2.jpeg" or "/repo/img.png")
-      if (!src.startsWith('http')) {
-        if (src.startsWith('/')) {
-          src = `https://github.com${src}`;
-        } else {
-          // it's a relative path in the special repository
-          src = `https://raw.githubusercontent.com/${username}/${username}/main/${src}`;
-        }
-      }
-      $(el).attr('src', `/api/image-proxy?url=${encodeURIComponent(src)}`);
-    }
-  });
+            // 2. Proxy image URLs to handle CORS and relative path resolution
+            $('img').each((_, el) => {
+                let src = $(el).attr('src');
+                if (src && !src.startsWith('data:')) {
+                    // if the image is a relative path (e.g. "cover2.jpeg" or "/repo/img.png")
+                    if (!src.startsWith('http')) {
+                        if (src.startsWith('/')) {
+                            src = `https://github.com${src}`;
+                        } else if (username && username.length > 0) {
+                            // it's a relative path in the special repository
+                            src = `https://raw.githubusercontent.com/${username}/${username}/main/${src}`;
+                        }
+                    }
+                    $(el).attr('src', `/api/image-proxy?url=${encodeURIComponent(src)}`);
+                }
+            });
 
             // 3. Proxy source srcsets
             $('source').each((_, el) => {
@@ -57,7 +57,7 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
                             } else if (!url.startsWith('http')) {
                                 if (url.startsWith('/')) {
                                     url = `https://github.com${url}`;
-                                } else {
+                                } else if (username && username.length > 0) {
                                     url = `https://raw.githubusercontent.com/${username}/${username}/main/${url}`;
                                 }
                             }

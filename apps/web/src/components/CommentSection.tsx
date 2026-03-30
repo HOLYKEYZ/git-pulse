@@ -62,26 +62,32 @@ export default function CommentSection({ postId, initialComments = [] }: Comment
         <div className="mt-4 pt-4 border-t border-git-border space-y-4">
             <h4 className="text-xs font-semibold text-git-muted uppercase tracking-wider">Comments</h4>
             
-            <div className="space-y-4">
-                {comments.map((comment) => (
-                    <div key={comment.id} className="flex gap-3">
+        <div className="space-y-4">
+            {comments.map((comment) => (
+                <div key={comment.id} className="flex gap-3">
+                    <Link href={`/profile/${comment.author.username}`} className="shrink-0">
                         <Image
                             src={comment.author.avatar}
                             alt={comment.author.username}
                             width={24}
                             height={24}
-                            className="rounded-full h-6 w-6 border border-git-border"
+                            className="rounded-full h-6 w-6 border border-git-border hover:opacity-80 transition-opacity"
                         />
-                        <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-0.5">
-                                <span className="text-xs font-bold text-git-text">{comment.author.username}</span>
-                                <span className="text-[10px] text-git-muted">{comment.timestamp}</span>
-                            </div>
-                            <p className="text-sm text-git-text leading-relaxed">{comment.content}</p>
+                    </Link>
+                    <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-0.5">
+                            <Link href={`/profile/${comment.author.username}`}>
+                                <span className="text-xs font-bold text-git-text hover:text-git-accent transition-colors">
+                                    {comment.author.username}
+                                </span>
+                            </Link>
+                            <span className="text-[10px] text-git-muted">{comment.timestamp}</span>
                         </div>
+                        <p className="text-sm text-git-text leading-relaxed">{comment.content}</p>
                     </div>
-                ))}
-            </div>
+                </div>
+            ))}
+        </div>
 
             <form onSubmit={handleSubmit} className="flex gap-2 mt-4">
                 <input

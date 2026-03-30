@@ -31,7 +31,6 @@ export interface PostProps {
   repoUrl?: string | null;
   score?: number;
   passedBadge?: boolean;
-  // repo embed for standard posts, or ship details for ship posts
   repoEmbed?: {
     name: string;
     description: string;
@@ -61,8 +60,6 @@ export default function PostCard({ post }: {post: PostProps;}) {
 
       if (res.ok) {
         const data = await res.json();
-        // optimistically update or just sync with response?
-        // for simplicity, i can just refetch or toggle locally
         const existing = localReactions.find((r) => r.emoji === emoji);
         if (data.action === 'added') {
           if (existing) {
@@ -80,16 +77,19 @@ export default function PostCard({ post }: {post: PostProps;}) {
   };
 
   return (
-    <div className="flex gap-3 px-4 py-4 border-b border-git-border hover:bg-[#161b22]/50 transition-colors">
+    <div className="relative flex gap-3 px-4 py-4 border-b border-git-border hover:bg-[#161b22]/50 transition-colors">
+      <Link href={`/post/${post.id}`} className="absolute inset-0 z-0" aria-label="View post" />
       
       {/* left column: avatar & thread line */}
-      <div className="flex flex-col items-center">
-        <Image
-          src={post.author.avatar}
-          alt={post.author.username}
-          width={40}
-          height={40}
-          className="rounded-full border border-git-border bg-git-bg shrink-0" />
+      <div className="relative z-10 flex flex-col items-center">
+        <Link href={`/profile/${post.author.username}`} className="block">
+          <Image
+            src={post.author.avatar}
+            alt={post.author.username}
+            width={40}
+            height={40}
+            className="rounded-full border border-git-border bg-git-bg shrink-0" />
+        </Link>
         
         {showComments && <div className="w-[2px] h-full bg-git-border mt-2 rounded-full"></div>}
       </div>
@@ -97,7 +97,7 @@ export default function PostCard({ post }: {post: PostProps;}) {
       {/* right column: content */}
       <div className="flex-1 flex flex-col min-w-0">
           {/* header */}
-          <div className="flex items-center gap-2 mb-2 w-full">
+          <div className="relative z-10 flex items-center gap-2 mb-2 w-full">
             <Link href={`/profile/${post.author.username}`} className="font-semibold text-git-text hover:text-git-accent transition-colors text-[15px]">
               <span className="flex items-center gap-1.5">
                 <span>{post.author.username}</span>
@@ -142,7 +142,7 @@ export default function PostCard({ post }: {post: PostProps;}) {
         </div>
 
         {/* text content (markdown rendered) */}
-        <div className="text-sm text-git-text mb-3 leading-relaxed break-words whitespace-pre-wrap markdown-body" style={{ background: 'transparent', padding: 0 }}>
+        <div className="relative z-10 text-sm text-git-text mb-3 leading-relaxed break-words whitespace-pre-wrap markdown-body" style={{ background: 'transparent', padding: 0 }}>
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
@@ -166,7 +166,7 @@ export default function PostCard({ post }: {post: PostProps;}) {
 
         {/* images */}
         {post.images && post.images.length > 0 &&
-        <div className={`mb-3 grid gap-2 ${post.images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+        <div className={`relative z-10 mb-3 grid gap-2 ${post.images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
             {post.images.map((img, i) =>
           <div key={i} className="relative aspect-video w-full overflow-hidden rounded-lg border border-git-border">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -178,7 +178,7 @@ export default function PostCard({ post }: {post: PostProps;}) {
 
         {/* ship changelog (if applicable) */}
         {post.type === 'ship' && post.shipDetails &&
-        <div className="mb-3 p-3 rounded-lg border border-git-green/30 bg-git-green/5 text-sm font-mono text-git-muted">
+        <div className="relative z-10 mb-3 p-3 rounded-lg border border-git-green/30 bg-git-green/5 text-sm font-mono text-git-muted">
             <div className="text-git-green font-semibold mb-2">Changelog:</div>
             <div className="whitespace-pre-wrap">{post.shipDetails.changelog}</div>
           </div>
@@ -186,7 +186,7 @@ export default function PostCard({ post }: {post: PostProps;}) {
 
         {/* embedded repo card */}
         {post.repoEmbed &&
-        <div className="mb-3 max-w-full">
+        <div className="relative z-10 mb-3 max-w-full">
             <RepoCard {...post.repoEmbed} />
             {post.repoEmbed.name &&
           <AiSummary owner={post.author.username} repoName={post.repoEmbed.name} />
@@ -195,7 +195,7 @@ export default function PostCard({ post }: {post: PostProps;}) {
         }
 
         {/* action bar */}
-        <div className="flex items-center gap-6 mt-1 w-full relative">
+        <div className="relative z-10 flex items-center gap-6 mt-1 w-full">
           <button
             onClick={() => setShowComments(!showComments)}
             className={`flex items-center gap-1.5 text-git-muted hover:text-git-accent transition-colors group ${showComments ? 'text-git-accent' : ''}`}
@@ -212,28 +212,30 @@ export default function PostCard({ post }: {post: PostProps;}) {
             onReact={handleReact}
             currentReactions={localReactions} />
           
-
           <div className="flex-1 flex justify-end gap-5">
             <button
               onClick={(e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 navigator.clipboard.writeText(`${window.location.origin}/profile/${post.author.username}`);
-                // optional toast here
               }}
               className="flex items-center gap-1.5 text-git-muted hover:text-git-accent transition-colors group"
               title="Share link">
               
                 <svg aria-hidden="true" height="16" viewBox="0 0 16 16" width="16" className="fill-current group-hover:bg-git-accent/10 rounded pb-0.5 px-0.5">
-                    <path d="M10.75 1a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V2.56L6.53 6.03a1.75 1.75 0 1 0 2.47 2.47l3.47-3.47v.72a.75.75 0 0 1 1.5 0v3.5a.75.75 0 0 1-1.5 0v-1.5l-3.47 3.47a3.25 3.25 0 1 1-4.6-4.6l3.47-3.47v-.72a.75.75 0 0 1 1.5 0v1.5l-3.47 3.47a1.75 1.75 0 1 0 2.47 2.47l3.47-3.47v.72a.75.75 0 0 1 1.5 0v-1.5Z"></path>
-                    <path d="M11 2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0V3.707l-3.146 3.147a.5.5 0 0 1-.708-.708L13.293 3H11.5a.5.5 0 0 1-.5-.5Z"></path>
+                    <path d="M12.062 6.54c-.167.166-.438.166-.604 0L8.43 3.513v7.404c0 .235-.19.426-.425.426-.235 0-.425-.19-.425-.426V3.513L4.55 6.54c-.166.166-.437.166-.604 0-.166-.167-.166-.438 0-.604l3.75-3.75c.167-.167.438-.167.604 0l3.75 3.75c.166.166.166.437 0 .604Zm2.513 1.835v4.542c0 1.056-.856 1.913-1.912 1.913H3.328c-1.056 0-1.912-.857-1.912-1.913V8.375c0-.235.19-.426.425-.426.235 0 .426.19.426.426v4.542c0 .587.477,1.062 1.062,1.062h9.336c.586 0 1.062-.475 1.062-1.062V8.375c0-.235.19-.426.425-.426.235 0 .425.19.425.426Z"></path>
                 </svg>
             </button>
             <button
-              className="flex items-center gap-1.5 text-git-muted hover:text-git-accent transition-colors group"
-              title="Bookmark">
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              className="flex items-center gap-1.5 text-git-muted hover:text-[#e3b341] transition-colors group"
+              title="Bookmark/Star">
               
-                <svg aria-hidden="true" height="16" viewBox="0 0 16 16" width="16" className="fill-current group-hover:bg-git-accent/10 rounded pb-0.5 px-0.5">
-                    <path d="M3 2.75C3 1.784 3.784 1 4.75 1h6.5c.966 0 1.75.784 1.75 1.75v11.5a.75.75 0 0 1-1.227.579L8 11.722l-3.773 3.107A.751.751 0 0 1 3 14.25Z"></path>
+                <svg aria-hidden="true" height="16" viewBox="0 0 16 16" width="16" className="fill-current group-hover:bg-[#e3b341]/10 rounded pb-0.5 px-0.5">
+                    <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z"></path>
                 </svg>
             </button>
           </div>
@@ -241,7 +243,9 @@ export default function PostCard({ post }: {post: PostProps;}) {
 
         {/* expandable comments */}
         {showComments &&
-        <CommentSection postId={post.id} />
+        <div className="relative z-10">
+          <CommentSection postId={post.id} />
+        </div>
         }
       </div>
     </div>);

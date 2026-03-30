@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface TrendingRepo {
   id: string;
@@ -106,11 +107,9 @@ export default function TrendingCard({ repos, devs, isExplorePage }: TrendingCar
       {view === "devs" && (
         <div className="stagger-children">
           {devs.length > 0 ? devs.map((dev) => (
-            <a
+            <Link
               key={dev.id}
-              href={dev.html_url}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={`/profile/${dev.username}`}
               className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.03] transition-colors">
               <Image
                 src={dev.avatar}
@@ -129,7 +128,7 @@ export default function TrendingCard({ repos, devs, isExplorePage }: TrendingCar
                   </span>
                 )}
               </div>
-            </a>
+            </Link>
           )) : (
             <div className="px-4 py-6 text-[13px] text-git-muted">Loading trending developers...</div>
           )}

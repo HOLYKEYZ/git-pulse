@@ -1,6 +1,8 @@
-export function getRelativeTime(date: Date | string | number): string {
+export function getRelativeTime(date: Date | string | number | null | undefined): string {
+    if (!date) return '';
     const time = new Date(date).getTime();
-    if (isNaN(time)) return '';
+    // Catch invalid dates and the exact unix epoch (1970) which occurs when Date(null) is cast
+    if (isNaN(time) || time <= 0) return '';
 
     const now = Date.now();
     const diffInSeconds = Math.max(0, Math.floor((now - time) / 1000));

@@ -604,6 +604,19 @@ export async function getTopReposToStar(token: string, limit = 5): Promise<any[]
   return items.sort(() => 0.5 - Math.random()).slice(0, limit);
 }
 
+/**
+ * fetch user's received events (timeline of people they follow)
+ */
+export async function getGitHubTimelineEvents(username: string, token: string, limit = 50): Promise<any[]> {
+  try {
+    const res = await fetchWithAuth(`/users/${username}/received_events?per_page=${limit}`, token);
+    return Array.isArray(res) ? res : [];
+  } catch (err) {
+    console.error("Failed to load GitHub timeline events:", err);
+    return [];
+  }
+}
+
 // ─── graphql functions ───────────────────────────────────────────────────────
 
 const CONTRIBUTION_QUERY = `

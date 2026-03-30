@@ -233,7 +233,7 @@ export default async function ProfilePage({ params }: {params: Promise<{username
           }
 
                     {/* ── contribution activity ────────────────────────────── */}
-                    {activity && activity.length > 0 && <ContributionActivity activity={activity} />}
+                    {activity && activity.length > 0 && (dbProfileUser?.showActivity !== false || isOwnProfile) && <ContributionActivity activity={activity} />}
 
                     {/* ── popular repos (only if no pinned repos) ──────────── */}
                     {pinnedRepos.length === 0 &&

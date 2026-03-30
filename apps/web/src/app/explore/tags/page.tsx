@@ -10,22 +10,20 @@ export const metadata: Metadata = {
 };
 
 export default async function TagsPage() {
-  // basic aggregation of hashtags
-  // in production, this would be a materialized view or indexed aggregation query
+  // aggregate trending hashtags using database-level query
 const cacheKey = 'trending_tags';
 let trending = cache.get(cacheKey);
 if (!trending) {
-  const posts = await prisma.post.findMany({ select: { hashtags: true } });
-  const tagCounts: Record<string, number> = {};
-  for (const p of posts) {
-    for (const t of p.hashtags || []) {
-      const normalized = t.toLowerCase();
-      tagCounts[normalized] = (tagCounts[normalized] || 0) + 1;
-    }
-  }
-  trending = Object.entries(tagCounts).
-  sort((a, b) => b[1] - a[1]).
-  slice(0, 50); // top 50 trending
+  // database-level aggregation using postgresql unnest to avoid fetching all posts into memory
+  const result: { tag: string; count: bigint }[] = await prisma.$queryRaw`
+    SELECT LOWER(unnest("hashtags")) AS tag, COUNT(*) AS count
+    FROM "Post"
+    WHERE array_length("hashtags", 1) > 0
+    GROUP BY tag
+    ORDER BY count DESC
+    LIMIT 50
+  `;
+  trending = result.map(r => [r.tag, Number(r.count)]);
   cache.set(cacheKey, trending);
 }
 

@@ -36,6 +36,14 @@ export default async function ExplorePage() {
         <p className="text-sm text-git-muted mt-1">
           Discover currently trending projects and developers across the platform.
         </p>
+        <div className="flex gap-4 mt-3">
+          <a href="/explore/tags" className="text-sm text-git-accent hover:underline flex items-center gap-1">
+            <svg height="14" viewBox="0 0 16 16" width="14" className="fill-current">
+              <path d="M5.5 2.25a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-.22.53l-6.25 6.25a.75.75 0 0 1-1.06 0l-5.5-5.5a.75.75 0 0 1 0-1.06l6.25-6.25a.75.75 0 0 1 .53-.22Zm.75.75v4.69l-5.72 5.72 4.97 4.97 5.72-5.72V3h-4.97ZM8.75 5a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5Z"></path>
+            </svg>
+            Trending Hashtags
+          </a>
+        </div>
       </div>
       
       <div className="p-6">

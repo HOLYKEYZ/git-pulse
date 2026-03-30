@@ -1,8 +1,12 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Metadata } from "next";
-import { LRUCache } from 'lru-cache';
-const cache = new LRUCache<string, any>({ max: 1, ttl: 300000 }); // 5 minutes
+import { HashIcon } from "@primer/octicons-react";
+
+// simple in-memory cache to avoid re-querying on every request
+let cachedTags: any = null;
+let cacheTime = 0;
+const CACHE_TTL = 300000; // 5 minutes
 
 export const metadata: Metadata = {
   title: "Explore Trending Tags | GitPulse",
@@ -11,28 +15,27 @@ export const metadata: Metadata = {
 
 export default async function TagsPage() {
   // aggregate trending hashtags using database-level query
-const cacheKey = 'trending_tags';
-let trending = cache.get(cacheKey);
-if (!trending) {
-  // database-level aggregation using postgresql unnest to avoid fetching all posts into memory
-  const result: { tag: string; count: bigint }[] = await prisma.$queryRaw`
-    SELECT LOWER(unnest("hashtags")) AS tag, COUNT(*) AS count
-    FROM "Post"
-    WHERE array_length("hashtags", 1) > 0
-    GROUP BY tag
-    ORDER BY count DESC
-    LIMIT 50
-  `;
-  trending = result.map(r => [r.tag, Number(r.count)]);
-  cache.set(cacheKey, trending);
-}
+  const now = Date.now();
+  let trending = cachedTags;
+  if (!trending || now - cacheTime > CACHE_TTL) {
+    // database-level aggregation using postgresql unnest to avoid fetching all posts into memory
+    const result: { tag: string; count: bigint }[] = await prisma.$queryRaw`
+      SELECT LOWER(unnest("hashtags")) AS tag, COUNT(*) AS count
+      FROM "Post"
+      WHERE array_length("hashtags", 1) > 0
+      GROUP BY tag
+      ORDER BY count DESC
+      LIMIT 50
+    `;
+    trending = result.map(r => [r.tag, Number(r.count)]);
+    cachedTags = trending;
+    cacheTime = now;
+  }
 
   return (
     <div className="flex flex-col animate-slide-up pb-12 w-full max-w-3xl mx-auto">
             <div className="px-4 py-6 border-b border-git-border bg-[#0d1117] sticky top-0 z-10 flex items-center gap-3">
-                <svg height="24" viewBox="0 0 16 16" width="24" className="fill-git-text">
-                    <path d="M5.5 2.25a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-.22.53l-6.25 6.25a.75.75 0 0 1-1.06 0l-5.5-5.5a.75.75 0 0 1 0-1.06l6.25-6.25a.75.75 0 0 1 .53-.22Zm.75.75v4.69l-5.72 5.72 4.97 4.97 5.72-5.72V3h-4.97ZM8.75 5a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5Z"></path>
-                </svg>
+                <HashIcon size={24} className="fill-git-text" />
                 <h1 className="text-xl font-bold text-git-text">Trending Hashtags</h1>
             </div>
 

@@ -151,7 +151,9 @@ export default function PostCard({ post }: {post: PostProps;}) {
                 if (href?.startsWith('@')) {
                   return <Link href={`/profile/${href.substring(1)}`} className="text-git-accent hover:underline">{children}</Link>;
                 }
-                if (href?.startsWith('#')) {
+if (href?.startsWith('#')) {
+  return <Link href={`/explore/tags/${href.substring(1)}`} className="text-git-accent hover:underline">{children}</Link>;
+}
                   return <Link href={`/explore/tags/${href.substring(1)}`} className="text-git-accent hover:underline">{children}</Link>;
                 }
                 return <a href={href} className="text-git-accent hover:underline" target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{children}</a>;

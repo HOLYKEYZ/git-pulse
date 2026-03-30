@@ -33,31 +33,39 @@ export default function SearchPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"users" | "repos" | "posts">("repos");
 
-  useEffect(() => {
-    if (!query) return;
+const [debouncedQuery, setDebouncedQuery] = useState(query);
+const debounceTimeout = 300; // Adjust the debounce time as needed
+useEffect(() => {
+  const timeoutId = setTimeout(() => {
+    setDebouncedQuery(query);
+  }, debounceTimeout);
+  return () => clearTimeout(timeoutId);
+}, [query, debounceTimeout]);
+useEffect(() => {
+  if (!debouncedQuery) return;
 
-    const fetchResults = async () => {
-      setIsLoading(true);
-      try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-        if (res.ok) {
-          const data = await res.json();
-          setResults(data);
+  const fetchResults = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/search?q=${encodeURIComponent(debouncedQuery)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setResults(data);
 
-          // auto-select tab based on results
-          if (data.repos?.length > 0) setActiveTab("repos");else
-          if (data.users?.length > 0) setActiveTab("users");else
-          if (data.posts?.length > 0) setActiveTab("posts");
-        }
-      } catch (err) {
-        console.error("Search failed:", err);
-      } finally {
-        setIsLoading(false);
+        // auto-select tab based on results
+        if (data.repos?.length > 0) setActiveTab("repos");else
+        if (data.users?.length > 0) setActiveTab("users");else
+        if (data.posts?.length > 0) setActiveTab("posts");
       }
-    };
+    } catch (err) {
+      console.error("Search failed:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    fetchResults();
-  }, [query]);
+  fetchResults();
+}, [debouncedQuery]);
 
   if (!query) {
     return (

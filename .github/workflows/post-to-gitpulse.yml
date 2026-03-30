@@ -1,0 +1,15 @@
+name: Post to GitPulse
+on:
+  release:
+    types: [published]
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send API Request
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: "https://git-pulse.vercel.app/api/user/status"
+          method: "POST"
+          customHeaders: '{"Authorization": "Bearer ${{ secrets.GITPULSE_TOKEN }}"}'
+          data: '{"status": "Just published a new release!"}'

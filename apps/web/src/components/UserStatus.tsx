@@ -37,28 +37,31 @@ export default function UserStatus({ initialEmoji, initialText, isOwnProfile }: 
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
-  const handleSave = async (overrides?: { emoji?: string; text?: string }) => {
-    setLoading(true);
-    const finalEmoji = overrides?.hasOwnProperty("emoji") ? overrides.emoji : emoji;
-    const finalText = overrides?.hasOwnProperty("text") ? overrides.text : text;
+const handleSave = async (overrides?: { emoji?: string; text?: string }) => {
+  setLoading(true);
+  const finalEmoji = overrides?.hasOwnProperty("emoji") ? overrides.emoji : emoji;
+  const finalText = overrides?.hasOwnProperty("text") ? overrides.text : text;
 
-    try {
-      const res = await fetch("/api/user/status", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ emoji: finalEmoji, text: finalText }),
-      });
+  try {
+    const res = await fetch("/api/user/status", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ emoji: finalEmoji, text: finalText }),
+    });
 
-      if (res.ok) {
-        setIsOpen(false);
-        router.refresh();
-      }
-    } catch (error) {
-      console.error("Failed to save status:", error);
-    } finally {
-      setLoading(false);
+    if (res.ok) {
+      setIsOpen(false);
+      router.refresh();
+    } else {
+      alert('Failed to save status. Please try again.');
     }
-  };
+  } catch (error) {
+    console.error("Failed to save status:", error);
+    alert('An error occurred while saving your status.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleClear = async () => {
     setEmoji("");

@@ -65,7 +65,7 @@ export async function GET(request: Request) {
         statusEmoji: p.author.statusEmoji,
         statusText: p.author.statusText
       },
-      timestamp: p.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      timestamp: p.createdAt.toISOString(),
       likes: p._count.reactions,
       comments: p._count.comments
     })),

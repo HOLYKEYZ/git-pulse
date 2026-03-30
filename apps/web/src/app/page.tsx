@@ -245,8 +245,8 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="flex w-full">
-            <div className="flex-1 max-w-[600px] min-h-screen">
+    <div className="flex flex-col lg:flex-row w-full">
+            <div className="flex-1 w-full lg:max-w-[600px] min-h-screen">
                 <FeedClient
           discoverPosts={discoverPosts}
           followingPosts={followingPosts}

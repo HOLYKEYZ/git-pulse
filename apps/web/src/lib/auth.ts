@@ -1,4 +1,7 @@
 import NextAuth from "next-auth";
+import { JWT } from "next-auth/jwt";
+import { Account, User } from "next-auth";
+import { GithubProfile } from "next-auth/providers/github";
 import { authConfig } from "./auth.config";
 import { prisma } from "./prisma";
 
@@ -6,10 +9,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   callbacks: {
     ...authConfig.callbacks,
-    async jwt({ token, account, profile, user, trigger, session, isNewUser }: any) {
+async jwt({ token, account, profile, user, isNewUser }: { token: JWT; account: Account | null; profile?: GithubProfile; user?: User; isNewUser?: boolean }) {
       // call the base config logic if any
       if (authConfig.callbacks.jwt) {
-      token = await (authConfig.callbacks.jwt as any)({ token, account, profile, user, trigger, session, isNewUser });
+token = await authConfig.callbacks.jwt({ token, account, profile, user, isNewUser });
       }
 
       if (account && profile) {
@@ -29,11 +32,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             },
             create: {
               githubId: account.providerAccountId,
-              username: (profile as any).login,
+username: profile.login,
               name: profile.name ?? null,
               email: profile.email ?? null,
-              avatar: (profile as any).avatar_url ?? profile.image ?? null,
-              bio: (profile as any).bio ?? null
+avatar: profile.avatar_url ?? profile.image ?? null,
+bio: profile.bio ?? null
             }
           });
           token.dbId = user.id;

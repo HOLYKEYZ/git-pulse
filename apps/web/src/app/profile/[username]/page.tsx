@@ -70,7 +70,7 @@ export default async function ProfilePage({ params }: {params: Promise<{username
   // fetch user from prisma for status and privacy
   const dbProfileUser = await prisma.user.findUnique({
     where: { username },
-    select: { statusEmoji: true, statusText: true, showContributions: true }
+    select: { statusEmoji: true, statusText: true, showContributions: true, showActivity: true }
   });
 
   const joinDate = new Date(ghUser.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" });

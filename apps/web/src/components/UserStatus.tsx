@@ -105,6 +105,7 @@ const handleSave = async (overrides?: { emoji?: string; text?: string }) => {
 
       {/* dropdown popover */}
       {isOpen && isOwnProfile && (
+        <>
         <div className="fixed inset-0 z-[998]" onClick={() => setIsOpen(false)} />
         <div className="absolute top-full left-0 mt-2 z-[999] w-full min-w-[320px] max-w-sm bg-git-bg border border-git-border rounded-xl shadow-2xl overflow-hidden animate-fade-in">
           <div className="flex items-center justify-between px-3 py-2 border-b border-git-border bg-git-card">
@@ -185,6 +186,7 @@ const handleSave = async (overrides?: { emoji?: string; text?: string }) => {
             </div>
           </div>
         </div>
+        </>
       )}
     </div>
   );

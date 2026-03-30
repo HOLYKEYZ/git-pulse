@@ -9,7 +9,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   callbacks: {
     ...authConfig.callbacks,
-    async jwt({ token, account, profile, user, isNewUser }: { token: JWT; account: Account | null; profile?: GitHubProfile; user?: any; isNewUser?: boolean }) {
+    async jwt({ token, account, profile, user, isNewUser }: any) {
       // call the base config logic if any
       if (authConfig.callbacks.jwt) {
 token = await authConfig.callbacks.jwt({ token, account, profile, user, isNewUser });

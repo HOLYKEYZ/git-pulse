@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { BookmarkIcon, ShareAndroidIcon } from '@primer/octicons-react';
 import RepoCard from './RepoCard';
 import AiSummary from './AiSummary';
 import ReactionPicker from './ReactionPicker';
@@ -151,9 +152,7 @@ export default function PostCard({ post }: {post: PostProps;}) {
                 if (href?.startsWith('@')) {
                   return <Link href={`/profile/${href.substring(1)}`} className="text-git-accent hover:underline">{children}</Link>;
                 }
-if (href?.startsWith('#')) {
-  return <Link href={`/explore/tags/${href.substring(1)}`} className="text-git-accent hover:underline">{children}</Link>;
-}
+                if (href?.startsWith('#')) {
                   return <Link href={`/explore/tags/${href.substring(1)}`} className="text-git-accent hover:underline">{children}</Link>;
                 }
                 return <a href={href} className="text-git-accent hover:underline" target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{children}</a>;
@@ -219,14 +218,11 @@ if (href?.startsWith('#')) {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                navigator.clipboard.writeText(`${window.location.origin}/profile/${post.author.username}`);
+                navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
               }}
               className="flex items-center gap-1.5 text-git-muted hover:text-git-accent transition-colors group"
-              title="Share link">
-              
-                <svg aria-hidden="true" height="16" viewBox="0 0 16 16" width="16" className="fill-current group-hover:bg-git-accent/10 rounded pb-0.5 px-0.5">
-                    <path d="M12.062 6.54c-.167.166-.438.166-.604 0L8.43 3.513v7.404c0 .235-.19.426-.425.426-.235 0-.425-.19-.425-.426V3.513L4.55 6.54c-.166.166-.437.166-.604 0-.166-.167-.166-.438 0-.604l3.75-3.75c.167-.167.438-.167.604 0l3.75 3.75c.166.166.166.437 0 .604Zm2.513 1.835v4.542c0 1.056-.856 1.913-1.912 1.913H3.328c-1.056 0-1.912-.857-1.912-1.913V8.375c0-.235.19-.426.425-.426.235 0 .426.19.426.426v4.542c0 .587.477,1.062 1.062,1.062h9.336c.586 0 1.062-.475 1.062-1.062V8.375c0-.235.19-.426.425-.426.235 0 .425.19.425.426Z"></path>
-                </svg>
+              title="Share post">
+              <ShareAndroidIcon size={16} className="group-hover:bg-git-accent/10 rounded" />
             </button>
             <button
               onClick={(e) => {
@@ -234,11 +230,8 @@ if (href?.startsWith('#')) {
                 e.stopPropagation();
               }}
               className="flex items-center gap-1.5 text-git-muted hover:text-[#e3b341] transition-colors group"
-              title="Bookmark/Star">
-              
-                <svg aria-hidden="true" height="16" viewBox="0 0 16 16" width="16" className="fill-current group-hover:bg-[#e3b341]/10 rounded pb-0.5 px-0.5">
-                    <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z"></path>
-                </svg>
+              title="Bookmark">
+              <BookmarkIcon size={16} className="group-hover:bg-[#e3b341]/10 rounded" />
             </button>
           </div>
         </div>

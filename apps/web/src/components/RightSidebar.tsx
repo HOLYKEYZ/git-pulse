@@ -78,6 +78,7 @@ export default async function RightSidebar() {
           items2={suggestedRepos}
           type1="dev"
           type2="repo"
+          hideCommitCount={true}
           emptyMessage1="No suggestions found."
           emptyMessage2="No big repositories found."
         />

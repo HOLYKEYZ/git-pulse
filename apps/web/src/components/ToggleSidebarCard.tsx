@@ -14,6 +14,7 @@ interface ToggleSidebarCardProps {
   type2: "repo" | "dev";
   emptyMessage1?: string;
   emptyMessage2?: string;
+  hideCommitCount?: boolean;
 }
 
 const LANGUAGE_COLORS: Record<string, string> = {
@@ -33,7 +34,8 @@ export default function ToggleSidebarCard({
   type1,
   type2,
   emptyMessage1 = "No items found.",
-  emptyMessage2 = "No items found."
+  emptyMessage2 = "No items found.",
+  hideCommitCount = false
 }: ToggleSidebarCardProps) {
   const [view, setView] = useState<"tab1" | "tab2">("tab1");
 
@@ -103,9 +105,9 @@ export default function ToggleSidebarCard({
           <span className="text-[13px] text-git-muted truncate">
             @{dev.username || dev.login}
           </span>
-          {dev.totalContributions !== undefined && (
+          {!hideCommitCount && dev.totalContributions !== undefined && (
             <span className="text-[11px] text-git-green font-semibold mt-0.5">
-              🔥 {dev.totalContributions.toLocaleString()} commits
+              🔥 {dev.totalContributions.toLocaleString()} {dev.label || 'commits'}
             </span>
           )}
         </div>

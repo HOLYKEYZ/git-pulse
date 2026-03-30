@@ -3,10 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { type PostProps } from "@/components/PostCard";
 import { getRelativeTime } from "@/lib/utils";
 import CommentSection from "@/components/CommentSection";
 import RepoCard from "@/components/RepoCard";
+import PostContentRenderer from "@/components/PostContentRenderer";
 import { notFound } from "next/navigation";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
@@ -67,10 +67,8 @@ export default async function PostPage({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        {/* post text */}
-        <div className="text-git-text text-base leading-relaxed mb-4 whitespace-pre-wrap break-words">
-          {post.content}
-        </div>
+        {/* post text — rendered markdown */}
+        <PostContentRenderer content={post.content} />
 
         {/* images */}
         {post.images && post.images.length > 0 && (

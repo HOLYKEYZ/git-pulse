@@ -39,8 +39,8 @@ export default async function NotificationsPage() {
         redirect("/login");
     }
 
-    let dbNotifs = [];
-    let ghEvents = [];
+    let dbNotifs: any[] = [];
+    let ghEvents: any[] = [];
     let hasError = false;
 
     try {

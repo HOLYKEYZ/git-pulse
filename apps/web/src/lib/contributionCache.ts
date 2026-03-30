@@ -1,8 +1,11 @@
 import { LRUCache } from 'lru-cache';
 
+const CONTRIBUTION_CACHE_MAX_SIZE = 500;
+const CONTRIBUTION_CACHE_TTL_MS = 1000 * 60 * 60 * 24 * 7;
+
 const contributionCache = new LRUCache({
-  max: 500,
-  ttl: 1000 * 60 * 60 * 24 * 7, // 7 days cache
+  max: CONTRIBUTION_CACHE_MAX_SIZE,
+  ttl: CONTRIBUTION_CACHE_TTL_MS,
 });
 
 export default contributionCache;

@@ -105,8 +105,9 @@ const handleSave = async (overrides?: { emoji?: string; text?: string }) => {
 
       {/* dropdown popover */}
       {isOpen && isOwnProfile && (
-        <div className="absolute top-full left-0 mt-2 z-50 w-full min-w-[320px] max-w-sm bg-git-card border border-git-border rounded-xl shadow-2xl overflow-hidden animate-fade-in">
-          <div className="flex items-center justify-between px-3 py-2 border-b border-git-border bg-git-bg/50">
+        <div className="absolute top-full left-0 mt-2 z-[999] w-full min-w-[320px] max-w-sm bg-git-bg border border-git-border rounded-xl shadow-2xl overflow-hidden animate-fade-in">
+          <div className="flex flex-col">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-git-border bg-git-card/90 backdrop-blur-md">
             <h3 className="text-xs font-semibold text-git-text">Edit status</h3>
             <button onClick={() => setIsOpen(false)} className="text-git-muted hover:text-git-text transition-colors p-1">
               <XIcon size={16} />

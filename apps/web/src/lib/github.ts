@@ -120,10 +120,15 @@ async function fetchWithAuth(endpoint: string, token: string) {
 
   return withCache(cacheKey, async () => {
     try {
+      // the /search/commits endpoint requires the cloak-preview accept header
+      const acceptHeader = endpoint.startsWith('/search/commits')
+        ? 'application/vnd.github.cloak-preview+json'
+        : 'application/vnd.github.v3+json';
+
       const res = await fetch(`${GITHUB_API_URL}${endpoint}`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          Accept: "application/vnd.github.v3+json"
+          Accept: acceptHeader
         },
         next: { revalidate: 60 }
       });

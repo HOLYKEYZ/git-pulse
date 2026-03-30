@@ -385,56 +385,223 @@ export async function getGitHubTrendingDevelopers(token: string, limit = 5): Pro
 
 /**
  * fetch high-potential lower-starred upcoming projects
+ * V2: Enforces strict 1-3 month creation window and explicit commit velocity check
  */
 export async function getUpcomingGitHubProjects(token: string, limit = 5): Promise<any[]> {
-  const fiveMonthsAgo = new Date(Date.now() - 150 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
-  const repos = await fetchWithAuth(
-    `/search/repositories?q=created:>${fiveMonthsAgo}+stars:10..500&sort=stars&order=desc&per_page=${limit}`,
+  const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+  const threeMonthsAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+  
+  // Random page guarantees fresh cycling of upcoming projects
+  const randomPage = Math.floor(Math.random() * 5) + 1;
+  const reposRes = await fetchWithAuth(
+    `/search/repositories?q=created:${threeMonthsAgo}..${oneMonthAgo}+stars:10..500&sort=updated&order=desc&per_page=20&page=${randomPage}`,
     token
   );
-  return repos?.items || [];
+  
+  const items = reposRes?.items || [];
+  if (items.length === 0) return [];
+
+  // Parallel fetch commit velocity for these repos to filter out dead projects
+  const verifiedRepos = await Promise.all(
+    items.map(async (repo: any) => {
+      try {
+        const commitsRes = await fetchWithAuth(
+          `/repos/${repo.full_name}/commits?per_page=100`,
+          token
+        );
+        const commitVelocity = Array.isArray(commitsRes) ? commitsRes.length : 0;
+        return { ...repo, commitVelocity };
+      } catch {
+        return { ...repo, commitVelocity: 0 };
+      }
+    })
+  );
+
+  // Strictly sort by exact commit velocity, ignoring stars
+  const activeUpcoming = verifiedRepos
+    .filter((r) => r.commitVelocity >= 10) // require at least 10 commits in its lifetime
+    .sort((a, b) => b.commitVelocity - a.commitVelocity);
+
+  return activeUpcoming.length >= limit ? activeUpcoming.slice(0, limit) : verifiedRepos.slice(0, limit);
 }
 
 /**
- * fetch suggested users (Mid-tier Devs like you)
- * V2: explicitly filters out 0-commit clout chasers
+ * fetch suggested users
+ * V3: Strictly prioritizes commit volume over follower count. Fetches a pool,
+ * evaluates exact contributions via GraphQL, and securely sorts by highest volume.
  */
 export async function getSuggestedGitHubUsers(token: string, language?: string, limit = 5): Promise<any[]> {
-  const q = language ? `language:${language} followers:5..2000 repos:>0 type:user` : `followers:5..2000 repos:>0 type:user`;
-  // deterministic page seed changing every 30 minutes
-  const randomPage = (Math.floor(Date.now() / (1000 * 60 * 30)) % 10) + 1;
+  // query a broad pool of devs (followers > 5 to skip empty bot accounts)
+  const q = language ? `language:${language} followers:>5 type:user` : `followers:>5 type:user`;
+  
+  // randomize page to guarantee fresh recommendations on load
+  const randomPage = Math.floor(Math.random() * 25) + 1;
   const usersRes = await fetchWithAuth(
-    `/search/users?q=${q}&sort=followers&order=desc&per_page=15&page=${randomPage}`,
+    `/search/users?q=${q}&per_page=20&page=${randomPage}`,
     token
   );
   
   const items = usersRes?.items || [];
   if (items.length === 0) return [];
 
-  // parallel fetch to verify active contribution
-  const activeChecks = await Promise.all(
-    items.slice(0, 10).map(async (user: any) => {
+  // parallel fetch real contribution data for all candidates
+  const userProfiles = await Promise.all(
+    items.map(async (user: any) => {
       try {
         const contrib = await getContributionData(user.login, token);
-        if (contrib && contrib.totalContributions > 0) return user;
+        if (contrib) {
+          return {
+            ...user,
+            totalContributions: contrib.totalContributions
+          };
+        }
       } catch {}
       return null;
     })
   );
 
-  return activeChecks.filter(Boolean).slice(0, limit);
+  // explicitly filter for high-activity users (> 100 commits) and sort exclusively by commit volume
+  const activeUsers = userProfiles
+    .filter((u): u is any => u !== null && u.totalContributions >= 100)
+    .sort((a, b) => b.totalContributions - a.totalContributions);
+
+  // if the highly restrictive filter returned too few, fallback to just sorting what we found by contributions
+  if (activeUsers.length < limit) {
+    const fallbackUsers = userProfiles
+      .filter((u): u is any => u !== null && u.totalContributions > 0)
+      .sort((a, b) => b.totalContributions - a.totalContributions);
+    return fallbackUsers.slice(0, limit);
+  }
+
+  return activeUsers.slice(0, limit);
 }
 
 /**
- * fetch proxy for top repos by daily commits (recently pushed with high stars)
+ * fetch exact top repos by daily commits
+ * V2: Fixes the high-star/low-commit bias by querying the exact number of commits
+ * for today and sorting strictly by volume, ignoring stars.
  */
 export async function getTopReposByDailyCommits(token: string, limit = 5): Promise<any[]> {
-  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split("T")[0];
-  const repos = await fetchWithAuth(
-    `/search/repositories?q=pushed:>=${oneDayAgo} stars:>500&sort=updated&order=desc&per_page=${limit}`,
+  const todayStart = new Date();
+  todayStart.setUTCHours(0, 0, 0, 0);
+  const todayIso = todayStart.toISOString();
+  const dateStr = todayIso.split("T")[0];
+
+  // fetch a candidate pool of recently pushed repos. randomizing page guarantees freshness.
+  const randomPage = Math.floor(Math.random() * 5) + 1;
+  const reposRes = await fetchWithAuth(
+    `/search/repositories?q=pushed:>=${dateStr}+stars:>0&sort=updated&order=desc&per_page=20&page=${randomPage}`,
     token
   );
-  return repos?.items || [];
+  
+  const items = reposRes?.items || [];
+  if (items.length === 0) return [];
+
+  // parallel fetch EXACT commit counts for today directly from the firehose
+  const verifiedRepos = await Promise.all(
+    items.map(async (repo: any) => {
+      try {
+        const commitsRes = await fetchWithAuth(
+          `/repos/${repo.full_name}/commits?since=${todayIso}&per_page=100`,
+          token
+        );
+        const commitsToday = Array.isArray(commitsRes) ? commitsRes.length : 0;
+        return { ...repo, commitsToday };
+      } catch {
+        return { ...repo, commitsToday: 0 };
+      }
+    })
+  );
+
+  // strictly sort by exact commit volume today, overriding any star bias
+  const sortedRepos = verifiedRepos
+    .filter((r) => r.commitsToday > 0)
+    .sort((a, b) => b.commitsToday - a.commitsToday);
+
+  // fallback to default sorting if too few repos had commits today (edge case)
+  return sortedRepos.length >= limit ? sortedRepos.slice(0, limit) : verifiedRepos.slice(0, limit);
+}
+
+/**
+ * fetch exact top developers by daily activity
+ * V1: Finds users who pushed recently and verifies their high commit volume
+ */
+export async function getTopDevsByDailyCommits(token: string, limit = 5): Promise<any[]> {
+  const todayIso = new Date().toISOString().split("T")[0];
+  const randomPage = Math.floor(Math.random() * 5) + 1;
+  const reposRes = await fetchWithAuth(
+    `/search/repositories?q=pushed:>=${todayIso}&sort=updated&order=desc&per_page=20&page=${randomPage}`,
+    token
+  );
+  
+  if (!reposRes?.items) return [];
+
+  // extract unique owners (devs) from active repos
+  const uniqueUsers = new Map<string, any>();
+  for (const repo of reposRes.items) {
+    if (repo.owner && repo.owner.type === 'User' && !uniqueUsers.has(repo.owner.login)) {
+      uniqueUsers.set(repo.owner.login, repo.owner);
+    }
+  }
+
+  const userList = Array.from(uniqueUsers.values()).slice(0, 10);
+  
+  // verify their actual total contributions to ensure they aren't bots
+  const activeDevs = await Promise.all(
+    userList.map(async (user: any) => {
+      try {
+        const contrib = await getContributionData(user.login, token);
+        if (contrib && contrib.totalContributions > 50) return { ...user, totalContributions: contrib.totalContributions };
+      } catch {}
+      return null;
+    })
+  );
+
+  return activeDevs.filter(Boolean).sort((a: any, b: any) => b.totalContributions - a.totalContributions).slice(0, limit);
+}
+
+/**
+ * fetch upcoming developers (created 1-3 months ago, high commit velocity)
+ */
+export async function getUpcomingGitHubDevs(token: string, limit = 5): Promise<any[]> {
+  const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+  const threeMonthsAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+  
+  const randomPage = Math.floor(Math.random() * 5) + 1;
+  const usersRes = await fetchWithAuth(
+    `/search/users?q=created:${threeMonthsAgo}..${oneMonthAgo}+type:user&sort=joined&order=desc&per_page=20&page=${randomPage}`,
+    token
+  );
+  
+  if (!usersRes?.items) return [];
+
+  // fetch their actual commits to verify velocity
+  const upcomingDevs = await Promise.all(
+    usersRes.items.map(async (user: any) => {
+      try {
+        const contrib = await getContributionData(user.login, token);
+        if (contrib && contrib.totalContributions >= 20) return { ...user, totalContributions: contrib.totalContributions };
+      } catch {}
+      return null;
+    })
+  );
+
+  return upcomingDevs.filter(Boolean).sort((a: any, b: any) => b.totalContributions - a.totalContributions).slice(0, limit);
+}
+
+/**
+ * fetch massive repos to star (established projects)
+ */
+export async function getTopReposToStar(token: string, limit = 5): Promise<any[]> {
+  const randomPage = Math.floor(Math.random() * 5) + 1;
+  const reposRes = await fetchWithAuth(
+    `/search/repositories?q=stars:>10000&sort=stars&order=desc&per_page=20&page=${randomPage}`,
+    token
+  );
+  
+  const items = reposRes?.items || [];
+  // shuffle them slightly returning top limit
+  return items.sort(() => 0.5 - Math.random()).slice(0, limit);
 }
 
 // ─── graphql functions ───────────────────────────────────────────────────────

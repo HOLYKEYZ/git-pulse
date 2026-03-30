@@ -46,12 +46,7 @@ try {
     }
   }
 
-  const mappedRepos = allRepos.map((repo) => ({
-    name: repo.name,
-    full_name: repo.full_name
-  }));
-
-  return NextResponse.json(mappedRepos);
+return NextResponse.json(allRepos);
 } catch (error: unknown) {
   console.error("Error fetching GitHub repositories:", error);
   return NextResponse.json({ error: "server error" }, { status: 500 });

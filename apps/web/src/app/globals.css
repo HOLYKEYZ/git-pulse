@@ -217,6 +217,9 @@ body {
   margin: 0.5em 0;
 }
 
+.markdown-body ul { list-style-type: disc; }
+.markdown-body ol { list-style-type: decimal; }
+
 .markdown-body li { margin: 0.25em 0; }
 
 /* (merged into the main .markdown-body img rule above) */

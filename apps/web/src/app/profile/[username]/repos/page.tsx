@@ -69,7 +69,7 @@ let repos: any[] = []; let hasError = false; try { repos = token ? await getGitH
           languageColor={LANGUAGE_COLORS[repo.language || ""] || "#8b949e"}
           stars={repo.stargazers_count}
           forks={repo.forks_count}
-          lastPush={new Date(repo.pushed_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+          lastPush={repo.pushed_at || repo.updated_at || ""}
           url={repo.html_url} />
 
         )}

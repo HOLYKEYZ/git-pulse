@@ -20,31 +20,35 @@ export function useTheme() {
 
 export default function ThemeProvider({ children }: {children: React.ReactNode;}) {
   const [theme, setThemeState] = useState<Theme>("github");
-  const [mounted, setMounted] = useState(false);
+const [mounted, setMounted] = useState(false);
+
+  const applyThemeToDOM = (selectedTheme: Theme) => {
+    localStorage.setItem("gitpulse-theme", selectedTheme);
+    document.documentElement.setAttribute("data-theme", selectedTheme);
+  };
 
   useEffect(() => {
     // read saved theme from localstorage on mount
     const saved = localStorage.getItem("gitpulse-theme") as Theme | null;
     if (saved === "github" || saved === "midnight") {
       setThemeState(saved);
-      document.documentElement.setAttribute("data-theme", saved);
+      applyThemeToDOM(saved);
     }
     setMounted(true);
   }, []);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem("gitpulse-theme", newTheme);
-    document.documentElement.setAttribute("data-theme", newTheme);
+    applyThemeToDOM(newTheme);
   };
 
   // prevent flash of wrong theme
   if (!mounted) {
     return (
-      <div data-theme="github" style={{ visibility: "hidden" }}>
-                {children}
-            </div>);
-
+      <div data-theme={theme} style={{ visibility: "hidden" }}>
+        {children}
+      </div>
+    );
   }
 
   return (

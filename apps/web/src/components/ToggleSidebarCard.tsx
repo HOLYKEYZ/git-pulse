@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { getLanguageColor } from '@/lib/colors';
 
 interface ToggleSidebarCardProps {
   title: string;
@@ -17,13 +18,6 @@ interface ToggleSidebarCardProps {
   hideCommitCount?: boolean;
 }
 
-const LANGUAGE_COLORS: Record<string, string> = {
-  TypeScript: "#3178c6", JavaScript: "#f1e05a", Python: "#3572A5",
-  Rust: "#dea584", Go: "#00ADD8", Shell: "#89e051",
-  HTML: "#e34c26", CSS: "#563d7c", Java: "#b07219",
-  "C++": "#f34b7d", C: "#555555", Ruby: "#701516",
-  PHP: "#4F5D95", Swift: "#F05138", Kotlin: "#A97BFF",
-};
 
 export default function ToggleSidebarCard({
   title,
@@ -39,10 +33,6 @@ export default function ToggleSidebarCard({
 }: ToggleSidebarCardProps) {
   const [view, setView] = useState<"tab1" | "tab2">("tab1");
 
-  const getLanguageColor = (lang?: string | null) => {
-    if (!lang) return "#8b949e";
-    return LANGUAGE_COLORS[lang] || "#8b949e";
-  };
 
   const currentItems = view === "tab1" ? items1 : items2;
   const currentType = view === "tab1" ? type1 : type2;

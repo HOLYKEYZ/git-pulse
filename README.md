@@ -15,16 +15,16 @@
 
 ## tech stack
 
-| layer | technology |
-|-------|-----------|
-| framework | next.js 15 (app router) |
-| language | typescript |
-| styling | tailwind css |
-| database | postgresql (neon) |
-| orm | prisma |
-| auth | nextauth.js (github oauth) |
-| monorepo | pnpm workspaces |
-| hosting | vercel |
+| layer     | technology                 |
+| --------- | -------------------------- |
+| framework | next.js 15 (app router)    |
+| language  | typescript                 |
+| styling   | tailwind css               |
+| database  | postgresql (neon)          |
+| orm       | prisma                     |
+| auth      | nextauth.js (github oauth) |
+| monorepo  | pnpm workspaces            |
+| hosting   | vercel                     |
 
 ## getting started
 
@@ -135,9 +135,9 @@ add your api key as `GITPULSE_TOKEN` in your repo's **settings → secrets → a
 ## contributing
 
 1. fork the repository
-2. create a feature branch (`git checkout -b feature/amazing-feature`)
-3. commit your changes (`git commit -m 'add amazing feature'`)
-4. push to the branch (`git push origin feature/amazing-feature`)
+2. create a feature branch
+3. commit your changes
+4. push to the branch
 5. open a pull request
 
 ## license

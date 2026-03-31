@@ -52,6 +52,7 @@ export default async function RightSidebar() {
           items2={upcomingDevs}
           type1="repo"
           type2="dev"
+          hideCommitCount={true}
           emptyMessage1="No active upcoming projects found."
           emptyMessage2="No fast-growing devs found."
         />
@@ -82,7 +83,8 @@ export default async function RightSidebar() {
             items2={[]}
             type1="dev"
             type2="dev"
-            emptyMessage1="No matching developers found in your primary tech ecosystem."
+            hideCommitCount={true}
+            emptyMessage1="No matching developers found."
             emptyMessage2="Ecosystem peers will appear here soon."
           />
         )}

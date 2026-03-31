@@ -81,12 +81,14 @@ export default function ToggleSidebarCard({
         )}
         
         <div className="flex items-center justify-end text-right whitespace-nowrap">
-          {repo.commitsToday !== undefined ? (
-            <span>⏱️ {repo.commitsToday} commits today</span>
-          ) : repo.commitVelocity !== undefined ? (
-            <span>📈 {repo.commitVelocity}+ commits building</span>
-          ) : (
-            <span>⭐ {repo.stargazers_count?.toLocaleString() || 0}</span>
+          {!hideCommitCount && (
+            repo.commitsToday !== undefined ? (
+              <span>⏱️ {repo.commitsToday} commits today</span>
+            ) : repo.commitVelocity !== undefined ? (
+              <span>📈 {repo.commitVelocity}+ commits building</span>
+            ) : (
+              <span>⭐ {repo.stargazers_count?.toLocaleString() || 0}</span>
+            )
           )}
         </div>
       </div>

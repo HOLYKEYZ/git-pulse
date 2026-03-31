@@ -134,7 +134,18 @@ function mapPrismaPostToProps(p: {
   repoUrl?: string | null;
   author: {username: string;avatar: string | null; statusEmoji?: string | null; statusText?: string | null;};
   _count: {comments: number;reactions: number;};
+  repostOf?: any;
 }): PostProps {
+  // if this is a repost, recursively map the original post and attach repost metadata
+  if (p.repostOf) {
+    return {
+      ...mapPrismaPostToProps(p.repostOf),
+      isRepost: true,
+      repostedBy: p.author.username,
+      id: p.id // keep the new post ID for uniqueness in React keys
+    };
+  }
+
   let score = 0;
 
   // calculate algorithmic score for the post
@@ -197,7 +208,16 @@ export default async function HomePage() {
   if (session?.user?.login) {
     // fetch a larger pool to score
     const posts = await prisma.post.findMany({
-      include: { author: true, _count: { select: { comments: true, reactions: true } } },
+      include: { 
+        author: true, 
+        _count: { select: { comments: true, reactions: true } },
+        repostOf: {
+          include: {
+            author: true,
+            _count: { select: { comments: true, reactions: true } }
+          }
+        }
+      },
       orderBy: { createdAt: "desc" },
       take: 100
     });
@@ -223,7 +243,16 @@ export default async function HomePage() {
       const ids = [dbUser.id, ...followedIds.map((f) => f.followingId)];
       const filteredPosts = await prisma.post.findMany({
         where: { authorId: { in: ids } },
-        include: { author: true, _count: { select: { comments: true, reactions: true } } },
+        include: { 
+          author: true, 
+          _count: { select: { comments: true, reactions: true } },
+          repostOf: {
+            include: {
+              author: true,
+              _count: { select: { comments: true, reactions: true } }
+            }
+          }
+        },
         orderBy: { createdAt: "desc" },
         take: 20
       });

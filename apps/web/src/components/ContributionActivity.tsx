@@ -28,9 +28,9 @@ export default function ContributionActivity({ activity }: ContributionActivityP
 // ── timeline icon circle — matches github's outlined style ──
 function TimelineIcon({ icon, className }: { icon: React.ReactNode; className?: string }) {
   return (
-    <div className={`absolute -left-[44px] -top-[2px] flex items-center justify-center w-[32px] h-[32px] rounded-full border-[2px] border-[#0d1117] bg-[#161b22] z-10 text-[#8b949e] ${className || ""}`}>
-      {icon}
-    </div>
+    <div className={`absolute -left-[44px] -top-[2px] flex items-center justify-center w-[32px] h-[32px] rounded-full border-[2px] border-timeline-border-dark bg-timeline-bg-dark z-10 text-timeline-icon-default ${className || }`}>{icon}</div>
+  );
+}
   );
 }
 
@@ -70,11 +70,11 @@ function MonthSection({ month }: { month: MonthlyActivity }) {
       {/* month header — github style: bold text + horizontal line */}
       <div className="flex items-center gap-3 mt-6 first:mt-0 mb-4">
         <span className="text-sm font-bold text-git-text whitespace-nowrap">{month.month}</span>
-        <div className="h-px bg-[#30363d] flex-1" />
+        <div className="h-px bg-timeline-divider flex-1" />
       </div>
 
       {/* timeline track */}
-      <div className="relative ml-[15px] pl-[28px] border-l-[2px] border-[#30363d] pb-2">
+      <div className="relative ml-[15px] pl-[28px] border-l-[2px] border-timeline-divider pb-2">
 
         {/* ── commits ── */}
         {month.commits > 0 && Array.isArray(month.commitRepos) && (
@@ -103,7 +103,7 @@ function MonthSection({ month }: { month: MonthlyActivity }) {
                       >
                         {repo.name}
                       </Link>
-                      <div className="flex-1 h-[8px] bg-[#161b22] rounded-full overflow-hidden">
+                      <div className="flex-1 h-[8px] bg-timeline-bg-dark rounded-full overflow-hidden">
                         <div
                           className="h-full bg-[#1f6feb] rounded-full"
                           style={{ width: `${Math.max((repo.count / maxCommits) * 100, 4)}%` }}

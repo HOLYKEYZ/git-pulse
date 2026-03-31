@@ -4,7 +4,10 @@ import { prisma } from "@/lib/prisma";
 // force edge/nodejs runtime without caching
 export const dynamic = "force-dynamic";
 
+import { auth } from '@/lib/auth';
 export async function GET(req: NextRequest) {
+  const session = await auth(req);
+  if (!session) return new Response('Unauthorized', { status: 401 });
   const encoder = new TextEncoder();
 
   // i create a transformstream to hold the sse connection open

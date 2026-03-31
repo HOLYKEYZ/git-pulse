@@ -6,13 +6,18 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  theme: {
-    extend: {
-      colors: {
-        git: {
-          'dark-bg-primary': '#0d1117',
-          'dark-bg-secondary': '#010409',
-          'link-blue': '#2f81f7',
+theme: {
+  extend: {
+    colors: {
+      // ... existing colors ...
+      'timeline-border-dark': '#0d1117',
+      'timeline-bg-dark': '#161b22',
+      'timeline-icon-default': '#8b949e',
+      'timeline-divider': '#30363d',
+      'timeline-progress-blue': '#1f6feb',
+    },
+  },
+}
           bg: "var(--bg)",
           card: "var(--card)",
           border: "var(--border)",

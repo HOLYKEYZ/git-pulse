@@ -2,7 +2,7 @@ import { auth, signOut } from "@/lib/auth";
 import Image from "next/image";
 import Link from "next/link";
 import NotificationBell from "./NotificationBell";
-import { MarkGithubIcon, HomeIcon, PersonIcon, GearIcon, TelescopeIcon } from "@primer/octicons-react";
+import { MarkGithubIcon, HomeIcon, PersonIcon, GearIcon, TelescopeIcon, PulseIcon } from "@primer/octicons-react";
 
 export default async function Sidebar() {
     let session = null;
@@ -28,6 +28,13 @@ export default async function Sidebar() {
                         <div className="flex items-center gap-5 px-4 py-3 rounded-full hover:bg-git-hover transition-colors">
                             <HomeIcon size={24} className="fill-current" />
                             <span className="text-xl font-medium text-git-text">Home</span>
+                        </div>
+                    </Link>
+                    
+                    <Link href="/activity" className="group flex items-center w-fit">
+                        <div className="flex items-center gap-5 px-4 py-3 rounded-full hover:bg-git-hover transition-colors">
+                            <PulseIcon size={24} className="fill-current" />
+                            <span className="text-xl font-medium text-git-text">Activity</span>
                         </div>
                     </Link>
                     

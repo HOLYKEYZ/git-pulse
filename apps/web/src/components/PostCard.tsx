@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { BookmarkIcon, ShareAndroidIcon } from '@primer/octicons-react';
+import { BookmarkIcon, ShareAndroidIcon, SyncIcon } from '@primer/octicons-react';
 import RepoCard from './RepoCard';
 import AiSummary from './AiSummary';
 import ReactionPicker from './ReactionPicker';
@@ -45,11 +45,32 @@ export interface PostProps {
     version: string;
     changelog: string;
   };
+  isRepost?: boolean;
+  repostedBy?: string;
 }
 
 export default function PostCard({ post }: {post: PostProps;}) {
   const [showComments, setShowComments] = useState(false);
   const [localReactions, setLocalReactions] = useState(post.reactions || []);
+  const [isReposting, setIsReposting] = useState(false);
+
+  const handleRepost = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isReposting) return;
+    
+    setIsReposting(true);
+    try {
+      const res = await fetch(`/api/posts/${post.id}/repost`, { method: 'POST' });
+      if (res.ok) {
+        // UI optimistically shows repost success (could show a toast here)
+      }
+    } catch (err) {
+      console.error("Failed to repost", err);
+    } finally {
+      setIsReposting(false);
+    }
+  };
 
   const handleReact = async (emoji: string) => {
     try {
@@ -78,10 +99,19 @@ export default function PostCard({ post }: {post: PostProps;}) {
   };
 
   return (
-    <div className="relative flex gap-3 px-4 py-4 border-b border-git-border hover:bg-[#161b22]/50 transition-colors">
+    <div className="relative flex flex-col px-4 py-4 border-b border-git-border hover:bg-[#161b22]/50 transition-colors">
       <Link href={`/post/${post.id}`} className="absolute inset-0 z-0" aria-label="View post" />
       
-      {/* left column: avatar & thread line */}
+      {/* repost header */}
+      {post.isRepost && post.repostedBy && (
+        <div className="flex items-center gap-2 text-xs text-git-muted font-bold mb-2 ml-10 relative z-10">
+          <SyncIcon size={14} className="fill-git-muted" />
+          <span>{post.repostedBy} reposted</span>
+        </div>
+      )}
+
+      <div className="flex gap-3 relative z-10">
+        {/* left column: avatar & thread line */}
       <div className="relative z-10 flex flex-col items-center">
         <Link href={`/profile/${post.author.username}`} className="block">
           <Image
@@ -215,6 +245,13 @@ export default function PostCard({ post }: {post: PostProps;}) {
           
           <div className="flex-1 flex justify-end gap-5">
             <button
+              onClick={handleRepost}
+              disabled={isReposting}
+              className={`flex items-center gap-1.5 text-git-muted transition-colors group ${isReposting ? 'opacity-50' : 'hover:text-git-success'}`}
+              title="Repost">
+              <SyncIcon size={16} className="group-hover:bg-git-success/10 rounded" />
+            </button>
+            <button
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -238,11 +275,12 @@ export default function PostCard({ post }: {post: PostProps;}) {
 
         {/* expandable comments */}
         {showComments &&
-        <div className="relative z-10">
+        <div className="relative z-10 mt-3 border-t border-git-border pt-4">
           <CommentSection postId={post.id} />
         </div>
         }
       </div>
-    </div>);
+    </div>
+  </div>);
 
 }

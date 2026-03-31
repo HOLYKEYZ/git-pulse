@@ -7,7 +7,8 @@ import {
     HomeIcon as PrimerHomeIcon, HomeFillIcon,
     TelescopeIcon, TelescopeFillIcon,
     BellIcon as PrimerBellIcon, BellFillIcon,
-    PersonIcon, PersonFillIcon
+    PersonIcon, PersonFillIcon,
+    PulseIcon as PrimerPulseIcon
 } from "@primer/octicons-react";
 
 // filled octicon svgs matching the sidebar
@@ -27,12 +28,17 @@ function UserIcon({ active }: { active: boolean }) {
     return active ? <PersonFillIcon size={20} className="fill-current" /> : <PersonIcon size={20} className="fill-current" />;
 }
 
+function ActivityIcon({ active }: { active: boolean }) {
+    return <PrimerPulseIcon size={20} className={active ? "fill-current stroke-current stroke-[0.5]" : "fill-current"} />;
+}
+
 export default function BottomNav({ username }: { username?: string }) {
     const pathname = usePathname();
 
     const navItems = [
         { name: "Home", href: "/", Icon: HomeIcon },
         { name: "Discover", href: "/explore", Icon: DiscoverIcon },
+        { name: "Activity", href: "/activity", Icon: ActivityIcon },
         { name: "Notifications", href: "/notifications", Icon: BellIcon },
         ...(username ? [{ name: "Profile", href: `/profile/${username}`, Icon: UserIcon }] : []),
     ];

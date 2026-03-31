@@ -1,0 +1,76 @@
+import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
+
+export async function POST(req: Request, { params }: {params: Promise<{id: string;}>}) {
+  const session = await auth();
+  if (!session?.user?.login) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const resolvedParams = await params;
+    const { id: postId } = resolvedParams;
+
+    const user = await prisma.user.findUnique({
+      where: { username: session.user.login }
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    const originalPost = await prisma.post.findUnique({
+      where: { id: postId }
+    });
+
+    if (!originalPost) {
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    }
+
+    // prevent double reposting the same post
+    const existingRepost = await prisma.post.findFirst({
+      where: {
+        authorId: user.id,
+        repostOfId: originalPost.id
+      }
+    });
+
+    if (existingRepost) {
+      // un-repost
+      await prisma.post.delete({
+        where: { id: existingRepost.id }
+      });
+      return NextResponse.json({ success: true, action: "unreposted" });
+    }
+
+    // create new repost
+    const repost = await prisma.post.create({
+      data: {
+        content: `Reposted by @${user.username}`, // arbitrary internal placeholder since UI hides it
+        authorId: user.id,
+        repostOfId: originalPost.id,
+        type: originalPost.type, // inherit type just in case
+      }
+    });
+
+    // notify the original author
+    if (originalPost.authorId !== user.id) {
+      await prisma.notification.create({
+        data: {
+          userId: originalPost.authorId,
+          type: "REPOST",
+          message: `@${user.username} reposted your post`,
+          linkUrl: `/post/${originalPost.id}` // link back to original post
+        }
+      });
+    }
+
+    return NextResponse.json({ success: true, action: "reposted", repost });
+  } catch (error) {
+    console.error("Error handling repost:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}

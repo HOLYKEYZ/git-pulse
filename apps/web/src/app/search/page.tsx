@@ -157,8 +157,7 @@ results.repos.map((repo) =>
               stars={repo.stars}
               forks={repo.forks}
               lastPush={formatLastPush(repo.lastPush)}
-              url={repo.url} /
-            )
+              url={repo.url} />
             )
             }
                             </div>

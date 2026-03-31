@@ -23,6 +23,7 @@ interface SearchResult {
     stars: number;
     url: string;
     forks: number;
+    lastPush: string | null;
   }>;
 }
 
@@ -70,10 +71,22 @@ useEffect(() => {
   if (!query) {
     return (
       <div className="p-8 text-center text-git-muted">
-                Please enter a search query.
-            </div>);
-
+        Please enter a search query.
+      </div>
+    );
   }
+
+  const getLanguageColor = (language: string | null): string => {
+    if (!language) return '';
+    // Add logic to determine language color based on language string
+    return 'language-color-' + language.toLowerCase();
+  };
+
+  const formatLastPush = (lastPush: string | null): string => {
+    if (!lastPush) return '';
+    // Add logic to format last push date
+    return lastPush;
+  };
 
   return (
     <div className="flex flex-col animate-slide-up pb-12">
@@ -134,18 +147,18 @@ useEffect(() => {
                                 {results.repos.length === 0 ?
             <p className="text-git-muted text-sm col-span-full">No repositories found.</p> :
 
-            results.repos.map((repo) =>
+results.repos.map((repo) =>
             <RepoCard
               key={repo.name}
               name={repo.name}
               description={repo.description || "No description"}
               language={repo.language || ""}
-              languageColor=""
+              languageColor={getLanguageColor(repo.language)}
               stars={repo.stars}
               forks={repo.forks}
-              lastPush=""
-              url={repo.url} />
-
+              lastPush={formatLastPush(repo.lastPush)}
+              url={repo.url} /
+            )
             )
             }
                             </div>

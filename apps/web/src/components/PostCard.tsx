@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { BookmarkIcon, ShareAndroidIcon, SyncIcon } from '@primer/octicons-react';
@@ -99,8 +100,10 @@ export default function PostCard({ post }: {post: PostProps;}) {
   };
 
   return (
-    <div className="relative flex flex-col px-4 py-4 border-b border-git-border hover:bg-[#161b22]/50 transition-colors">
-      <Link href={`/post/${post.id}`} className="absolute inset-0 z-0" aria-label="View post" />
+    <div 
+      onClick={handleNavigate} 
+      className="relative flex flex-col px-4 py-4 border-b border-git-border hover:bg-[#161b22]/50 transition-colors cursor-pointer"
+    >
       
       {/* repost header */}
       {post.isRepost && post.repostedBy && (

@@ -17,7 +17,7 @@ theme: {
           accent: "var(--accent)",
           text: "var(--text)",
           muted: "var(--muted)",
-          'green-hover': '#2ea043',
+          notification: "var(--notification)",
         },
           hover: "var(--hover)",
           'tab-active-border': '#f78166',

@@ -6,7 +6,8 @@ import {
   getGitHubTrendingRepos, getGitHubTrendingDevelopers, 
   getSuggestedGitHubUsers, getTopReposToStar,
   getUpcomingGitHubProjects, getUpcomingGitHubDevs,
-  getTopReposByDailyCommits, getTopDevsByDailyCommits 
+  getTopReposByDailyCommits, getTopDevsByDailyCommits,
+  getDevelopersLikeYou
 } from "@/lib/github";
 import CollabWidget from "./CollabWidget";
 import TrendingCard from "./TrendingCard";
@@ -21,7 +22,8 @@ export default async function RightSidebar() {
     trendingRepos, trendingDevs,
     upcomingProjects, upcomingDevs,
     activeProjects, activeDevs,
-    suggestedUsers, suggestedRepos
+    suggestedUsers, suggestedRepos,
+    developersLikeYou
   ] = token ? await Promise.all([
     getGitHubTrendingRepos(token, 5),
     getGitHubTrendingDevelopers(token, 5),
@@ -30,8 +32,9 @@ export default async function RightSidebar() {
     getTopReposByDailyCommits(token, 5),
     getTopDevsByDailyCommits(token, 5),
     getSuggestedGitHubUsers(token, undefined, 5),
-    getTopReposToStar(token, 5)
-  ]) : [[], [], [], [], [], [], [], []];
+    getTopReposToStar(token, 5),
+    session?.user?.login ? getDevelopersLikeYou(session.user.login, token, 5) : Promise.resolve([])
+  ]) : [[], [], [], [], [], [], [], [], []];
 
   return (
     <aside className="hidden w-[350px] shrink-0 lg:block">
@@ -68,6 +71,21 @@ export default async function RightSidebar() {
 
         {/* collab matching */}
         {session?.user && <CollabWidget />}
+
+        {/* developers like you */}
+        {session?.user && developersLikeYou.length > 0 && (
+          <ToggleSidebarCard
+            title="Developers Like You"
+            tab1="Matches"
+            tab2="Ecosystem"
+            items1={developersLikeYou}
+            items2={[]}
+            type1="dev"
+            type2="dev"
+            emptyMessage1="No matching developers found in your primary tech ecosystem."
+            emptyMessage2="Ecosystem peers will appear here soon."
+          />
+        )}
 
         {/* who to follow w/ what to star toggle */}
         <ToggleSidebarCard

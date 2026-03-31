@@ -61,7 +61,7 @@ export default function EditProfilePage({ params }: { params: Promise<{ username
         setSuccess(false);
 
         try {
-            const res = await fetch("/api/github/user", {
+            const res = await fetch("/api/github/profile", {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

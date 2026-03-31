@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import Sidebar from "@/components/Sidebar";
 import BottomNav from "@/components/BottomNav";
+import TopNav from "@/components/TopNav";
 import ThemeProvider from "@/components/ThemeProvider";
 import { SidebarSkeleton } from "@/components/Skeletons";
 import "./globals.css";
@@ -70,6 +71,7 @@ export default async function RootLayout({
 
                             {/* main content area — pages dictate their own width and right sidebars */}
                             <main className="flex-1 min-w-0 border-x border-git-border">
+                                <TopNav />
                                 {children}
                             </main>
                         </div>

@@ -390,7 +390,6 @@ export async function getGitHubTrendingDevelopers(token: string, limit = 5): Pro
 
 export async function getUpcomingGitHubProjects(token: string, limit = 5): Promise<any[]> {
   const randomPage = Math.floor(Math.random() * 5) + 1;
-  // search specifically for 10-30 stars (no bias)
   const reposRes = await fetchWithAuth(
     `/search/repositories?q=stars:10..30&sort=updated&order=desc&per_page=20&page=${randomPage}`,
     token
@@ -399,28 +398,39 @@ export async function getUpcomingGitHubProjects(token: string, limit = 5): Promi
   const items = reposRes?.items || [];
   if (items.length === 0) return [];
 
-  const verifiedRepos = await Promise.all(
-    items.map(async (repo: any) => {
-      try {
-        // fetch exact commit velocity
-        const commitsRes = await fetchWithAuth(
-          `/search/commits?q=repo:${repo.full_name}`,
-          token
-        );
-        const commitVelocity = commitsRes?.total_count || 0;
-        return { ...repo, commitVelocity };
-      } catch {
-        return { ...repo, commitVelocity: 0 };
-      }
-    })
-  );
+  // Use a batched GraphQL query to get Exact Commit Counts for all repos at once to avoid Rate Limits
+  const query = `
+    query {
+      ${items.map((repo: any, i: number) => {
+        const [owner, name] = repo.full_name.split('/');
+        return `
+          repo${i}: repository(owner: "${owner}", name: "${name}") {
+            defaultBranchRef {
+              target {
+                ... on Commit {
+                  history { totalCount }
+                }
+              }
+            }
+          }
+        `;
+      }).join('\n')}
+    }
+  `;
+
+  const gqlRes = await fetchGraphQL(query, {}, token);
+
+  const verifiedRepos = items.map((repo: any, i: number) => {
+    const commitCount = gqlRes?.[`repo${i}`]?.defaultBranchRef?.target?.history?.totalCount || 0;
+    return { ...repo, commitVelocity: commitCount };
+  });
 
   // Strictly filter to 500-1000 commits and sort ONLY by commit velocity (no star bias)
   const activeUpcoming = verifiedRepos
-    .filter((r) => r.commitVelocity >= 500 && r.commitVelocity <= 1000)
-    .sort((a, b) => b.commitVelocity - a.commitVelocity);
+    .filter((r: any) => r.commitVelocity >= 500 && r.commitVelocity <= 1000)
+    .sort((a: any, b: any) => b.commitVelocity - a.commitVelocity);
 
-  return activeUpcoming.length > 0 ? activeUpcoming.slice(0, limit) : verifiedRepos.sort((a, b) => b.commitVelocity - a.commitVelocity).slice(0, limit);
+  return activeUpcoming.length > 0 ? activeUpcoming.slice(0, limit) : verifiedRepos.sort((a: any, b: any) => b.commitVelocity - a.commitVelocity).slice(0, limit);
 }
 
 /**
@@ -482,100 +492,267 @@ export async function getTopReposByDailyCommits(token: string, limit = 5): Promi
 
   const randomPage = Math.floor(Math.random() * 5) + 1;
   const reposRes = await fetchWithAuth(
-    `/search/repositories?q=pushed:>=${dateStr}&sort=updated&order=desc&per_page=10&page=${randomPage}`,
+    `/search/repositories?q=pushed:>=${dateStr}&sort=updated&order=desc&per_page=15&page=${randomPage}`,
     token
   );
   
   const items = reposRes?.items || [];
   if (items.length === 0) return [];
 
-  // fetch exact total_count of commits directly from search
-  const verifiedRepos = await Promise.all(
-    items.map(async (repo: any) => {
-      try {
-        const commitsRes = await fetchWithAuth(
-          `/search/commits?q=repo:${repo.full_name}+author-date:${dateStr}`,
-          token
-        );
-        const commitsToday = commitsRes?.total_count || 0;
-        return { ...repo, commitsToday };
-      } catch {
-        return { ...repo, commitsToday: 0 };
-      }
-    })
-  );
+  // use GraphQL batching to fetch exactly how many commits were made today per repo
+  const query = `
+    query {
+      ${items.map((repo: any, i: number) => {
+        const [owner, name] = repo.full_name.split('/');
+        return `
+          repo${i}: repository(owner: "${owner}", name: "${name}") {
+            defaultBranchRef {
+              target {
+                ... on Commit {
+                  history(since: "${todayIso}") { totalCount }
+                }
+              }
+            }
+          }
+        `;
+      }).join('\n')}
+    }
+  `;
+
+  const gqlRes = await fetchGraphQL(query, {}, token);
+
+  const verifiedRepos = items.map((repo: any, i: number) => {
+    const commitsToday = gqlRes?.[`repo${i}`]?.defaultBranchRef?.target?.history?.totalCount || 0;
+    return { ...repo, commitsToday };
+  });
 
   // strictly sort by exact commit volume today overriding any star bias
   const sortedRepos = verifiedRepos
-    .filter((r) => r.commitsToday > 0)
-    .sort((a, b) => b.commitsToday - a.commitsToday);
+    .filter((r: any) => r.commitsToday > 0)
+    .sort((a: any, b: any) => b.commitsToday - a.commitsToday);
 
   return sortedRepos.slice(0, limit);
 }
 
 export async function getTopDevsByDailyCommits(token: string, limit = 5): Promise<any[]> {
   const todayIso = new Date().toISOString().split("T")[0];
-  const randomPage = Math.floor(Math.random() * 5) + 1;
-  const reposRes = await fetchWithAuth(
-    `/search/repositories?q=pushed:>=${todayIso}&sort=updated&order=desc&per_page=10&page=${randomPage}`,
+  
+  // To find the true "Most Active", we pull from globally trending established repos, 
+  // guaranteeing we catch developers actively pushing heavy volume today.
+  const trendingReposRes = await fetchWithAuth(
+    `/search/repositories?q=pushed:>=${todayIso}&sort=stars&order=desc&per_page=15`,
     token
   );
   
-  if (!reposRes?.items) return [];
+  if (!trendingReposRes?.items) return [];
 
   const uniqueUsers = new Map<string, any>();
-  for (const repo of reposRes.items) {
+  for (const repo of trendingReposRes.items) {
     if (repo.owner && repo.owner.type === 'User' && !uniqueUsers.has(repo.owner.login)) {
       uniqueUsers.set(repo.owner.login, repo.owner);
     }
   }
 
-  const userList = Array.from(uniqueUsers.values()).slice(0, 10);
-  
-  // verify their actual exact commits made *today* via Events API
-  const activeDevs = await Promise.all(
-    userList.map(async (user: any) => {
-      try {
-        const events = await fetchWithAuth(`/users/${user.login}/events/public?per_page=100`, token);
-        let commitsToday = 0;
-        if (Array.isArray(events)) {
-          for (const ev of events) {
-            if (ev.type === "PushEvent" && ev.created_at.startsWith(todayIso)) {
-              commitsToday += ev.payload.commits?.length || 0;
+  const userList = Array.from(uniqueUsers.values()).slice(0, 15);
+  if (userList.length === 0) return [];
+
+  // Use bulk GraphQL totalContributions to fetch EXACT commits without searching limits
+  const candidatesQuery = `
+    query {
+      ${userList.map((user: any, i: number) => `
+        user${i}: user(login: "${user.login}") {
+          contributionsCollection {
+            contributionCalendar {
+              weeks {
+                contributionDays {
+                  date
+                  contributionCount
+                }
+              }
             }
           }
         }
-        if (commitsToday > 0) return { ...user, totalContributions: commitsToday, label: "commits today" };
-      } catch {}
-      return null;
-    })
-  );
+      `).join('\n')}
+    }
+  `;
 
-  return activeDevs.filter(Boolean).sort((a: any, b: any) => b.totalContributions - a.totalContributions).slice(0, limit);
+  const candRes = await fetchGraphQL(candidatesQuery, {}, token);
+
+  const activeDevs = userList.map((user: any, i: number) => {
+    let commitsToday = 0;
+    const weeks = candRes?.[`user${i}`]?.contributionsCollection?.contributionCalendar?.weeks || [];
+    // Just find today's exact date contribution count in the calendar array
+    for (const week of weeks) {
+      for (const day of week.contributionDays) {
+        if (day.date === todayIso) {
+          commitsToday = day.contributionCount;
+        }
+      }
+    }
+    
+    return { ...user, totalContributions: commitsToday, label: "commits today" };
+  });
+
+  return activeDevs.filter((d: any) => d.totalContributions > 0).sort((a: any, b: any) => b.totalContributions - a.totalContributions).slice(0, limit);
 }
 
 export async function getUpcomingGitHubDevs(token: string, limit = 5): Promise<any[]> {
   const randomPage = Math.floor(Math.random() * 5) + 1;
   const usersRes = await fetchWithAuth(
-    `/search/users?q=followers:30..2000+type:user&sort=joined&order=desc&per_page=10&page=${randomPage}`,
+    `/search/users?q=followers:30..2000+type:user&sort=joined&order=desc&per_page=15&page=${randomPage}`,
     token
   );
   
-  if (!usersRes?.items) return [];
+  const items = usersRes?.items || [];
+  if (items.length === 0) return [];
 
-  // fetch exact commit velocity
-  const upcomingDevs = await Promise.all(
-    usersRes.items.map(async (user: any) => {
-      try {
-        const contrib = await getContributionData(user.login, token);
-        if (contrib && contrib.totalContributions >= 20) return { ...user, totalContributions: contrib.totalContributions };
-      } catch {}
-      return null;
-    })
-  );
+  const userList = items.slice(0, 15);
+  
+  // fetch exact commit velocity in bulk
+  const candidatesQuery = `
+    query {
+      ${userList.map((user: any, i: number) => `
+        user${i}: user(login: "${user.login}") {
+          contributionsCollection {
+            contributionCalendar { totalContributions }
+          }
+        }
+      `).join('\n')}
+    }
+  `;
+
+  const candRes = await fetchGraphQL(candidatesQuery, {}, token);
+
+  const upcomingDevs = userList.map((user: any, i: number) => {
+    const totalContr = candRes?.[`user${i}`]?.contributionsCollection?.contributionCalendar?.totalContributions || 0;
+    return { ...user, totalContributions: totalContr };
+  });
 
   // NO BIAS sorting by strictly commit numbers
-  return upcomingDevs.filter(Boolean).sort((a: any, b: any) => b.totalContributions - a.totalContributions).slice(0, limit);
+  return upcomingDevs.filter((u: any) => u.totalContributions >= 20).sort((a: any, b: any) => b.totalContributions - a.totalContributions).slice(0, limit);
+}
+
+/**
+ * Advanced algorithm for finding "Developers Like You"
+ * Weights: Tech Stack (Primary), Commits (High), Stars (Medium), Repos (Medium), Followers (Medium)
+ */
+export async function getDevelopersLikeYou(username: string, token: string, limit = 5): Promise<any[]> {
+  try {
+    // 1. Get baseline (user's top language, followers, total repos)
+    const baseQuery = `
+      query($login: String!) {
+        user(login: $login) {
+          followers { totalCount }
+          repositories(first: 50, orderBy: {field: PUSHED_AT, direction: DESC}, privacy: PUBLIC) {
+            totalCount
+            nodes {
+              primaryLanguage { name }
+              stargazerCount
+            }
+          }
+          contributionsCollection {
+            contributionCalendar { totalContributions }
+          }
+        }
+      }
+    `;
+    const result = await fetchGraphQL(baseQuery, { login: username }, token);
+    if (!result?.user) return [];
+    
+    const repos = result.user.repositories.nodes || [];
+    let totalStars = 0;
+    const langCounts: Record<string, number> = {};
+    repos.forEach((r: any) => {
+      totalStars += r.stargazerCount || 0;
+      if (r.primaryLanguage?.name) {
+        langCounts[r.primaryLanguage.name] = (langCounts[r.primaryLanguage.name] || 0) + 1;
+      }
+    });
+
+    const languageEntries = Object.entries(langCounts).sort((a, b) => b[1] - a[1]);
+    const primaryLang = languageEntries.length > 0 ? languageEntries[0][0] : "TypeScript";
+
+    const myFollowers = result.user.followers.totalCount || 0;
+    const myRepos = result.user.repositories.totalCount || 0;
+    const myStars = totalStars;
+    const myCommits = result.user.contributionsCollection?.contributionCalendar?.totalContributions || 0;
+
+    // 2. Search candidates (exact same language, followers nearby)
+    // using basic search api because it's fast
+    const searchRes = await fetchWithAuth(
+      `/search/users?q=language:${primaryLang}+followers:${Math.max(0, myFollowers - 100)}..${myFollowers + 1000}&per_page=15`,
+      token
+    );
+    
+    if (!searchRes?.items) return [];
+
+    // 3. For each candidate, fetch exact stats via GraphQL in one giant query to avoid rate limits
+    const logins = searchRes.items.filter((u: any) => u.login !== username).slice(0, 10).map((u: any) => u.login);
+    if (logins.length === 0) return [];
+
+    const candidatesQuery = `
+      query {
+        ${logins.map((login: string, i: number) => `
+          user${i}: user(login: "${login}") {
+            login
+            name
+            avatarUrl
+            bio
+            followers { totalCount }
+            repositories(first: 50, privacy: PUBLIC) {
+              totalCount
+              nodes { stargazerCount }
+            }
+            contributionsCollection {
+              contributionCalendar { totalContributions }
+            }
+          }
+        `).join('\n')}
+      }
+    `;
+
+    const candRes = await fetchGraphQL(candidatesQuery, {}, token);
+    if (!candRes) return [];
+
+    const scoredDevs = [];
+    for (let i = 0; i < logins.length; i++) {
+      const data = candRes[`user${i}`];
+      if (!data) continue;
+
+      const candFollowers = data.followers.totalCount || 0;
+      const candRepos = data.repositories.totalCount || 0;
+      let candStars = 0;
+      (data.repositories.nodes || []).forEach((r: any) => candStars += r.stargazerCount || 0);
+      const candCommits = data.contributionsCollection?.contributionCalendar?.totalContributions || 0;
+
+      // score: lower is better (distance)
+      // we normalize by percentage difference to keep scales equal
+      const followDiff = Math.abs(myFollowers - candFollowers) / (myFollowers || 1);
+      const repoDiff = Math.abs(myRepos - candRepos) / (myRepos || 1);
+      const starDiff = Math.abs(myStars - candStars) / (myStars || 1);
+      const commitDiff = Math.abs(myCommits - candCommits) / (myCommits || 1);
+
+      const distance = (followDiff * 1) + (repoDiff * 0.5) + (starDiff * 1.5) + (commitDiff * 2.0);
+
+      scoredDevs.push({
+        login: data.login,
+        name: data.name || data.login,
+        avatar_url: data.avatarUrl,
+        bio: data.bio || '',
+        repoName: primaryLang,
+        repoDescription: `${candStars} ⭐ | ${candFollowers} followers`,
+        repoStars: candStars,
+        totalContributions: candCommits,
+        distance
+      });
+    }
+
+    // Sort by lowest distance
+    return scoredDevs.sort((a, b) => a.distance - b.distance).slice(0, limit);
+  } catch (err) {
+    console.error("Error fetching getDevelopersLikeYou:", err);
+    return [];
+  }
 }
 
 /**

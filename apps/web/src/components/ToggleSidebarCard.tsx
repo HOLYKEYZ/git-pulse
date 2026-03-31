@@ -64,23 +64,31 @@ export default function ToggleSidebarCard({
           {repo.description}
         </p>
       )}
-      <div className="flex items-center gap-3 text-[13px] text-git-muted">
-        {repo.language && (
-          <span className="flex items-center gap-1">
+      <div className="grid grid-cols-[90px_1fr] items-center gap-3 text-[13px] text-git-muted mt-1.5">
+        {repo.language ? (
+          <span className="flex items-center gap-1.5 truncate">
             <span
-              className="w-3 h-3 rounded-full"
+              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
               style={{ backgroundColor: getLanguageColor(repo.language) }}
             />
-            {repo.language}
+            <span className="truncate">{repo.language}</span>
+          </span>
+        ) : (
+          <span className="flex items-center gap-1.5 truncate">
+            <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-[#8b949e]" />
+            <span className="truncate">Unknown</span>
           </span>
         )}
-        {repo.commitsToday !== undefined ? (
-          <span>⏱️ {repo.commitsToday} commits today</span>
-        ) : repo.commitVelocity !== undefined ? (
-          <span>📈 {repo.commitVelocity}+ commits building</span>
-        ) : (
-          <span>⭐ {repo.stargazers_count?.toLocaleString() || 0}</span>
-        )}
+        
+        <div className="flex items-center justify-end text-right whitespace-nowrap">
+          {repo.commitsToday !== undefined ? (
+            <span>⏱️ {repo.commitsToday} commits today</span>
+          ) : repo.commitVelocity !== undefined ? (
+            <span>📈 {repo.commitVelocity}+ commits building</span>
+          ) : (
+            <span>⭐ {repo.stargazers_count?.toLocaleString() || 0}</span>
+          )}
+        </div>
       </div>
     </a>
   );
@@ -106,8 +114,21 @@ export default function ToggleSidebarCard({
             @{dev.username || dev.login}
           </span>
           {!hideCommitCount && dev.totalContributions !== undefined && (
-            <span className="text-[11px] text-git-green font-semibold mt-0.5">
-              🔥 {dev.totalContributions.toLocaleString()} {dev.label || 'commits'}
+            <span className="flex items-center gap-2 text-[11px] mt-0.5">
+              <span className="text-git-green font-semibold">
+                🔥 {dev.totalContributions.toLocaleString()} {dev.label || 'commits'}
+              </span>
+              {dev.repoName && (
+                <span className="text-git-accent flex items-center gap-1 ml-auto">
+                  <span className="w-2 h-2 rounded-full" style={{backgroundColor: getLanguageColor(dev.repoName)}}></span>
+                  {dev.repoName} match
+                </span>
+              )}
+            </span>
+          )}
+          {dev.repoDescription && (
+            <span className="text-[11px] text-git-muted mt-0.5">
+              {dev.repoDescription}
             </span>
           )}
         </div>

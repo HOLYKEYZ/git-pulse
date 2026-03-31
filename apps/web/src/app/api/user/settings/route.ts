@@ -68,7 +68,7 @@ export async function DELETE() {
     });
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error deleting account:", error);
+console.error(`Error deleting account for user ${session.user.login}:`, error);
     return NextResponse.json({ error: "failed to delete account" }, { status: 500 });
   }
 }

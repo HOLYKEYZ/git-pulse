@@ -7,7 +7,7 @@ export default function NotFound() {
             <p className="text-git-muted">This page could not be found.</p>
             <Link
                 href="/"
-                className="rounded-md bg-git-green px-4 py-2 text-sm font-semibold text-white hover:bg-[#2ea043] transition-colors"
+                className="rounded-md bg-git-green px-4 py-2 text-sm font-semibold text-white hover:bg-git-green-hover transition-colors"
             >
                 Return Home
             </Link>

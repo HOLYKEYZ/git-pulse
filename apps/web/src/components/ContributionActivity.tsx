@@ -28,9 +28,7 @@ export default function ContributionActivity({ activity }: ContributionActivityP
 // ── timeline icon circle — matches github's outlined style ──
 function TimelineIcon({ icon, className }: { icon: React.ReactNode; className?: string }) {
   return (
-    <div className={`absolute -left-[44px] -top-[2px] flex items-center justify-center w-[32px] h-[32px] rounded-full border-[2px] border-timeline-border-dark bg-timeline-bg-dark z-10 text-timeline-icon-default ${className || }`}>{icon}</div>
-  );
-}
+    <div className={`absolute -left-[44px] -top-[2px] flex items-center justify-center w-[32px] h-[32px] rounded-full border-[2px] border-timeline-border-dark bg-timeline-bg-dark z-10 text-timeline-icon-default ${className || ''}`}>{icon}</div>
   );
 }
 

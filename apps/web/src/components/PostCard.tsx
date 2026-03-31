@@ -51,9 +51,23 @@ export interface PostProps {
 }
 
 export default function PostCard({ post }: {post: PostProps;}) {
+  const router = useRouter();
   const [showComments, setShowComments] = useState(false);
   const [localReactions, setLocalReactions] = useState(post.reactions || []);
   const [isReposting, setIsReposting] = useState(false);
+
+  const handleNavigate = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    // Prevent routing if clicking interactive elements (links, buttons, icons, or images inside content)
+    if (target.closest('a') || target.closest('button') || target.closest('svg') || target.tagName.toLowerCase() === 'img') {
+      return;
+    }
+    // if text selection is occurring, don't navigate
+    const selection = window.getSelection();
+    if (selection && selection.toString().length > 0) return;
+    
+    router.push(`/post/${post.id}`);
+  };
 
   const handleRepost = async (e: React.MouseEvent) => {
     e.preventDefault();

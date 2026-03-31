@@ -18,7 +18,6 @@ theme: {
           text: "var(--text)",
           muted: "var(--muted)",
           notification: "var(--notification)",
-        },
           hover: "var(--hover)",
           'tab-active-border': '#f78166',
           'tab-count-bg': '#30363d',

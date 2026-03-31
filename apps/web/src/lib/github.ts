@@ -677,10 +677,10 @@ export async function getDevelopersLikeYou(username: string, token: string, limi
     const myStars = totalStars;
     const myCommits = result.user.contributionsCollection?.contributionCalendar?.totalContributions || 0;
 
-    // 2. Search candidates (exact same language, followers nearby)
+    // 2. Search candidates (exact same language, followers nearby, repos nearby)
     // using basic search api because it's fast
     const searchRes = await fetchWithAuth(
-      `/search/users?q=language:${primaryLang}+followers:${Math.max(0, myFollowers - 100)}..${myFollowers + 1000}&per_page=15`,
+      `/search/users?q=language:${primaryLang}+followers:${Math.max(0, myFollowers - 100)}..${myFollowers + 1000}+repos:${Math.max(0, myRepos - 15)}..${myRepos + 50}&per_page=15`,
       token
     );
     

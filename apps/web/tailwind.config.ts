@@ -8,16 +8,8 @@ const config: Config = {
   ],
 theme: {
   extend: {
-    colors: {
-      // ... existing colors ...
-      'timeline-border-dark': '#0d1117',
-      'timeline-bg-dark': '#161b22',
-      'timeline-icon-default': '#8b949e',
-      'timeline-divider': '#30363d',
-      'timeline-progress-blue': '#1f6feb',
-    },
-  },
-}
+      colors: {
+        git: {
           bg: "var(--bg)",
           card: "var(--card)",
           border: "var(--border)",
@@ -40,6 +32,11 @@ theme: {
         githubBlue: '#2f81f7',
         githubDarkBg: '#161b22',
         'star-active': '#e3b341',
+        'timeline-border-dark': '#0d1117',
+        'timeline-bg-dark': '#161b22',
+        'timeline-icon-default': '#8b949e',
+        'timeline-divider': '#30363d',
+        'timeline-progress-blue': '#1f6feb',
       },
       fontFamily: {
         sans: [

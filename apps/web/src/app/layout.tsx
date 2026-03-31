@@ -28,6 +28,7 @@ export const metadata: Metadata = {
         apple: "/icon.png",
     },
     manifest: "/manifest.json",
+    themeColor: '#0D1117',
     openGraph: {
         title: "GitPulse",
         description: "GitHub's Social Layer",

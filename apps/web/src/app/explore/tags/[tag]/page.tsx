@@ -18,6 +18,15 @@ export async function generateMetadata({ params }: PageProps) {
 
 // reuse the mapper from page.tsx
 function mapPrismaPostToProps(p: any): PostProps {
+  if (p.repostOf) {
+    return {
+      ...mapPrismaPostToProps(p.repostOf),
+      isRepost: true,
+      repostedBy: p.author.username,
+      id: p.id
+    };
+  }
+
   let score = 0;
 
   // calculate algorithmic score for the post
@@ -76,7 +85,16 @@ export default async function TagFeedPage({ params }: PageProps) {
         has: normalizedTag
       }
     },
-    include: { author: true, _count: { select: { comments: true, reactions: true } } },
+    include: { 
+      author: true, 
+      _count: { select: { comments: true, reactions: true } },
+      repostOf: {
+        include: {
+          author: true,
+          _count: { select: { comments: true, reactions: true } }
+        }
+      }
+    },
     orderBy: { createdAt: "desc" },
     take: 50
   });

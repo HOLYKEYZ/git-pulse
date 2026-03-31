@@ -4,15 +4,14 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: Request, { params }: {params: Promise<{username: string;}>}) {
+export async function POST(req: Request, { params }: {params: {username: string;}}) {
   const session = await auth();
   if (!session?.user?.login || !session.user.accessToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    const resolvedParams = await params;
-    const { username: targetUsername } = resolvedParams;
+const { username: targetUsername } = params;
 
     if (session.user.login === targetUsername) {
       return NextResponse.json({ error: "Cannot follow yourself" }, { status: 400 });

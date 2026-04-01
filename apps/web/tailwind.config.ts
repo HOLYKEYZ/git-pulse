@@ -41,16 +41,16 @@ theme: {
       },
       fontFamily: {
         sans: [
-          "Inter",
+          "var(--font-geist-sans)",
           "-apple-system",
           "BlinkMacSystemFont",
           "Segoe UI",
-          "Noto Sans",
           "Helvetica",
           "Arial",
           "sans-serif",
         ],
         mono: [
+          "var(--font-geist-mono)",
           "SFMono-Regular",
           "Consolas",
           "Liberation Mono",

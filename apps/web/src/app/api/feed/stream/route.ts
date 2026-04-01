@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 import { auth } from '@/lib/auth';
 export async function GET(req: NextRequest) {
-  const session = await auth(req);
+  const session = await auth();
   if (!session) return new Response('Unauthorized', { status: 401 });
   const encoder = new TextEncoder();
 

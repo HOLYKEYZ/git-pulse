@@ -83,14 +83,13 @@ function GitHubActivityCard({ event }: { event: GitHubEvent }) {
         case "CreateEvent":
             icon = <RepoIcon size={16} className="text-git-muted" />;
             actionText = `created a ${event.payload.ref_type || 'repository'}`;
-            // If it's a repository, show its description if available
             if (event.payload.ref_type === 'repository') {
                 CardContent = (
                     <div className="mt-2 p-4 rounded-md border border-git-border bg-git-bg text-sm text-git-muted">
                         <Link href={`https://github.com/${repo}`} target="_blank" className="font-semibold text-git-text hover:text-git-accent">
                             {repo}
                         </Link>
-                        {event.payload.description && <p className="mt-1">{event.payload.description}</p>}
+                        {(event.payload as any).description && <p className="mt-1">{(event.payload as any).description}</p>}
                     </div>
                 );
             }
@@ -135,7 +134,7 @@ function GitHubActivityCard({ event }: { event: GitHubEvent }) {
             icon = <GitPullRequestIcon size={16} className="text-git-muted text-git-green" />;
             actionText = `${event.payload.action} a pull request in`;
             
-            const pr = event.payload.pull_request;
+            const pr = event.payload.pull_request as any;
             if (pr) {
                 CardContent = (
                     <div className="mt-2 p-4 rounded-md border border-git-border bg-git-bg group hover:bg-white/[0.02] transition-colors cursor-pointer">

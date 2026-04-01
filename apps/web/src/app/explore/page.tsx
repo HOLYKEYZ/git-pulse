@@ -2,7 +2,6 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import TrendingCard from "@/components/TrendingCard";
 import ToggleSidebarCard from "@/components/ToggleSidebarCard";
-import GlobalSearchBar from "@/components/GlobalSearchBar"; // We will create this or use an inline one
 import { 
   getGitHubTrendingRepos, getGitHubTrendingDevelopers,
   getUpcomingGitHubProjects, getUpcomingGitHubDevs,

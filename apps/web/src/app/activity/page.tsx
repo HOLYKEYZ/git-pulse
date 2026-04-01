@@ -13,7 +13,6 @@ export const dynamic = "force-dynamic";
 const BOT_PATTERNS = [/bot$/i, /\[bot\]$/i, /^dependabot/, /^renovate/, /^github-actions/];
 const isBot = (login: string) => BOT_PATTERNS.some((p) => p.test(login));
 export default async function ActivityPage() {
-export default async function ActivityPage() {
     const session = await auth();
     if (!session?.user?.login) {
         redirect("/login");

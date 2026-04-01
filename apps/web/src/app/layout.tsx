@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
+
 import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import Sidebar from "@/components/Sidebar";
@@ -62,7 +61,7 @@ export default async function RootLayout({
 
     return (
         <html lang="en" data-theme="github">
-            <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased min-h-screen bg-git-bg text-git-text overflow-x-hidden font-sans`}>
+            <body className="antialiased min-h-screen bg-gh-dark text-gh-text overflow-x-hidden font-sans">
                 <ThemeProvider>
                     {session ? (
                         <>

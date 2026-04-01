@@ -1,787 +1,588 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import {
-  motion,
-  useMotionValue,
-  useSpring,
-  useTransform,
-  useScroll,
-  useInView,
-} from "framer-motion";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import * as THREE from "three";
+import { motion, useInView } from "framer-motion";
 
-// ── color system — single accent (desaturated emerald), no purple/lila ──
-const ACCENT = "rgb(52, 211, 153)";
-const ACCENT_DIM = "rgba(52, 211, 153, 0.08)";
-const ACCENT_BORDER = "rgba(52, 211, 153, 0.15)";
-const BG = "#0a0a0f";
-const SURFACE = "rgba(255,255,255,0.03)";
-const BORDER = "rgba(255,255,255,0.06)";
-const BORDER_HOVER = "rgba(255,255,255,0.12)";
-const TEXT_PRIMARY = "rgba(255,255,255,0.92)";
-const TEXT_SECONDARY = "rgba(255,255,255,0.5)";
-const TEXT_TERTIARY = "rgba(255,255,255,0.3)";
+// Configuration for GitHub strict colors
+const COLORS = {
+  bg: "#0D1117",
+  canvas: "#161B22",
+  border: "#30363D",
+  green: "#238636",
+  blue: "#1F6FEB",
+  text: "#E6EDF3",
+  muted: "#8B949E",
+  glow: "rgba(35, 134, 54, 0.15)",
+};
 
-// ── spring config ──
+/* -------------------------------------------------------------------------- */
+/*                                ANIMATIONS                                  */
+/* -------------------------------------------------------------------------- */
 const SPRING = { type: "spring" as const, stiffness: 100, damping: 20 };
-
-// ── stagger ──
 const staggerContainer = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.3 } },
+  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.1 } },
 };
 const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 16 },
   visible: { opacity: 1, y: 0, transition: SPRING },
 };
 
-// ── 3d tilt copilot head — uses perspective + useMotionValue (NOT useState) ──
-function CopilotHead3D() {
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const springX = useSpring(x, { stiffness: 80, damping: 18 });
-  const springY = useSpring(y, { stiffness: 80, damping: 18 });
+/* -------------------------------------------------------------------------- */
+/*                            ROBOT HEAD (THREE.JS)                           */
+/* -------------------------------------------------------------------------- */
 
-  // map normalized mouse pos to rotation degrees
-  const rotateX = useTransform(springY, [-0.5, 0.5], ["12deg", "-12deg"]);
-  const rotateY = useTransform(springX, [-0.5, 0.5], ["-12deg", "12deg"]);
+// Custom materials
+const darkMaterial = new THREE.MeshStandardMaterial({
+  color: 0x161B22,
+  roughness: 0.8,
+  metalness: 0.2,
+});
+const borderMaterial = new THREE.MeshStandardMaterial({
+  color: 0x30363D,
+  roughness: 0.5,
+  metalness: 0.5,
+});
 
-  // continuous idle float animation
-  const floatY = useMotionValue(0);
-  const floatSpring = useSpring(floatY, { stiffness: 30, damping: 10 });
+// Create a glowing emissive material for eyes
+const eyeMaterial = new THREE.MeshStandardMaterial({
+  color: 0xffffff,
+  emissive: 0x238636, // GitHub active green
+  emissiveIntensity: 2.5,
+  toneMapped: false,
+});
 
-  useEffect(() => {
-    let frame: number;
-    let t = 0;
-    const animate = () => {
-      t += 0.015;
-      floatY.set(Math.sin(t) * 6);
-      frame = requestAnimationFrame(animate);
-    };
-    frame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(frame);
-  }, [floatY]);
+function RobotHead() {
+  const groupRef = useRef<THREE.Group>(null);
+  const leftEyeRef = useRef<THREE.Mesh>(null);
+  const rightEyeRef = useRef<THREE.Mesh>(null);
 
-  useEffect(() => {
-    const handleMove = (e: MouseEvent) => {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      x.set(e.clientX / w - 0.5);
-      y.set(e.clientY / h - 0.5);
-    };
-    window.addEventListener("mousemove", handleMove);
-    return () => window.removeEventListener("mousemove", handleMove);
-  }, [x, y]);
+  const { mouse, viewport } = useThree();
+
+  useFrame((state) => {
+    if (!groupRef.current) return;
+
+    // 1. Mouse tracking: map normalized mouse coordinate over head rotation
+    const targetX = mouse.x * 0.4;
+    const targetY = mouse.y * -0.2;
+
+    // Smooth damp rotation
+    groupRef.current.rotation.y += (targetX - groupRef.current.rotation.y) * 0.1;
+    groupRef.current.rotation.x += (targetY - groupRef.current.rotation.x) * 0.1;
+
+    // 2. Idle floating animation
+    const time = state.clock.getElapsedTime();
+    groupRef.current.position.y = Math.sin(time * 2) * 0.1;
+
+    // 3. Move eyes slightly towards the mouse relative to the head
+    const eyeMoveX = mouse.x * 0.15;
+    const eyeMoveY = mouse.y * 0.1;
+    
+    if (leftEyeRef.current && rightEyeRef.current) {
+        // Base positions X: -0.4 and +0.4, Y: 0.2
+        leftEyeRef.current.position.x = -0.4 + eyeMoveX;
+        leftEyeRef.current.position.y = 0.2 + eyeMoveY;
+        
+        rightEyeRef.current.position.x = 0.4 + eyeMoveX;
+        rightEyeRef.current.position.y = 0.2 + eyeMoveY;
+        
+        // Blink animation
+        const blinkCycle = time % 5;
+        // Blink for a tiny fraction of a second every 5 seconds
+        if (blinkCycle > 4.8 && blinkCycle < 4.9) {
+            leftEyeRef.current.scale.y = 0.1;
+            rightEyeRef.current.scale.y = 0.1;
+        } else {
+            // Restore scale smoothly
+            leftEyeRef.current.scale.y += (1 - leftEyeRef.current.scale.y) * 0.3;
+            rightEyeRef.current.scale.y += (1 - rightEyeRef.current.scale.y) * 0.3;
+        }
+    }
+  });
 
   return (
-    <div style={{ perspective: "800px" }} className="inline-block">
-      <motion.div
-        style={{
-          rotateX,
-          rotateY,
-          y: floatSpring,
-          transformStyle: "preserve-3d",
-        }}
-      >
-        {/* copilot head svg with 3d depth */}
-        <svg
-          width="120"
-          height="120"
-          viewBox="0 0 120 120"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          style={{ filter: "drop-shadow(0 8px 24px rgba(52,211,153,0.15))" }}
+    <group ref={groupRef} dispose={null}>
+      {/* Main Head Box */}
+      <mesh castShadow receiveShadow geometry={new THREE.BoxGeometry(2, 2, 2)} material={darkMaterial} />
+      
+      {/* Head Border Outline/Frame (slightly larger box, no depth writing trick or just wireframe-like trims) */}
+      <mesh geometry={new THREE.BoxGeometry(2.05, 2.05, 1.95)} material={borderMaterial} />
+      
+      {/* Antenna base */}
+      <mesh position={[0, 1.1, 0]} geometry={new THREE.CylinderGeometry(0.2, 0.3, 0.2, 16)} material={borderMaterial} />
+      {/* Antenna stick */}
+      <mesh position={[0, 1.4, 0]} geometry={new THREE.CylinderGeometry(0.05, 0.05, 0.6, 8)} material={darkMaterial} />
+      {/* Antenna bulb (glowing) */}
+      <mesh position={[0, 1.75, 0]} geometry={new THREE.SphereGeometry(0.15, 16, 16)} material={eyeMaterial} />
+
+      {/* Visor Area (deeper dark) */}
+      <mesh position={[0, 0.2, 1.01]}>
+        <planeGeometry args={[1.5, 0.8]} />
+        <meshBasicMaterial color="#010409" />
+      </mesh>
+
+      {/* Left Eye */}
+      <mesh ref={leftEyeRef} position={[-0.4, 0.2, 1.02]}>
+        <circleGeometry args={[0.15, 32]} />
+        <primitive object={eyeMaterial} />
+      </mesh>
+
+      {/* Right Eye */}
+      <mesh ref={rightEyeRef} position={[0.4, 0.2, 1.02]}>
+        <circleGeometry args={[0.15, 32]} />
+        <primitive object={eyeMaterial} />
+      </mesh>
+      
+      {/* Ear pieces */}
+      <mesh position={[-1.05, 0, 0]} geometry={new THREE.CylinderGeometry(0.4, 0.4, 0.2, 16)} rotation={[0, 0, Math.PI/2]} material={borderMaterial} />
+      <mesh position={[1.05, 0, 0]} geometry={new THREE.CylinderGeometry(0.4, 0.4, 0.2, 16)} rotation={[0, 0, Math.PI/2]} material={borderMaterial} />
+    </group>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                UI COMPONENTS                               */
+/* -------------------------------------------------------------------------- */
+
+function Button({ children, href, variant = "primary" }: { children: React.ReactNode, href: string, variant?: "primary" | "ghost" }) {
+    const isPrimary = variant === "primary";
+    
+    return (
+        <a 
+            href={href}
+            className={`
+                inline-flex items-center gap-2 px-5 py-2.5 rounded-md text-[14px] font-semibold transition-all duration-200
+                ${isPrimary 
+                    ? `bg-[#238636] hover:bg-[#2ea043] text-white border border-[rgba(240,246,252,0.1)]` 
+                    : `bg-[#21262d] hover:bg-[#30363d] text-[#c9d1d9] border border-[#30363d]`
+                }
+            `}
         >
-          {/* visor / helmet */}
-          <ellipse cx="60" cy="58" rx="38" ry="34" fill="#1a1d23" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
-          <ellipse cx="60" cy="58" rx="36" ry="32" fill="#12151a" />
-
-          {/* face plate reflection */}
-          <ellipse cx="60" cy="56" rx="30" ry="24" fill="rgba(52,211,153,0.03)" />
-
-          {/* left eye */}
-          <motion.ellipse
-            cx="45"
-            cy="55"
-            rx="7"
-            ry="7"
-            fill={ACCENT}
-            style={{
-              translateX: useTransform(springX, [-0.5, 0.5], [-2, 2]),
-              translateY: useTransform(springY, [-0.5, 0.5], [-1.5, 1.5]),
-            }}
-          />
-          {/* left pupil */}
-          <motion.circle
-            cx="46"
-            cy="54"
-            r="2.5"
-            fill="white"
-            opacity="0.8"
-            style={{
-              translateX: useTransform(springX, [-0.5, 0.5], [-1, 1]),
-              translateY: useTransform(springY, [-0.5, 0.5], [-0.8, 0.8]),
-            }}
-          />
-
-          {/* right eye */}
-          <motion.ellipse
-            cx="75"
-            cy="55"
-            rx="7"
-            ry="7"
-            fill={ACCENT}
-            style={{
-              translateX: useTransform(springX, [-0.5, 0.5], [-2, 2]),
-              translateY: useTransform(springY, [-0.5, 0.5], [-1.5, 1.5]),
-            }}
-          />
-          {/* right pupil */}
-          <motion.circle
-            cx="76"
-            cy="54"
-            r="2.5"
-            fill="white"
-            opacity="0.8"
-            style={{
-              translateX: useTransform(springX, [-0.5, 0.5], [-1, 1]),
-              translateY: useTransform(springY, [-0.5, 0.5], [-0.8, 0.8]),
-            }}
-          />
-
-          {/* antenna */}
-          <line x1="60" y1="24" x2="60" y2="12" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeLinecap="round" />
-          <circle cx="60" cy="10" r="3" fill={ACCENT} opacity="0.6">
-            <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" repeatCount="indefinite" />
-          </circle>
-
-          {/* ear flaps */}
-          <rect x="18" y="48" width="6" height="16" rx="3" fill="#1a1d23" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
-          <rect x="96" y="48" width="6" height="16" rx="3" fill="#1a1d23" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
-        </svg>
-      </motion.div>
-    </div>
-  );
+            {children}
+        </a>
+    )
 }
 
-// ── magnetic button ──
-function MagneticButton({
-  children,
-  href,
-  variant = "primary",
-}: {
-  children: React.ReactNode;
-  href: string;
-  variant?: "primary" | "ghost";
-}) {
-  const ref = useRef<HTMLAnchorElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const springX = useSpring(x, { stiffness: 150, damping: 15 });
-  const springY = useSpring(y, { stiffness: 150, damping: 15 });
-
-  const handleMouse = (e: React.MouseEvent) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    x.set((e.clientX - cx) * 0.15);
-    y.set((e.clientY - cy) * 0.15);
-  };
-
-  const handleLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  const isPrimary = variant === "primary";
-
-  return (
-    <motion.a
-      ref={ref}
-      href={href}
-      style={{
-        x: springX,
-        y: springY,
-        backgroundColor: isPrimary ? ACCENT : "transparent",
-        color: isPrimary ? BG : TEXT_SECONDARY,
-        border: isPrimary ? "none" : `1px solid ${BORDER}`,
-        boxShadow: isPrimary
-          ? `0 0 0 1px ${ACCENT}, inset 0 1px 0 rgba(255,255,255,0.15)`
-          : "none",
-      }}
-      onMouseMove={handleMouse}
-      onMouseLeave={handleLeave}
-      whileHover={{
-        scale: 1.02,
-        ...(isPrimary
-          ? {}
-          : { borderColor: BORDER_HOVER, color: TEXT_PRIMARY }),
-      }}
-      whileTap={{ scale: 0.98, y: 1 }}
-      className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg text-[15px] ${
-        isPrimary ? "font-semibold" : "font-medium"
-      } transition-colors`}
-    >
-      {children}
-    </motion.a>
-  );
-}
-
-// ── typewriter ──
 function Typewriter({ phrases }: { phrases: string[] }) {
-  const [index, setIndex] = useState(0);
-  const [charIndex, setCharIndex] = useState(0);
-  const [deleting, setDeleting] = useState(false);
-
-  useEffect(() => {
-    const phrase = phrases[index];
-    const speed = deleting ? 25 : 55;
-    if (!deleting && charIndex === phrase.length) {
-      const t = setTimeout(() => setDeleting(true), 2400);
+    const [index, setIndex] = useState(0);
+    const [charIndex, setCharIndex] = useState(0);
+    const [deleting, setDeleting] = useState(false);
+  
+    useEffect(() => {
+      const phrase = phrases[index];
+      const speed = deleting ? 20 : 50;
+      if (!deleting && charIndex === phrase.length) {
+        const t = setTimeout(() => setDeleting(true), 2400);
+        return () => clearTimeout(t);
+      }
+      if (deleting && charIndex === 0) {
+        setDeleting(false);
+        setIndex((i) => (i + 1) % phrases.length);
+        return;
+      }
+      const t = setTimeout(() => setCharIndex((c) => c + (deleting ? -1 : 1)), speed);
       return () => clearTimeout(t);
-    }
-    if (deleting && charIndex === 0) {
-      setDeleting(false);
-      setIndex((i) => (i + 1) % phrases.length);
-      return;
-    }
-    const t = setTimeout(() => setCharIndex((c) => c + (deleting ? -1 : 1)), speed);
-    return () => clearTimeout(t);
-  }, [charIndex, deleting, index, phrases]);
-
-  return (
-    <span style={{ color: ACCENT }}>
-      {phrases[index].substring(0, charIndex)}
-      <span className="animate-pulse" style={{ opacity: 0.6 }}>▎</span>
-    </span>
-  );
+    }, [charIndex, deleting, index, phrases]);
+  
+    return (
+      <span className="font-mono text-[#238636]">
+        {phrases[index].substring(0, charIndex)}
+        <span className="animate-pulse opacity-70">█</span>
+      </span>
+    );
 }
 
-// ── mini mock ui components for feature visuals ──
-
-function MockFeedUI() {
-  return (
-    <div className="flex flex-col gap-2.5 p-4">
-      {[1, 2, 3].map((i) => (
-        <div
-          key={i}
-          className="flex items-start gap-3 p-3 rounded-lg"
-          style={{
-            backgroundColor: "rgba(255,255,255,0.02)",
-            border: `1px solid ${BORDER}`,
-            opacity: 1 - i * 0.15,
-          }}
-        >
-          <div
-            className="w-8 h-8 rounded-full shrink-0"
-            style={{ backgroundColor: i === 1 ? "rgba(52,211,153,0.2)" : "rgba(255,255,255,0.06)" }}
-          />
-          <div className="flex-1 flex flex-col gap-1.5 min-w-0">
-            <div className="h-2.5 rounded-full" style={{ width: `${70 - i * 10}%`, backgroundColor: "rgba(255,255,255,0.12)" }} />
-            <div className="h-2 rounded-full" style={{ width: `${90 - i * 15}%`, backgroundColor: "rgba(255,255,255,0.06)" }} />
-            <div className="flex gap-4 mt-1">
-              {["♡ 47", "↻ 12", "💬 8"].map((s) => (
-                <span key={s} className="text-[10px] font-mono" style={{ color: TEXT_TERTIARY }}>{s}</span>
-              ))}
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function MockReleaseUI() {
-  return (
-    <div className="p-4 flex flex-col gap-3">
-      <div className="flex items-center gap-2 mb-1">
-        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: ACCENT }} />
-        <span className="text-[11px] font-mono" style={{ color: ACCENT }}>v2.4.0 released</span>
-      </div>
-      <div className="flex flex-col gap-2 pl-5" style={{ borderLeft: `1px solid ${BORDER}` }}>
-        {["+ dark mode auto-detection", "+ feed algorithm v3", "~ perf: 2.1x faster queries", "- deprecated legacy auth"].map((line) => (
-          <span
-            key={line}
-            className="text-[11px] font-mono"
-            style={{
-              color: line.startsWith("+")
-                ? "rgba(52,211,153,0.7)"
-                : line.startsWith("-")
-                ? "rgba(248,81,73,0.7)"
-                : TEXT_TERTIARY,
-            }}
-          >
-            {line}
-          </span>
-        ))}
-      </div>
-      <div className="flex gap-3 mt-2 pt-2" style={{ borderTop: `1px solid ${BORDER}` }}>
-        <span className="text-[10px] font-mono" style={{ color: TEXT_TERTIARY }}>↓ 2.3k downloads</span>
-        <span className="text-[10px] font-mono" style={{ color: TEXT_TERTIARY }}>★ 847</span>
-      </div>
-    </div>
-  );
-}
-
-function MockDiscoverUI() {
-  const devs = [
-    { name: "mira.dev", lang: "TypeScript", commits: "1,247" },
-    { name: "chen.rs", lang: "Rust", commits: "892" },
-    { name: "aiko.py", lang: "Python", commits: "2,391" },
-  ];
-  return (
-    <div className="p-4 flex flex-col gap-2">
-      {devs.map((d, i) => (
-        <div
-          key={d.name}
-          className="flex items-center gap-3 p-2.5 rounded-lg"
-          style={{
-            backgroundColor: "rgba(255,255,255,0.02)",
-            border: `1px solid ${BORDER}`,
-            opacity: 1 - i * 0.1,
-          }}
-        >
-          <div
-            className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-semibold"
-            style={{ backgroundColor: "rgba(52,211,153,0.12)", color: ACCENT }}
-          >
-            {d.name[0].toUpperCase()}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-[12px] font-medium" style={{ color: TEXT_PRIMARY }}>{d.name}</div>
-            <div className="text-[10px] font-mono" style={{ color: TEXT_TERTIARY }}>{d.lang} · {d.commits} commits</div>
-          </div>
-          <div
-            className="px-2.5 py-1 rounded-md text-[10px] font-medium"
-            style={{
-              border: `1px solid ${ACCENT_BORDER}`,
-              color: ACCENT,
-            }}
-          >
-            Follow
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function MockActivityUI() {
-  const events = [
-    { icon: "⬆", text: "pushed to main", repo: "gitpulse/core", time: "2m" },
-    { icon: "✓", text: "merged PR #412", repo: "gitpulse/api", time: "8m" },
-    { icon: "★", text: "starred", repo: "vercel/next.js", time: "14m" },
-    { icon: "⎇", text: "forked", repo: "tailwindlabs/headlessui", time: "23m" },
-  ];
-  return (
-    <div className="p-4 flex flex-col">
-      {events.map((e, i) => (
-        <div
-          key={e.text + e.repo}
-          className="flex items-center gap-3 py-2.5"
-          style={{
-            borderBottom: i < events.length - 1 ? `1px solid ${BORDER}` : "none",
-            opacity: 1 - i * 0.1,
-          }}
-        >
-          <span className="text-[13px] w-5 text-center">{e.icon}</span>
-          <div className="flex-1 min-w-0">
-            <span className="text-[11px]" style={{ color: TEXT_SECONDARY }}>
-              {e.text}{" "}
-              <span style={{ color: ACCENT }} className="font-mono">{e.repo}</span>
-            </span>
-          </div>
-          <span className="text-[10px] font-mono shrink-0" style={{ color: TEXT_TERTIARY }}>{e.time}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ── feature row — zig-zag layout with filled visual blocks ──
-function FeatureRow({
-  title,
-  description,
-  index: i,
-  children,
-}: {
-  title: string;
-  description: string;
-  index: number;
-  children: React.ReactNode;
-}) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-80px" });
-  const isEven = i % 2 === 0;
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, x: isEven ? -40 : 40 }}
-      animate={isInView ? { opacity: 1, x: 0 } : {}}
-      transition={{ ...SPRING, delay: i * 0.1 }}
-      className={`flex flex-col md:flex-row items-start gap-8 md:gap-16 ${
-        !isEven ? "md:flex-row-reverse" : ""
-      }`}
-    >
-      {/* text */}
-      <div className="flex-1 min-w-0 pt-4">
-        <div className="w-2 h-2 rounded-full mb-5" style={{ backgroundColor: ACCENT }} />
-        <h3
-          className="text-xl md:text-2xl font-semibold tracking-tight mb-3"
-          style={{ color: TEXT_PRIMARY }}
-        >
-          {title}
-        </h3>
-        <p
-          className="text-[15px] leading-relaxed max-w-[50ch]"
-          style={{ color: TEXT_SECONDARY }}
-        >
-          {description}
-        </p>
-      </div>
-
-      {/* filled visual card — liquid glass */}
-      <div
-        className="flex-1 min-w-0 w-full md:w-auto rounded-xl overflow-hidden"
-        style={{
-          background: SURFACE,
-          border: `1px solid ${BORDER}`,
-          boxShadow: `inset 0 1px 0 rgba(255,255,255,0.04)`,
-          backdropFilter: "blur(20px)",
-        }}
-      >
-        {/* mock window chrome */}
-        <div
-          className="flex items-center gap-1.5 px-4 py-2.5"
-          style={{ borderBottom: `1px solid ${BORDER}` }}
-        >
-          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: "rgba(255,255,255,0.08)" }} />
-          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: "rgba(255,255,255,0.08)" }} />
-          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: "rgba(255,255,255,0.08)" }} />
-        </div>
-        {children}
-      </div>
-    </motion.div>
-  );
-}
-
-// ── main ──
-export default function WelcomeHero() {
-  const { scrollYProgress } = useScroll();
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.96]);
-
-  const phrases = [
-    "discover hidden repos",
-    "pulse with your network",
-    "ship what matters",
-    "track your github universe",
-  ];
-
-  const features = [
-    {
-      title: "Algorithmic feed",
-      description:
-        "A timeline that surfaces the most impactful PRs, releases, and repositories from your network. No noise, only signal.",
-      visual: <MockFeedUI />,
-    },
-    {
-      title: "Ship announcements",
-      description:
-        "Announce your launches to the developer community. Track reactions, comments, and momentum as it builds.",
-      visual: <MockReleaseUI />,
-    },
-    {
-      title: "Developer discovery",
-      description:
-        "Find developers who share your stack, trending projects you missed, and repositories gaining traction before they blow up.",
-      visual: <MockDiscoverUI />,
-    },
-    {
-      title: "Real-time activity",
-      description:
-        "See what your network is building right now. Every push, every PR, every star — streaming live from GitHub.",
-      visual: <MockActivityUI />,
-    },
-  ];
-
-  return (
-    <div style={{ backgroundColor: BG }} className="relative w-full overflow-hidden">
-      {/* ── sticky nav ── */}
-      <nav
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-10 h-16"
-        style={{
-          backgroundColor: "rgba(10, 10, 15, 0.75)",
-          backdropFilter: "blur(20px) saturate(1.2)",
-          borderBottom: `1px solid ${BORDER}`,
-        }}
-      >
-        <Link href="/" className="flex items-center gap-2.5">
-          <svg height="26" viewBox="0 0 16 16" width="26" fill="white" opacity="0.9">
-            <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z" />
-          </svg>
-          <span
-            className="text-[17px] font-semibold tracking-tight hidden sm:inline"
-            style={{ color: TEXT_PRIMARY }}
-          >
-            GitPulse
-          </span>
-        </Link>
-        <div className="flex items-center gap-4">
-          <Link
-            href="/login"
-            className="text-[14px] font-medium transition-colors hover:opacity-100"
-            style={{ color: TEXT_SECONDARY }}
-          >
-            Sign in
-          </Link>
-          <Link
-            href="/login"
-            className="px-4 py-2 rounded-md text-[14px] font-semibold transition-all hover:opacity-90"
-            style={{ backgroundColor: ACCENT, color: BG }}
-          >
-            Sign up
-          </Link>
-        </div>
-      </nav>
-
-      {/* ── hero — asymmetric split with cosmic bg + 3d copilot ── */}
-      <motion.section
-        style={{ opacity: heroOpacity, scale: heroScale }}
-        className="relative min-h-[100dvh] flex items-center"
-      >
-        {/* cosmic background image */}
-        <div className="absolute inset-0 pointer-events-none">
-          <img
-            src="/hero-blend.png"
-            alt=""
-            className="absolute right-0 top-0 h-full w-full object-cover"
-            style={{ opacity: 0.55 }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{ background: `linear-gradient(to right, ${BG} 0%, ${BG} 25%, transparent 65%)` }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{ background: `linear-gradient(to top, ${BG} 0%, transparent 35%)` }}
-          />
-        </div>
-
-        {/* content */}
+// Reusable scroll-reveal section
+function RevealSection({ children, className = "" }: { children: React.ReactNode, className?: string }) {
+    const ref = useRef(null);
+    const isInView = useInView(ref, { once: true, margin: "-100px" });
+    
+    return (
         <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          animate="visible"
-          className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-20 pt-32 pb-20"
+            ref={ref}
+            initial={{ opacity: 0, y: 30 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ ...SPRING, duration: 0.6 }}
+            className={className}
         >
-          <div className="flex flex-col lg:flex-row items-start lg:items-center gap-12 lg:gap-20">
-            {/* left text */}
-            <div className="flex-1 max-w-xl">
-              <motion.div variants={fadeUp} className="mb-8">
-                <span
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[12px] font-medium tracking-wide uppercase"
-                  style={{
-                    color: ACCENT,
-                    backgroundColor: ACCENT_DIM,
-                    border: `1px solid ${ACCENT_BORDER}`,
-                  }}
-                >
-                  <span
-                    className="w-1.5 h-1.5 rounded-full animate-pulse"
-                    style={{ backgroundColor: ACCENT }}
-                  />
-                  now in public beta
+            {children}
+        </motion.div>
+    )
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                MOCK UI CARDS                               */
+/* -------------------------------------------------------------------------- */
+
+function MockGitHubFeed() {
+    return (
+        <div className="bg-[#161B22] border border-[#30363D] rounded-lg p-4 w-full opacity-80 filter grayscale-[50%]">
+            <h4 className="text-[12px] font-semibold text-[#8B949E] mb-3 uppercase tracking-wider">GitHub today</h4>
+            <div className="space-y-4">
+                {[
+                    {text: "gaearon starred a repository", repo: "facebook/react", icon: "★"},
+                    {text: "holykeyz followed linus", icon: "👤"},
+                    {text: "leerob forked a repository", repo: "vercel/next.js", icon: "⎇"}
+                ].map((item, i) => (
+                    <div key={i} className="flex gap-3 text-[13px] border-b border-[#30363D] pb-3 last:border-0 last:pb-0">
+                        <span className="text-[#8B949E]">{item.icon}</span>
+                        <div>
+                            <span className="text-[#8B949E]">{item.text}</span>
+                            {item.repo && <span className="block font-bold text-[#C9D1D9]">{item.repo}</span>}
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#161B22] to-transparent rounded-b-lg"></div>
+        </div>
+    )
+}
+
+function MockGitPulseFeed() {
+    return (
+        <div className="bg-[#161B22] border border-[#30363D] rounded-lg p-0 w-full relative overflow-hidden shadow-[0_0_30px_rgba(35,134,54,0.1)]">
+            <div className="p-3 border-b border-[#30363D] bg-[#0D1117]">
+                <h4 className="text-[12px] font-semibold text-[#238636] uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#238636] animate-pulse"></span>
+                    GitPulse
+                </h4>
+            </div>
+            <div className="p-4 space-y-4">
+                <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#238636] to-[#2EA043]"></div>
+                    <div className="flex-1">
+                        <div className="flex items-baseline gap-2 mb-1">
+                            <span className="font-semibold text-[#E6EDF3] text-[13px]">holykeyz</span>
+                            <span className="text-[#8B949E] text-[12px]">2h</span>
+                        </div>
+                        <p className="text-[14px] text-[#C9D1D9] mb-2 leading-relaxed">
+                            Just released the completely rewritten GitPulse landing page. Vibe coding with Three.js 🤖
+                        </p>
+                        <div className="inline-flex px-2 py-1 bg-[#1F6FEB]/10 border border-[#1F6FEB]/30 rounded text-[#1F6FEB] font-mono text-[11px] mb-3">
+                            git-pulse/apps/web
+                        </div>
+                        <div className="flex gap-4 text-[#8B949E] text-[12px]">
+                            <span className="flex items-center gap-1 hover:text-[#238636] transition-colors">♡ 128</span>
+                            <span className="flex items-center gap-1 hover:text-[#1F6FEB] transition-colors">💬 14</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function MockShip() {
+    return (
+        <div className="border-l-2 border-[#238636] pl-4 py-2">
+            <div className="flex items-center gap-2 mb-2">
+                <span className="text-xl">🚀</span>
+                <span className="px-2 py-0.5 rounded-full border border-[#238636]/30 bg-[#238636]/10 text-[#238636] font-mono text-[11px] font-bold">
+                    v3.0.0
                 </span>
-              </motion.div>
-
-              <motion.h1
-                variants={fadeUp}
-                className="text-4xl md:text-6xl font-bold tracking-tighter leading-none mb-6"
-                style={{ color: TEXT_PRIMARY }}
-              >
-                The social layer
-                <br />
-                for open source
-              </motion.h1>
-
-              <motion.p
-                variants={fadeUp}
-                className="text-base md:text-lg leading-relaxed max-w-[50ch] mb-4"
-                style={{ color: TEXT_SECONDARY }}
-              >
-                GitPulse is the developer network built on top of GitHub.
-                Follow builders, ship releases, and stay connected to what matters.
-              </motion.p>
-
-              <motion.p variants={fadeUp} className="text-base leading-relaxed mb-10 font-mono">
-                <Typewriter phrases={phrases} />
-              </motion.p>
-
-              <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-3">
-                <MagneticButton href="/login" variant="primary">
-                  Get started
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                    <path d="M3 8h10M9 4l4 4-4 4" />
-                  </svg>
-                </MagneticButton>
-                <MagneticButton href="/explore" variant="ghost">
-                  Explore trending
-                </MagneticButton>
-              </motion.div>
             </div>
-
-            {/* right — 3d copilot head */}
-            <motion.div
-              variants={fadeUp}
-              className="hidden lg:flex items-center justify-center flex-shrink-0"
-            >
-              <CopilotHead3D />
-            </motion.div>
-          </div>
-        </motion.div>
-      </motion.section>
-
-      {/* ── divider ── */}
-      <div className="w-full px-6 sm:px-10 lg:px-20 max-w-7xl mx-auto">
-        <div style={{ height: 1, backgroundColor: BORDER }} />
-      </div>
-
-      {/* ── features — zig-zag with filled mock ui ── */}
-      <section className="py-24 sm:py-32 px-6 sm:px-10 lg:px-20 max-w-7xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={SPRING}
-          className="mb-20"
-        >
-          <p
-            className="text-[12px] font-medium tracking-widest uppercase mb-4"
-            style={{ color: ACCENT }}
-          >
-            Features
-          </p>
-          <h2
-            className="text-3xl md:text-4xl font-bold tracking-tighter leading-tight max-w-md"
-            style={{ color: TEXT_PRIMARY }}
-          >
-            Everything you need.
-            <br />
-            <span style={{ color: TEXT_TERTIARY }}>Nothing you don&apos;t.</span>
-          </h2>
-        </motion.div>
-
-        <div className="flex flex-col gap-20 md:gap-28">
-          {features.map((f, i) => (
-            <FeatureRow key={f.title} title={f.title} description={f.description} index={i}>
-              {f.visual}
-            </FeatureRow>
-          ))}
+            <div className="bg-[#161B22] border border-[#30363D] rounded-md p-3">
+                <h5 className="font-bold text-[#E6EDF3] text-[13px] mb-1">holykeyz/git-pulse</h5>
+                <p className="text-[12px] text-[#8B949E]">Major architecture overhaul. New algo feed. 10x faster response times.</p>
+            </div>
+            <div className="flex gap-3 mt-3 text-[11px] text-[#8B949E] font-mono">
+                <span>♡ 420 likes</span>
+                <span>↓ 10.2k pulls</span>
+            </div>
         </div>
-      </section>
+    )
+}
 
-      {/* ── divider ── */}
-      <div className="w-full px-6 sm:px-10 lg:px-20 max-w-7xl mx-auto">
-        <div style={{ height: 1, backgroundColor: BORDER }} />
-      </div>
-
-      {/* ── stats ── */}
-      <section className="py-20 sm:py-24 px-6 sm:px-10 lg:px-20 max-w-7xl mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
-          {[
-            { value: "100M+", label: "developers on github" },
-            { value: "420M+", label: "repositories tracked" },
-            { value: "<50ms", label: "feed response time" },
-            { value: "0", label: "vendor lock-in" },
-          ].map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ ...SPRING, delay: i * 0.08 }}
-            >
-              <div
-                className="text-3xl sm:text-4xl font-bold tracking-tight font-mono mb-2"
-                style={{ color: TEXT_PRIMARY }}
-              >
-                {stat.value}
-              </div>
-              <div className="text-[13px] tracking-wide" style={{ color: TEXT_TERTIARY }}>
-                {stat.label}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── divider ── */}
-      <div className="w-full px-6 sm:px-10 lg:px-20 max-w-7xl mx-auto">
-        <div style={{ height: 1, backgroundColor: BORDER }} />
-      </div>
-
-      {/* ── bottom cta ── */}
-      <section className="py-24 sm:py-32 px-6 sm:px-10 lg:px-20 max-w-7xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={SPRING}
-          className="max-w-lg"
-        >
-          <h2
-            className="text-3xl md:text-5xl font-bold tracking-tighter leading-none mb-6"
-            style={{ color: TEXT_PRIMARY }}
-          >
-            Ready to start?
-          </h2>
-          <p
-            className="text-base leading-relaxed mb-8 max-w-[45ch]"
-            style={{ color: TEXT_SECONDARY }}
-          >
-            Join thousands of developers already using GitPulse to stay
-            connected to the open source community.
-          </p>
-          <MagneticButton href="/login" variant="primary">
-            Sign up with GitHub
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M3 8h10M9 4l4 4-4 4" />
-            </svg>
-          </MagneticButton>
-        </motion.div>
-      </section>
-
-      {/* ── footer ── */}
-      <footer className="py-10 px-6 sm:px-10 lg:px-20" style={{ borderTop: `1px solid ${BORDER}` }}>
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div className="flex items-center gap-2">
-            <svg height="16" viewBox="0 0 16 16" width="16" style={{ fill: TEXT_TERTIARY }}>
-              <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z" />
-            </svg>
-            <span className="text-[13px]" style={{ color: TEXT_TERTIARY }}>GitPulse · 2026</span>
-          </div>
-          <div className="flex items-center gap-6">
+function MockAlgo() {
+    return (
+        <div className="space-y-3">
             {[
-              { label: "Explore", href: "/explore" },
-              { label: "Privacy", href: "#" },
-              { label: "Terms", href: "#" },
-            ].map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className="text-[13px] transition-colors hover:opacity-80"
-                style={{ color: TEXT_TERTIARY }}
-              >
-                {link.label}
-              </Link>
+                {name: "johndoe", lang: "Rust", lcolor: "#dea584", commits: 843},
+                {name: "mira.dev", lang: "TypeScript", lcolor: "#3178c6", commits: 1240},
+            ].map((p, i) => (
+                <div key={i} className="flex items-center justify-between p-3 bg-[#161B22] border border-[#30363D] rounded-md">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-[#30363D]"></div>
+                        <div>
+                            <div className="text-[13px] font-bold text-[#E6EDF3]">{p.name}</div>
+                            <div className="text-[11px] text-[#8B949E] font-mono">
+                                <span style={{color: p.lcolor}}>● {p.lang}</span> · {p.commits} commits
+                            </div>
+                        </div>
+                    </div>
+                    <button className="px-3 py-1 bg-[#21262d] border border-[#30363D] text-[#c9d1d9] text-[12px] font-semibold rounded-md hover:bg-[#30363D] transition-colors">
+                        Follow
+                    </button>
+                </div>
             ))}
-          </div>
         </div>
-      </footer>
-    </div>
-  );
+    )
+}
+
+function MockRealtime() {
+    return (
+        <div className="font-mono text-[11px] space-y-3 overflow-hidden h-[150px] relative">
+            <div className="absolute top-0 w-full h-[50px] bg-gradient-to-b from-[#0D1117] to-transparent z-10 pointer-events-none" />
+            <div className="absolute bottom-0 w-full h-[50px] bg-gradient-to-t from-[#0D1117] to-transparent z-10 pointer-events-none" />
+            
+            {[
+                { a: "pushed to main", r: "vercel/next.js", c: "#238636" },
+                { a: "merged PR #412", r: "holykeyz/taste-skill", c: "#1F6FEB" },
+                { a: "starred", r: "tailwindlabs/tailwindcss", c: "#e3b341" },
+            ].map((e, i) => (
+                <div key={i} className="flex gap-3 py-1 items-center">
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: e.c }}></span>
+                    <span className="text-[#8B949E]">{e.a}</span>
+                    <span className="text-[#C9D1D9] font-bold">{e.r}</span>
+                </div>
+            ))}
+        </div>
+    )
+}
+
+
+/* -------------------------------------------------------------------------- */
+/*                                MAIN COMPONENT                              */
+/* -------------------------------------------------------------------------- */
+
+export default function WelcomeHero() {
+    return (
+        <div className="w-full bg-[#0D1117] text-[#E6EDF3] font-sans selection:bg-[#1F6FEB]/30">
+            {/* Nav */}
+            <nav className="fixed top-0 w-full z-50 bg-[#0D1117]/80 backdrop-blur-md border-b border-[#30363D] h-16 flex items-center justify-between px-6 lg:px-10">
+                <div className="flex items-center gap-3">
+                    <svg height="24" viewBox="0 0 16 16" width="24" fill="currentColor">
+                        <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+                    </svg>
+                    <span className="font-semibold text-lg tracking-tight">GitPulse</span>
+                </div>
+                <div className="flex items-center gap-4">
+                    <a href="/login" className="text-sm font-medium hover:text-[#1F6FEB] transition-colors">Sign in</a>
+                    <Button href="/login" variant="primary">Sign up</Button>
+                </div>
+            </nav>
+
+            {/* --- 1. HERO SECTION --- */}
+            <section className="relative w-full h-[100dvh] pt-16 flex items-center overflow-hidden border-b border-[#30363D]">
+                {/* Background Layered Code/Glow */}
+                <div className="absolute inset-0 pointer-events-none opacity-20 flex justify-center items-end mix-blend-screen">
+                    <div className="w-[800px] h-[500px] bg-[#238636] rounded-t-full blur-[150px] opacity-20 transform translate-y-1/2"></div>
+                </div>
+                
+                <div className="max-w-[1280px] mx-auto w-full px-6 lg:px-10 flex flex-col lg:flex-row items-center gap-12 relative z-10">
+                    <motion.div 
+                        className="flex-1 max-w-xl"
+                        variants={staggerContainer}
+                        initial="hidden"
+                        animate="visible"
+                    >
+                        <motion.div variants={fadeUp} className="mb-6 inline-flex border border-[#238636]/30 bg-[#238636]/10 text-[#238636] px-3 py-1 rounded-full text-[11px] font-bold tracking-widest uppercase items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#238636] animate-pulse"></span>
+                            Now in Public Beta
+                        </motion.div>
+                        
+                        <motion.h1 variants={fadeUp} className="text-5xl lg:text-[64px] font-bold tracking-tight leading-[1.1] mb-6">
+                            The social layer <br />
+                            <span className="text-[#8B949E]">for open source</span>
+                        </motion.h1>
+                        
+                        <motion.p variants={fadeUp} className="text-[18px] text-[#8B949E] leading-relaxed mb-6">
+                            GitHub has 100M developers and zero social feed. GitPulse fixes that — follow builders, post updates, ship releases, and get discovered by algorithm even with 0 followers.
+                        </motion.p>
+                        
+                        <motion.div variants={fadeUp} className="mb-10 text-[15px]">
+                            <Typewriter phrases={["ship what matters", "get discovered", "build in public", "stay connected"]} />
+                        </motion.div>
+                        
+                        <motion.div variants={fadeUp} className="flex gap-4">
+                            <Button href="/login" variant="primary">
+                                <svg height="16" viewBox="0 0 16 16" width="16" fill="currentColor">
+                                    <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+                                </svg>
+                                Get started with GitHub
+                            </Button>
+                            <Button href="/explore" variant="ghost">Explore trending</Button>
+                        </motion.div>
+                    </motion.div>
+
+                    {/* Right side: 3D Robot Head using Three.js */}
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 1, delay: 0.5 }}
+                        className="flex-1 w-full h-[400px] lg:h-[600px] order-first lg:order-last cursor-crosshair hidden md:block"
+                    >
+                        <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+                            <ambientLight intensity={0.5} />
+                            <directionalLight position={[10, 10, 5]} intensity={1.5} />
+                            <pointLight position={[-10, -10, -5]} intensity={0.5} />
+                            <Suspense fallback={null}>
+                                <RobotHead />
+                            </Suspense>
+                        </Canvas>
+                    </motion.div>
+                </div>
+            </section>
+
+            {/* --- 2. PROBLEM STATEMENT --- */}
+            <RevealSection className="py-24 border-b border-[#30363D] max-w-[1000px] mx-auto px-6">
+                <div className="text-center mb-16">
+                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">Your best work deserves to be seen.</h2>
+                    <p className="text-[#8B949E] text-lg max-w-2xl mx-auto">
+                        You push to GitHub every day. You build things people would love — but GitHub's feed only shows who starred what. No posts. No discovery. No algorithm working for you. Just silence.
+                    </p>
+                </div>
+                
+                <div className="grid md:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <MockGitHubFeed />
+                        <p className="text-center text-[#8B949E] mt-4 text-sm">GitHub today: Just an activity log.</p>
+                    </div>
+                    <div>
+                        <MockGitPulseFeed />
+                        <p className="text-center text-[#238636] font-semibold mt-4 text-sm flex items-center justify-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#238636]"></span>
+                            GitPulse: A real social network.
+                        </p>
+                    </div>
+                </div>
+            </RevealSection>
+
+            {/* --- 3. FEATURE SHOWCASE --- */}
+            <section className="py-24 border-b border-[#30363D] max-w-[1100px] mx-auto px-6">
+                <div className="space-y-32">
+                    
+                    {/* Feature 1 */}
+                    <RevealSection className="flex flex-col md:flex-row items-center gap-12">
+                        <div className="flex-1">
+                            <h3 className="text-2xl font-bold mb-4">Post updates, tag repos, react, comment.</h3>
+                            <p className="text-[#8B949E] leading-relaxed">
+                                A real feed — not just logs. Discuss architecture, share code snippets, ask questions, and engage directly with developers building the open-source ecosystem.
+                            </p>
+                        </div>
+                        <div className="flex-1 w-full">
+                            <div className="p-6 bg-[#161B22] border border-[#30363D] rounded-xl shadow-2xl">
+                                <MockGitPulseFeed />
+                            </div>
+                        </div>
+                    </RevealSection>
+
+                    {/* Feature 2 */}
+                    <RevealSection className="flex flex-col md:flex-row-reverse items-center gap-12">
+                        <div className="flex-1">
+                            <h3 className="text-2xl font-bold mb-4">Ship releases that get attention.</h3>
+                            <p className="text-[#8B949E] leading-relaxed">
+                                Announce releases to your followers. Ship It posts get algo-boosted to people working in your stack. Turn a version bump into a community event.
+                            </p>
+                        </div>
+                        <div className="flex-1 w-full">
+                            <div className="p-6 bg-[#161B22] border border-[#30363D] rounded-xl shadow-2xl">
+                                <MockShip />
+                            </div>
+                        </div>
+                    </RevealSection>
+
+                    {/* Feature 3 */}
+                    <RevealSection className="flex flex-col md:flex-row items-center gap-12">
+                        <div className="flex-1">
+                            <h3 className="text-2xl font-bold mb-4">Get discovered by the algorithm.</h3>
+                            <p className="text-[#8B949E] leading-relaxed">
+                                The algorithm finds developers working in your stack — TypeScript, Rust, Python — before you've followed them. Zero followers? Incredible code still gets you seen.
+                            </p>
+                        </div>
+                        <div className="flex-1 w-full">
+                            <div className="p-6 bg-[#161B22] border border-[#30363D] rounded-xl shadow-2xl">
+                                <MockAlgo />
+                            </div>
+                        </div>
+                    </RevealSection>
+
+                    {/* Feature 4 */}
+                    <RevealSection className="flex flex-col md:flex-row-reverse items-center gap-12">
+                        <div className="flex-1">
+                            <h3 className="text-2xl font-bold mb-4">See your network build in real time.</h3>
+                            <p className="text-[#8B949E] leading-relaxed">
+                                Every push, every PR, every star — streaming live. Stay on the pulse of what the smartest engineers are working on minute by minute.
+                            </p>
+                        </div>
+                        <div className="flex-1 w-full">
+                            <div className="p-6 bg-[#161B22] border border-[#30363D] rounded-xl shadow-2xl">
+                                <MockRealtime />
+                            </div>
+                        </div>
+                    </RevealSection>
+
+                </div>
+            </section>
+
+            {/* --- 4. SOCIAL PROOF / FOUNDER VOICE --- */}
+            <RevealSection className="py-32 border-b border-[#30363D] text-center px-6 bg-[#161B22]/50">
+                <div className="max-w-3xl mx-auto">
+                    <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-10">Built because the problem is real.</h2>
+                    
+                    <blockquote className="text-xl md:text-2xl text-[#8B949E] leading-relaxed italic border-l-4 border-[#30363D] pl-8 text-left mb-8 mx-auto max-w-2xl bg-[#0D1117] p-8 rounded-tr-lg rounded-br-lg">
+                        "I build on GitHub every day. Good projects, real work. But the algorithm doesn't care — if you don't have followers on X, you're invisible. GitPulse is what I wished existed."
+                    </blockquote>
+                    <div className="flex items-center justify-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#238636] to-[#1F6FEB]"></div>
+                        <div className="text-left">
+                            <div className="font-bold">HOLYKEYZ</div>
+                            <div className="text-sm font-mono text-[#8B949E]">builder</div>
+                        </div>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 font-mono border-t border-[#30363D] pt-12">
+                        {[
+                            {n: "100M+", l: "GitHub users"},
+                            {n: "420M+", l: "Repos analyzed"},
+                            {n: "10x", l: "reach factor"},
+                            {n: "0ms", l: "bullshit"}
+                        ].map((stat, i) => (
+                            <div key={i}>
+                                <div className="text-2xl md:text-3xl text-[#E6EDF3] font-bold mb-2">{stat.n}</div>
+                                <div className="text-[#8B949E] text-xs uppercase tracking-wider">{stat.l}</div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </RevealSection>
+
+            {/* --- 5. CTA FOOTER --- */}
+            <RevealSection className="py-32 text-center px-6">
+                <div className="max-w-xl mx-auto">
+                    <h2 className="text-4xl md:text-6xl font-bold tracking-tighter mb-6 text-white drop-shadow-[0_0_30px_rgba(35,134,54,0.3)]">
+                        Stop shipping <br /> into the void.
+                    </h2>
+                    <p className="text-[#8B949E] text-lg mb-10">
+                        Join developers who are building in public on GitPulse. Uncover the algorithm that rewards actual code.
+                    </p>
+                    <div className="flex flex-col items-center gap-4">
+                        <Button href="/login" variant="primary">
+                            <svg height="20" viewBox="0 0 16 16" width="20" fill="currentColor">
+                                <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+                            </svg>
+                            Sign in with GitHub — it's free
+                        </Button>
+                        <span className="text-[#8B949E] text-[11px] mt-2">Open source. MIT license. No ads.</span>
+                    </div>
+                </div>
+            </RevealSection>
+            
+            {/* Simple bottom footer */}
+            <footer className="border-t border-[#30363D] py-8 px-6 flex justify-between items-center text-[12px] text-[#8B949E] max-w-[1280px] mx-auto">
+                <div className="flex items-center gap-2">
+                    <svg height="16" viewBox="0 0 16 16" width="16" fill="currentColor"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm4.879-2.773 4.264 2.559a.25.25 0 0 1 0 .428l-4.264 2.559A.25.25 0 0 1 6 10.559V5.442a.25.25 0 0 1 .379-.215Z"></path></svg>
+                    GitPulse © 2026
+                </div>
+                <div className="flex gap-4">
+                    <a href="#" className="hover:text-[#E6EDF3] transition-colors">Privacy</a>
+                    <a href="#" className="hover:text-[#E6EDF3] transition-colors">Terms</a>
+                </div>
+            </footer>
+        </div>
+    )
 }

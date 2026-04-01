@@ -48,7 +48,7 @@ className={`flex items-center gap-2 pb-3 pt-2 text-sm font-medium border-b-[3px]
                                 </span>
                             )}
                             {tab.key === "stars" && starCount !== undefined && (
-                                <span className="ml-1 px-1.5 py-0.5 text-xs font-medium bg-[#30363d] rounded-full text-git-muted">
+                                <span className="ml-1 px-1.5 py-0.5 text-xs font-medium bg-git-tab-count-bg rounded-full text-git-muted">
                                     {starCount}
                                 </span>
                             )}

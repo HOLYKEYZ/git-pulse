@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import Sidebar from "@/components/Sidebar";
@@ -9,11 +10,6 @@ import ThemeProvider from "@/components/ThemeProvider";
 import { SidebarSkeleton } from "@/components/Skeletons";
 import "./globals.css";
 
-const inter = Inter({
-    subsets: ["latin"],
-    display: "swap",
-    variable: "--font-inter",
-});
 
 export const dynamic = "force-dynamic";
 

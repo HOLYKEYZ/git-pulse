@@ -14,6 +14,7 @@ interface FeedClientProps {
   activityPosts: PostProps[];
   userName: string;
   userAvatar: string;
+  isAuthenticated?: boolean;
 }
 
 const TABS: {key: TabType;label: string;}[] = [
@@ -41,7 +42,7 @@ function formatRelativeTimestamp(timestamp: string | Date | number) {
   return `${years} year${years > 1 ? 's' : ''} ago`;
 }
 
-export default function FeedClient({ discoverPosts, followingPosts, activityPosts, userName, userAvatar }: FeedClientProps) {
+export default function FeedClient({ discoverPosts, followingPosts, activityPosts, userName, userAvatar, isAuthenticated = true }: FeedClientProps) {
   const [activeTab, setActiveTab] = useState<TabType>('discover');
   const [composeMode, setComposeMode] = useState<'standard' | 'ship'>('standard');
   const [isTabLoading, setIsTabLoading] = useState(false);
@@ -119,8 +120,8 @@ const formattedPost = { ...data.post, timestamp: formatRelativeTimestamp(data.po
         )}
             </div>
 
-            {/* compose area (only on discover and following tabs) */}
-            {activeTab !== 'activity' &&
+            {/* compose area (only on discover and following tabs, only when authenticated) */}
+            {isAuthenticated && activeTab !== 'activity' &&
       <div className="p-4 border-b border-git-border">
                     <div className="flex gap-2 mb-3">
                         <button

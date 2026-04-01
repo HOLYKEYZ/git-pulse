@@ -4,24 +4,36 @@ import { NextResponse } from "next/server"
 
 const { auth } = NextAuth(authConfig);
 
+// routes that unauthenticated users can access
+const PUBLIC_ROUTES = ['/', '/explore', '/login'];
+
 export default auth((req) => {
-    const isLoggedIn = !!req.auth
-    const isAuthPage = req.nextUrl.pathname.startsWith('/login')
+    const isLoggedIn = !!req.auth;
+    const pathname = req.nextUrl.pathname;
+    const isAuthPage = pathname.startsWith('/login');
+    const isPublicRoute = PUBLIC_ROUTES.some(route =>
+        route === '/' ? pathname === '/' : pathname.startsWith(route)
+    );
 
-    if (isAuthPage) {
-        if (isLoggedIn) {
-            return NextResponse.redirect(new URL('/', req.nextUrl))
-        }
-        return null
+    // if logged in and trying to access login page, redirect to home
+    if (isAuthPage && isLoggedIn) {
+        return NextResponse.redirect(new URL('/', req.nextUrl));
     }
 
+    // allow public routes for everyone
+    if (isPublicRoute) {
+        return null;
+    }
+
+    // redirect unauthenticated users to login for protected routes
     if (!isLoggedIn) {
-        return NextResponse.redirect(new URL('/login', req.nextUrl))
+        return NextResponse.redirect(new URL('/login', req.nextUrl));
     }
 
-    return null
+    return null;
 })
 
 export const config = {
     matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 }
+

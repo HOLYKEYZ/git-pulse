@@ -113,7 +113,7 @@ export default async function Sidebar() {
                         <div className="absolute bottom-full left-0 w-full pb-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                             <form action={async () => {
                                 "use server";
-                                await signOut({ redirectTo: "/login" });
+                                await signOut({ redirectTo: "/" });
                             }}>
                                 <button type="submit" className="w-[85%] mx-auto block bg-git-bg border border-git-border shadow-[0_0_15px_rgba(255,255,255,0.1)] rounded-2xl px-4 py-3 text-left text-[15px] font-bold text-git-text hover:bg-git-card transition-colors">
                                     Log out @{session.user.login}

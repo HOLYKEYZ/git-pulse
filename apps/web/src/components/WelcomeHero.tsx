@@ -518,13 +518,13 @@ export default function WelcomeHero() {
                 </div>
             </section>
 
-            {/* --- 4. SOCIAL PROOF / FOUNDER VOICE --- */}
+            {/* --- 4. social proof / builder stuff --- */}
             <RevealSection className="py-32 border-b border-[#30363D] text-center px-6 bg-[#161B22]/50">
                 <div className="max-w-3xl mx-auto">
                     <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-10">Built because the problem is real.</h2>
                     
                     <blockquote className="text-xl md:text-2xl text-[#8B949E] leading-relaxed italic border-l-4 border-[#30363D] pl-8 text-left mb-8 mx-auto max-w-2xl bg-[#0D1117] p-8 rounded-tr-lg rounded-br-lg">
-                        "I build on GitHub every day. Good projects, real work. But the algorithm doesn't care — if you don't have followers on X, you're invisible. GitPulse is what I wished existed."
+                        "i build on GitHub every day. good projects, real work. but the algorithm doesn't care: if you don't have followers on X/github, you're invisible. gitPulse is what i wished existed."
                     </blockquote>
                     <div className="flex items-center justify-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#238636] to-[#1F6FEB]"></div>

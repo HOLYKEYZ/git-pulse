@@ -164,7 +164,7 @@ function GitHubActivityCard({ event }: { event: GitHubEvent }) {
             icon = <IssueOpenedIcon size={16} className="text-git-muted text-git-green" />;
             actionText = `${event.payload.action} an issue in`;
             
-            const issue = event.payload.issue;
+            const issue = event.payload.issue as any;
             if (issue) {
                 CardContent = (
                     <div className="mt-2 p-4 rounded-md border border-git-border bg-git-bg group hover:bg-white/[0.02] transition-colors cursor-pointer">

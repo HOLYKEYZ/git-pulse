@@ -72,7 +72,7 @@ export default async function Sidebar() {
                     {/* post button */}
                     {session?.user && (
                         <div className="mt-4 px-2 mb-2">
-                            <Link href="#top" className="w-[60%] lg:w-[120px] bg-git-green hover:bg-[#2ea043] text-white rounded-full py-2 px-4 font-semibold text-sm shadow-sm transition-colors flex items-center justify-center">
+                            <Link href="#top" className="w-[60%] lg:w-[120px] bg-git-green hover:bg-git-green-hover text-white rounded-full py-2 px-4 font-semibold text-sm shadow-sm transition-colors flex items-center justify-center">
                                 Post
                             </Link>
                         </div>

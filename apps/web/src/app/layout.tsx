@@ -63,23 +63,32 @@ export default async function RootLayout({
         <html lang="en" data-theme="github">
             <body className={`${inter.variable} antialiased min-h-screen bg-git-bg text-git-text overflow-x-hidden font-sans`}>
                 <ThemeProvider>
-                    <div className="mx-auto w-full max-w-[1300px] pb-20 lg:pb-0">
-                        <div className="flex justify-center">
-                            {/* left nav — async, wrapped in suspense */}
-                            <Suspense fallback={<div className="hidden w-[275px] shrink-0 xl:block"><SidebarSkeleton /></div>}>
-                                <Sidebar />
-                            </Suspense>
+                    {session ? (
+                        <>
+                            <div className="mx-auto w-full max-w-[1300px] pb-20 lg:pb-0">
+                                <div className="flex justify-center">
+                                    {/* left nav — async, wrapped in suspense */}
+                                    <Suspense fallback={<div className="hidden w-[275px] shrink-0 xl:block"><SidebarSkeleton /></div>}>
+                                        <Sidebar />
+                                    </Suspense>
 
-                            {/* main content area — pages dictate their own width and right sidebars */}
-                            <main className="flex-1 min-w-0 border-x border-git-border">
-                                <TopNav />
-                                {children}
-                            </main>
-                        </div>
-                    </div>
+                                    {/* main content area — pages dictate their own width and right sidebars */}
+                                    <main className="flex-1 min-w-0 border-x border-git-border">
+                                        <TopNav />
+                                        {children}
+                                    </main>
+                                </div>
+                            </div>
 
-                    {/* mobile bottom navigation */}
-                    <BottomNav username={session?.user?.login} />
+                            {/* mobile bottom navigation */}
+                            <BottomNav username={session?.user?.login} />
+                        </>
+                    ) : (
+                        /* unauthenticated: clean full-viewport canvas for welcome page */
+                        <main className="w-full">
+                            {children}
+                        </main>
+                    )}
                 </ThemeProvider>
             </body>
         </html>

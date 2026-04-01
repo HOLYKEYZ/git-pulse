@@ -57,7 +57,7 @@ export default async function RootLayout({
 
     return (
         <html lang="en" data-theme="github">
-            <body className={`${inter.variable} antialiased min-h-screen bg-git-bg text-git-text overflow-x-hidden font-sans`}>
+            <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased min-h-screen bg-git-bg text-git-text overflow-x-hidden font-sans`}>
                 <ThemeProvider>
                     {session ? (
                         <>

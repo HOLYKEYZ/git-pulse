@@ -14,9 +14,9 @@
     "jsx": "preserve",
     "incremental": true,
     "baseUrl": ".",
-    "paths": {
-      "@/*": ["./apps/web/src/*"]
-    }
+      "paths": {
+        "@/*": ["./src/*"]
+      }
   },
   "exclude": ["node_modules"]
 }

@@ -221,7 +221,7 @@ function GitHubActivityCard({ event }: { event: GitHubEvent }) {
                 <div className="flex flex-wrap items-center gap-1.5 text-[14px] text-git-muted leading-relaxed">
                     <Link href={`https://github.com/${actor.login}`} target="_blank" className="font-semibold text-git-text hover:text-git-accent hover:underline flex items-center gap-1.5">
                         <Image src={actor.avatar_url} alt={actor.login} width={20} height={20} className="rounded-full bg-git-bg" />
-                        {actor.display_login || actor.login}
+                        {(actor as any).display_login || actor.login}
                     </Link>
                     <span>{actionText}</span>
                     <Link href={`https://github.com/${repo}`} target="_blank" className="font-semibold text-git-text hover:text-git-accent hover:underline">

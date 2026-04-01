@@ -7,6 +7,17 @@ import { ArrowLeftIcon, HomeIcon } from "@primer/octicons-react";
 export default function TopNav() {
   const router = useRouter();
   const pathname = usePathname();
+  const getPageTitle = (pathname: string) => {
+    if (pathname === '/') return 'Home';
+    if (pathname.startsWith('/profile')) {
+      const lastSegment = pathname.split('/').pop();
+      return lastSegment === '' ? 'Profile' : lastSegment;
+    }
+    if (pathname.startsWith('/explore')) return 'Explore';
+    if (pathname.startsWith('/notifications')) return 'Notifications';
+    if (pathname.startsWith('/post')) return 'Post';
+    return 'GitPulse';
+  };
 
   // Don't show on desktop where sidebar is present, just mobile
   return (
@@ -20,12 +31,7 @@ export default function TopNav() {
       </button>
 
       <span className="font-bold text-[15px] truncate max-w-[150px]">
-        {pathname === "/" ? "Home" : 
-         pathname.startsWith("/profile/") ? pathname.split("/").pop() : 
-         pathname.startsWith("/explore") ? "Explore" : 
-         pathname.startsWith("/notifications") ? "Notifications" : 
-         pathname.startsWith("/post/") ? "Post" : 
-         "GitPulse"}
+        {getPageTitle(pathname)}
       </span>
 
       <Link 

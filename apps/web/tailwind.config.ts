@@ -9,7 +9,8 @@ const config: Config = {
 theme: {
   extend: {
       colors: {
-        'git-green-hover': '#2ea043',
+          'git-green-hover': '#2ea043',
+          'git-error': '#f85149',
         git: {
           bg: "var(--bg)",
           card: "var(--card)",

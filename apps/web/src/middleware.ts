@@ -5,7 +5,7 @@ import { NextResponse } from "next/server"
 const { auth } = NextAuth(authConfig);
 
 // routes that unauthenticated users can access
-const PUBLIC_ROUTES = ['/', '/explore', '/login'];
+const PUBLIC_ROUTES = ['/', '/explore', '/login', '/signout'];
 
 export default auth((req) => {
     const isLoggedIn = !!req.auth;

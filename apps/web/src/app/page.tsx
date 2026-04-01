@@ -7,6 +7,7 @@ import { calculatePostScore } from "@/lib/algo";
 import { hasPassedBadge } from "@/lib/badges";
 import { getRelativeTime } from "@/lib/utils";
 import RightSidebar from "@/components/RightSidebar";
+import WelcomeHero from "@/components/WelcomeHero";
 import { Suspense } from "react";
 import { SidebarSkeleton } from "@/components/Skeletons";
 
@@ -200,6 +201,11 @@ function mapPrismaPostToProps(p: {
 
 export default async function HomePage() {
   const session = await auth();
+
+  // unauthenticated users get the welcome landing page
+  if (!session) {
+    return <WelcomeHero />;
+  }
 
   // ═══════════════════════════════════════════════════════════════════════
   // discover: user-created posts only. scored via algo.

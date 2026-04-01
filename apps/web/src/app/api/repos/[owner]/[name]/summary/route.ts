@@ -5,15 +5,15 @@ import { generateRepoPitch } from "@/lib/ai";
 export const dynamic = "force-dynamic";
 
 export async function GET(
-req: Request,
-{ params }: {params: Promise<{owner: string;name: string;}>;})
-{
+  req: Request,
+  { params }: {params: {owner: string;name: string;};}
+)
   const session = await auth();
   if (!session?.user?.accessToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { owner, name } = await params;
+const { owner, name } = params;
 
   try {
     // fetch repo data from github to build context for the ai

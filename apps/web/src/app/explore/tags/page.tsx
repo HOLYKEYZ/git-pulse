@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Metadata } from "next";
-import { HashIcon } from "@primer/octicons-react";
+
 
 // simple in-memory cache to avoid re-querying on every request
 let cachedTags: any = null;
@@ -35,7 +35,7 @@ export default async function TagsPage() {
   return (
     <div className="flex flex-col animate-slide-up pb-12 w-full max-w-3xl mx-auto">
             <div className="px-4 py-6 border-b border-git-border bg-[#0d1117] sticky top-0 z-10 flex items-center gap-3">
-                <HashIcon size={24} className="fill-git-text" />
+                <span className="text-2xl font-black text-git-text">#</span>
                 <h1 className="text-xl font-bold text-git-text">Trending Hashtags</h1>
             </div>
 

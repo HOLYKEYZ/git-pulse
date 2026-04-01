@@ -16,7 +16,8 @@ export default function UserStatus({ initialEmoji, initialText, isOwnProfile }: 
   const [isOpen, setIsOpen] = useState(false);
   const [emoji, setEmoji] = useState(initialEmoji || "");
   const [text, setText] = useState(initialText || "");
-  const [loading, setLoading] = useState(false);
+const [loading, setLoading] = useState(false);
+const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -30,7 +31,8 @@ export default function UserStatus({ initialEmoji, initialText, isOwnProfile }: 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+setIsOpen(false);
+setErrorMessage(null);
       }
     };
     if (isOpen) document.addEventListener("mousedown", handleClickOutside);
@@ -53,17 +55,18 @@ const handleSave = async (overrides?: { emoji?: string; text?: string }) => {
       setIsOpen(false);
       router.refresh();
     } else {
-      alert('Failed to save status. Please try again.');
+setErrorMessage('Failed to save status. Please try again.');
     }
   } catch (error) {
     console.error("Failed to save status:", error);
-    alert('An error occurred while saving your status.');
+setErrorMessage('An error occurred while saving your status.');
   } finally {
     setLoading(false);
   }
 };
 
-  const handleClear = async () => {
+const handleClear = async () => {
+setErrorMessage(null);
     setEmoji("");
     setText("");
     await handleSave({ emoji: "", text: "" });
@@ -77,7 +80,7 @@ const handleSave = async (overrides?: { emoji?: string; text?: string }) => {
       {isOwnProfile ? (
         <button
           id="set-status-button"
-          onClick={() => setIsOpen(!isOpen)}
+onClick={() => { setIsOpen(!isOpen); setErrorMessage(null); }}
           className="group flex items-center gap-2 px-3 py-1.5 rounded-full border border-git-border bg-git-bg hover:border-git-accent transition-all shadow-sm w-full sm:max-w-[280px] text-left"
           title={text || "Set status"}
         >

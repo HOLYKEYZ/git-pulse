@@ -19,13 +19,15 @@ export async function GET(req: Request) {
 
   // basic auth — either via cron secret or session
   const session = await auth();
-const isAuthenticatedAdmin = session && session.user && (session.user as any).isAdmin;
+interface SessionUser { isAdmin: boolean; }
+const isAuthenticatedAdmin = session && session.user && (session.user as SessionUser).isAdmin;
   if (secret !== process.env.CRON_SECRET && !isAuthenticatedAdmin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+const ONE_WEEK_IN_MILLISECONDS = 7 * 24 * 60 * 60 * 1000;
+const oneWeekAgo = new Date(Date.now() - ONE_WEEK_IN_MILLISECONDS);
 
     const posts = await prisma.post.findMany({
       where: {
@@ -66,7 +68,9 @@ const isAuthenticatedAdmin = session && session.user && (session.user as any).is
           (Date.now() - p.createdAt.getTime()) / (1000 * 60 * 60 * 24),
           1
         );
-        score = 15 / Math.pow(daysSincePost, 1.2);
+const SCORE_DIVISOR = 15;
+const SCORE_POWER = 1.2;
+score = SCORE_DIVISOR / Math.pow(daysSincePost, SCORE_POWER);
       }
       return { ...p, score };
     });

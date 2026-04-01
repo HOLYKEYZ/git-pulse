@@ -10,7 +10,8 @@ import {
 } from "@primer/octicons-react";
 
 export const dynamic = "force-dynamic";
-
+const BOT_PATTERNS = [/bot$/i, /\[bot\]$/i, /^dependabot/, /^renovate/, /^github-actions/];
+const isBot = (login: string) => BOT_PATTERNS.some((p) => p.test(login));
 export default async function ActivityPage() {
     const session = await auth();
     if (!session?.user?.login) {
@@ -30,8 +31,6 @@ export default async function ActivityPage() {
     }
 
     // Optional: filter out spammy bot events to keep it clean
-    const BOT_PATTERNS = [/bot$/i, /\[bot\]$/i, /^dependabot/, /^renovate/, /^github-actions/];
-    const isBot = (login: string) => BOT_PATTERNS.some((p) => p.test(login));
     const filteredEvents = events.filter(ev => !isBot(ev.actor.login));
 
     return (

@@ -18,7 +18,8 @@ const config: Config = {
         'gh-text': '#E6EDF3',
         'gh-muted': '#8B949E',
         'gh-green-glow': 'rgba(35, 134, 54, 0.15)',
-        'git-green-hover': '#2ea043',
+          'git-green-hover': '#2ea043',
+          'git-error': '#f85149',
         git: {
           bg: "var(--bg)",
           card: "var(--card)",

@@ -6,9 +6,18 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-theme: {
-  extend: {
+    theme: {
+    extend: {
       colors: {
+        'gh-dark': '#0D1117',
+        'gh-canvas': '#161B22',
+        'gh-border': '#30363D',
+        'gh-green': '#238636',
+        'gh-green-light': '#2EA043',
+        'gh-blue': '#1F6FEB',
+        'gh-text': '#E6EDF3',
+        'gh-muted': '#8B949E',
+        'gh-green-glow': 'rgba(35, 134, 54, 0.15)',
         'git-green-hover': '#2ea043',
         git: {
           bg: "var(--bg)",
@@ -41,19 +50,20 @@ theme: {
       },
       fontFamily: {
         sans: [
-          "var(--font-geist-sans)",
           "-apple-system",
           "BlinkMacSystemFont",
-          "Segoe UI",
+          '"Segoe UI"',
+          "Noto Sans",
           "Helvetica",
           "Arial",
           "sans-serif",
+          '"Apple Color Emoji"',
+          '"Segoe UI Emoji"',
         ],
         mono: [
-          "var(--font-geist-mono)",
-          "SFMono-Regular",
+          '"SFMono-Regular"',
           "Consolas",
-          "Liberation Mono",
+          '"Liberation Mono"',
           "Menlo",
           "monospace",
         ],

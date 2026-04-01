@@ -425,12 +425,26 @@ export async function getUpcomingGitHubProjects(token: string, limit = 5): Promi
     return { ...repo, commitVelocity: commitCount };
   });
 
-  // Strictly filter to 500-1000 commits and sort ONLY by commit velocity (no star bias)
+  const BOT_PATTERNS = [/bot$/i, /\[bot\]$/i, /^dependabot/, /^renovate/, /^github-actions/, /^stale/i, /^semantic-release/i, /^greenkeeper/i, /^imgbot/i];
+  const isBot = (login: string) => BOT_PATTERNS.some((p) => p.test(login));
+
+  // Strictly filter to 500-1000 commits, DEMAND a humanized description, and reject bots.
+  // Sort ONLY by commit velocity (no star bias)
   const activeUpcoming = verifiedRepos
-    .filter((r: any) => r.commitVelocity >= 500 && r.commitVelocity <= 1000)
+    .filter((r: any) => 
+      r.commitVelocity >= 50 && 
+      r.commitVelocity <= 1000 && 
+      r.description && 
+      r.description.length > 10 &&
+      r.owner?.login && !isBot(r.owner.login)
+    )
     .sort((a: any, b: any) => b.commitVelocity - a.commitVelocity);
 
-  return activeUpcoming.length > 0 ? activeUpcoming.slice(0, limit) : verifiedRepos.sort((a: any, b: any) => b.commitVelocity - a.commitVelocity).slice(0, limit);
+  return activeUpcoming.length > 0 ? activeUpcoming.slice(0, limit) : 
+    verifiedRepos
+      .filter((r: any) => r.description && r.owner?.login && !isBot(r.owner.login))
+      .sort((a: any, b: any) => b.commitVelocity - a.commitVelocity)
+      .slice(0, limit);
 }
 
 /**
@@ -527,8 +541,9 @@ export async function getTopReposByDailyCommits(token: string, limit = 5): Promi
   });
 
   // strictly sort by exact commit volume today overriding any star bias
+  // we filter out > 150 commits as they are almost certainly automated CI/CD bot squashes
   const sortedRepos = verifiedRepos
-    .filter((r: any) => r.commitsToday > 0)
+    .filter((r: any) => r.commitsToday > 0 && r.commitsToday < 150)
     .sort((a: any, b: any) => b.commitsToday - a.commitsToday);
 
   return sortedRepos.slice(0, limit);
@@ -546,9 +561,12 @@ export async function getTopDevsByDailyCommits(token: string, limit = 5): Promis
   
   if (!trendingReposRes?.items) return [];
 
+  const BOT_PATTERNS = [/bot$/i, /\[bot\]$/i, /^dependabot/, /^renovate/, /^github-actions/, /^stale/i, /^semantic-release/i, /^greenkeeper/i, /^imgbot/i];
+  const isBot = (login: string) => BOT_PATTERNS.some((p) => p.test(login));
+
   const uniqueUsers = new Map<string, any>();
   for (const repo of trendingReposRes.items) {
-    if (repo.owner && repo.owner.type === 'User' && !uniqueUsers.has(repo.owner.login)) {
+    if (repo.owner && repo.owner.type === 'User' && !uniqueUsers.has(repo.owner.login) && !isBot(repo.owner.login)) {
       uniqueUsers.set(repo.owner.login, repo.owner);
     }
   }
@@ -593,7 +611,11 @@ export async function getTopDevsByDailyCommits(token: string, limit = 5): Promis
     return { ...user, totalContributions: commitsToday, label: "commits today" };
   });
 
-  return activeDevs.filter((d: any) => d.totalContributions > 0).sort((a: any, b: any) => b.totalContributions - a.totalContributions).slice(0, limit);
+  // Strict bot heuristic: no human physically authors >150 distinct commits a day consistently without scripting. 
+  // We filter out 0 and absurdly high bot-like scripts to guarantee true human leaders.
+  return activeDevs
+    .filter((d: any) => d.totalContributions > 0 && d.totalContributions < 150)
+    .sort((a: any, b: any) => b.totalContributions - a.totalContributions).slice(0, limit);
 }
 
 export async function getUpcomingGitHubDevs(token: string, limit = 5): Promise<any[]> {

@@ -210,7 +210,7 @@ export default function SettingsPage() {
                                 if (confirm("Are you absolutely sure you want to permanently delete your account and all associated data? This cannot be undone.")) {
                                     const res = await fetch("/api/user/settings", { method: "DELETE" });
                                     if (res.ok) {
-                                        window.location.href = "/api/auth/signout";
+                                        window.location.href = "/signout";
                                     } else {
                                         alert("Failed to delete account. Please try again.");
                                     }

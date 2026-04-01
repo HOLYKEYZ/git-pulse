@@ -16,6 +16,7 @@
         "@prisma/client": "^6.1.0",
         "cheerio": "^1.2.0",
         "framer-motion": "^12.38.0",
+        "geist": "^1.7.0",
         "github-markdown-css": "^5.9.0",
         "lru-cache": "^11.2.7",
         "lucide-react": "^0.577.0",

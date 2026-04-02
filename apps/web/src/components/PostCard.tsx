@@ -48,6 +48,8 @@ export interface PostProps {
   };
   isRepost?: boolean;
   repostedBy?: string;
+  isExternalEvent?: boolean;
+  externalUrl?: string;
 }
 
 export default function PostCard({ post }: {post: PostProps;}) {
@@ -65,6 +67,11 @@ export default function PostCard({ post }: {post: PostProps;}) {
     // if text selection is occurring, don't navigate
     const selection = window.getSelection();
     if (selection && selection.toString().length > 0) return;
+    
+    if (post.isExternalEvent && post.externalUrl) {
+      window.open(post.externalUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
     
     router.push(`/post/${post.id}`);
   };

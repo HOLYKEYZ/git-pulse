@@ -717,7 +717,8 @@ export async function getDevelopersLikeYou(username: string, token: string, limi
     if (!searchRes?.items) return [];
 
     // 3. For each candidate, fetch exact stats via GraphQL in one giant query to avoid rate limits
-    const logins = searchRes.items.filter((u: any) => u.login !== username).slice(0, 25).map((u: any) => u.login);
+    // Note: Kept to 10 candidates to prevent GitHub GraphQL from throwing a 502 Bad Gateway due to query complexity
+    const logins = searchRes.items.filter((u: any) => u.login !== username).slice(0, 10).map((u: any) => u.login);
     if (logins.length === 0) return [];
 
     const candidatesQuery = `
@@ -729,7 +730,7 @@ export async function getDevelopersLikeYou(username: string, token: string, limi
             avatarUrl
             bio
             followers { totalCount }
-            repositories(first: 50, privacy: PUBLIC) {
+            repositories(first: 10, privacy: PUBLIC) {
               totalCount
               nodes { stargazerCount }
             }

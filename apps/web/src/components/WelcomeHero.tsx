@@ -260,7 +260,7 @@ function MockGitPulseFeed() {
                             Just released the completely rewritten GitPulse landing page. Vibe coding with Three.js 🤖
                         </p>
                         <div className="inline-flex max-w-full px-2 py-1 bg-[#1F6FEB]/10 border border-[#1F6FEB]/30 rounded text-[#1F6FEB] font-mono text-[11px] mb-3 truncate">
-                            leonxlnx/taste-skill
+                            holykeyz/git-pulse
                         </div>
                         <div className="flex gap-4 text-[#8B949E] text-[12px]">
                             <span className="flex items-center gap-1 hover:text-[#238636] transition-colors">♡ 128</span>

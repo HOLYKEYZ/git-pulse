@@ -230,6 +230,8 @@ export default function SettingsPage() {
                     <div className="rounded-lg border border-git-border bg-git-card p-5">
                         <h2 className="text-base font-semibold text-git-text mb-1">profile visibility</h2>
                         <p className="text-xs text-git-muted mb-4">control what others can see on your profile.</p>
+                        
+                        <div className="border-t border-git-border mb-4" />
 
                         <div className="space-y-4">
                             <label className="flex items-center justify-between cursor-pointer">
@@ -255,9 +257,7 @@ export default function SettingsPage() {
                                 </button>
                             </label>
 
-                            <div className="border-t border-git-border" />
-
-                            <label className="flex items-center justify-between cursor-pointer">
+                            <label className="flex items-center justify-between cursor-pointer mt-4">
                                 <div>
                                     <span className="text-sm text-git-text font-medium">show contribution graph</span>
                                     <p className="text-xs text-git-muted">display your contribution heatmap on your profile</p>

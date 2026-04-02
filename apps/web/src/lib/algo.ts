@@ -62,21 +62,22 @@ if (factors.language) {
   score += breakdown.language;
 
   // 2. stars (reduced max weight to prevent pure popularity dominance)
-const STAR_THRESHOLD_LOW = 20;
-const STAR_THRESHOLD_HIGH = 1000;
-const STAR_WEIGHT = 0.02;
-const STAR_MAX_SCORE = 30;
-const STAR_DIMINISHING_RETURN_SCORE = 15;
-const STAR_LOW_SCORE_WEIGHT = 0.3;
+  const STAR_THRESHOLD_LOW = 20;
+  const STAR_THRESHOLD_HIGH = 1000;
+  const STAR_WEIGHT = 0.02;
+  const STAR_BASE_SCORE = 10;
+  const STAR_MAX_SCORE = 30;
+  const STAR_DIMINISHING_RETURN_SCORE = 15;
+  const STAR_LOW_SCORE_WEIGHT = 0.3;
 
-if (factors.stars >= STAR_THRESHOLD_LOW && factors.stars <= STAR_THRESHOLD_HIGH) {
-  const normalizedStar = Math.min(factors.stars, STAR_THRESHOLD_HIGH);
-  breakdown.stars = 10 + Math.min(normalizedStar * STAR_WEIGHT, STAR_MAX_SCORE - 10); // max 30 pts
-} else if (factors.stars > STAR_THRESHOLD_HIGH) {
-  breakdown.stars = STAR_DIMINISHING_RETURN_SCORE; // diminishing returns
-} else if (factors.stars > 0) {
-  breakdown.stars = factors.stars * STAR_LOW_SCORE_WEIGHT;
-}
+  if (factors.stars >= STAR_THRESHOLD_LOW && factors.stars <= STAR_THRESHOLD_HIGH) {
+    const normalizedStar = Math.min(factors.stars, STAR_THRESHOLD_HIGH);
+    breakdown.stars = STAR_BASE_SCORE + Math.min(normalizedStar * STAR_WEIGHT, STAR_MAX_SCORE - STAR_BASE_SCORE);
+  } else if (factors.stars > STAR_THRESHOLD_HIGH) {
+    breakdown.stars = STAR_DIMINISHING_RETURN_SCORE;
+  } else if (factors.stars > 0) {
+    breakdown.stars = factors.stars * STAR_LOW_SCORE_WEIGHT;
+  }
   score += breakdown.stars;
 
   // 3. forks

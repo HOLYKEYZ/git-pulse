@@ -21,13 +21,13 @@ const COLORS = {
 /* -------------------------------------------------------------------------- */
 /*                                ANIMATIONS                                  */
 /* -------------------------------------------------------------------------- */
-const SPRING = { type: "spring" as const, stiffness: 100, damping: 20 };
+const SPRING = { type: "spring" as const, stiffness: 80, damping: 20 };
 const staggerContainer = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.1 } },
+  visible: { transition: { staggerChildren: 0.15, delayChildren: 0.1 } },
 };
 const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
+  hidden: { opacity: 0, y: 40 },
   visible: { opacity: 1, y: 0, transition: SPRING },
 };
 
@@ -47,11 +47,10 @@ const borderMaterial = new THREE.MeshStandardMaterial({
   metalness: 0.5,
 });
 
-// Create a glowing emissive material for eyes
 const eyeMaterial = new THREE.MeshStandardMaterial({
-  color: 0xffffff,
+  color: 0x2ea043,
   emissive: 0x238636, // GitHub active green
-  emissiveIntensity: 2.5,
+  emissiveIntensity: 2.0,
   toneMapped: false,
 });
 
@@ -195,17 +194,16 @@ function Typewriter({ phrases }: { phrases: string[] }) {
     );
 }
 
-// Reusable scroll-reveal section
 function RevealSection({ children, className = "" }: { children: React.ReactNode, className?: string }) {
     const ref = useRef(null);
-    const isInView = useInView(ref, { once: true, margin: "-100px" });
+    const isInView = useInView(ref, { once: true, margin: "-50px" });
     
     return (
         <motion.div
             ref={ref}
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 50 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ ...SPRING, duration: 0.6 }}
+            transition={{ ...SPRING, duration: 0.8 }}
             className={className}
         >
             {children}
@@ -224,7 +222,7 @@ function MockGitHubFeed() {
             <div className="space-y-4">
                 {[
                     {text: "gaearon starred a repository", repo: "facebook/react", icon: "★"},
-                    {text: "holykeyz followed linus", icon: "👤"},
+                    {text: "leonxlnx followed linus", icon: "👤"},
                     {text: "leerob forked a repository", repo: "vercel/next.js", icon: "⎇"}
                 ].map((item, i) => (
                     <div key={i} className="flex gap-3 text-[13px] border-b border-[#30363D] pb-3 last:border-0 last:pb-0">
@@ -243,7 +241,7 @@ function MockGitHubFeed() {
 
 function MockGitPulseFeed() {
     return (
-        <div className="bg-[#161B22] border border-[#30363D] rounded-lg p-0 w-full relative overflow-hidden shadow-[0_0_30px_rgba(35,134,54,0.1)]">
+        <div className="bg-[#161B22] border border-[#30363D] rounded-lg p-0 w-full relative overflow-hidden shadow-[0_0_40px_rgba(35,134,54,0.15)]">
             <div className="p-3 border-b border-[#30363D] bg-[#0D1117]">
                 <h4 className="text-[12px] font-semibold text-[#238636] uppercase tracking-wider flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-[#238636] animate-pulse"></span>
@@ -252,21 +250,55 @@ function MockGitPulseFeed() {
             </div>
             <div className="p-4 space-y-4">
                 <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#238636] to-[#2EA043]"></div>
-                    <div className="flex-1">
-                        <div className="flex items-baseline gap-2 mb-1">
-                            <span className="font-semibold text-[#E6EDF3] text-[13px]">holykeyz</span>
+                    <div className="w-8 h-8 shrink-0 rounded-full bg-gradient-to-br from-[#238636] to-[#2EA043]"></div>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-baseline gap-2 mb-1">
+                            <span className="font-semibold text-[#E6EDF3] text-[13px] truncate">leonxlnx</span>
                             <span className="text-[#8B949E] text-[12px]">2h</span>
                         </div>
-                        <p className="text-[14px] text-[#C9D1D9] mb-2 leading-relaxed">
+                        <p className="text-[14px] text-[#C9D1D9] mb-2 leading-relaxed break-words">
                             Just released the completely rewritten GitPulse landing page. Vibe coding with Three.js 🤖
                         </p>
-                        <div className="inline-flex px-2 py-1 bg-[#1F6FEB]/10 border border-[#1F6FEB]/30 rounded text-[#1F6FEB] font-mono text-[11px] mb-3">
-                            git-pulse/apps/web
+                        <div className="inline-flex max-w-full px-2 py-1 bg-[#1F6FEB]/10 border border-[#1F6FEB]/30 rounded text-[#1F6FEB] font-mono text-[11px] mb-3 truncate">
+                            leonxlnx/taste-skill
                         </div>
                         <div className="flex gap-4 text-[#8B949E] text-[12px]">
                             <span className="flex items-center gap-1 hover:text-[#238636] transition-colors">♡ 128</span>
                             <span className="flex items-center gap-1 hover:text-[#1F6FEB] transition-colors">💬 14</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function MockGitPulseFeedSecondary() {
+    return (
+        <div className="bg-[#161B22] border border-[#30363D] rounded-lg p-0 w-full relative overflow-hidden shadow-[0_0_40px_rgba(35,134,54,0.15)]">
+            <div className="p-3 border-b border-[#30363D] bg-[#0D1117]">
+                <h4 className="text-[12px] font-semibold text-[#238636] uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#238636] animate-pulse"></span>
+                    GitPulse Feed
+                </h4>
+            </div>
+            <div className="p-4 space-y-4">
+                <div className="flex gap-3">
+                    <div className="w-8 h-8 shrink-0 rounded-full bg-gradient-to-br from-[#1F6FEB] to-[#388bfd]"></div>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-baseline gap-2 mb-1">
+                            <span className="font-semibold text-[#E6EDF3] text-[13px] truncate">dhh</span>
+                            <span className="text-[#8B949E] text-[12px]">5h</span>
+                        </div>
+                        <p className="text-[14px] text-[#C9D1D9] mb-2 leading-relaxed break-words">
+                            We've finally dropped the asset pipeline for import maps. It removes so much noise and build steps. 
+                        </p>
+                        <div className="inline-flex max-w-full px-2 py-1 bg-[#238636]/10 border border-[#238636]/30 rounded text-[#238636] font-mono text-[11px] mb-3 truncate">
+                            rails/rails
+                        </div>
+                        <div className="flex gap-4 text-[#8B949E] text-[12px]">
+                            <span className="flex items-center gap-1 hover:text-[#238636] transition-colors">♡ 4,213</span>
+                            <span className="flex items-center gap-1 hover:text-[#1F6FEB] transition-colors">💬 291</span>
                         </div>
                     </div>
                 </div>
@@ -285,7 +317,7 @@ function MockShip() {
                 </span>
             </div>
             <div className="bg-[#161B22] border border-[#30363D] rounded-md p-3">
-                <h5 className="font-bold text-[#E6EDF3] text-[13px] mb-1">holykeyz/git-pulse</h5>
+                <h5 className="font-bold text-[#E6EDF3] text-[13px] mb-1">leonxlnx/git-pulse</h5>
                 <p className="text-[12px] text-[#8B949E]">Major architecture overhaul. New algo feed. 10x faster response times.</p>
             </div>
             <div className="flex gap-3 mt-3 text-[11px] text-[#8B949E] font-mono">
@@ -330,7 +362,7 @@ function MockRealtime() {
             
             {[
                 { a: "pushed to main", r: "vercel/next.js", c: "#238636" },
-                { a: "merged PR #412", r: "holykeyz/taste-skill", c: "#1F6FEB" },
+                { a: "merged PR #412", r: "leonxlnx/taste-skill", c: "#1F6FEB" },
                 { a: "starred", r: "tailwindlabs/tailwindcss", c: "#e3b341" },
             ].map((e, i) => (
                 <div key={i} className="flex gap-3 py-1 items-center">
@@ -372,9 +404,9 @@ export default function WelcomeHero() {
                     <div className="w-[800px] h-[500px] bg-[#238636] rounded-t-full blur-[150px] opacity-20 transform translate-y-1/2"></div>
                 </div>
                 
-                <div className="max-w-[1280px] mx-auto w-full px-6 lg:px-10 flex flex-col lg:flex-row items-center gap-12 relative z-10">
+                <div className="max-w-[1280px] mx-auto w-full px-6 lg:px-10 flex flex-col lg:flex-row items-center justify-between gap-6 relative z-10">
                     <motion.div 
-                        className="flex-1 max-w-xl"
+                        className="flex-1 w-full max-w-xl lg:max-w-2xl"
                         variants={staggerContainer}
                         initial="hidden"
                         animate="visible"
@@ -413,9 +445,9 @@ export default function WelcomeHero() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 1, delay: 0.5 }}
-                        className="flex-1 w-full h-[400px] lg:h-[600px] order-first lg:order-last cursor-crosshair hidden md:block"
+                        className="flex-1 w-full max-w-[600px] h-[400px] lg:h-[700px] order-first lg:order-last cursor-crosshair hidden md:block"
                     >
-                        <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+                        <Canvas camera={{ position: [0, 0, 4.5], fov: 45 }}>
                             <ambientLight intensity={0.5} />
                             <directionalLight position={[10, 10, 5]} intensity={1.5} />
                             <pointLight position={[-10, -10, -5]} intensity={0.5} />
@@ -437,11 +469,11 @@ export default function WelcomeHero() {
                 </div>
                 
                 <div className="grid md:grid-cols-2 gap-8 items-start">
-                    <div>
+                    <div className="min-w-0">
                         <MockGitHubFeed />
                         <p className="text-center text-[#8B949E] mt-4 text-sm">GitHub today: Just an activity log.</p>
                     </div>
-                    <div>
+                    <div className="min-w-0">
                         <MockGitPulseFeed />
                         <p className="text-center text-[#238636] font-semibold mt-4 text-sm flex items-center justify-center gap-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-[#238636]"></span>
@@ -463,9 +495,10 @@ export default function WelcomeHero() {
                                 A real feed — not just logs. Discuss architecture, share code snippets, ask questions, and engage directly with developers building the open-source ecosystem.
                             </p>
                         </div>
-                        <div className="flex-1 w-full">
-                            <div className="p-6 bg-[#161B22] border border-[#30363D] rounded-xl shadow-2xl">
-                                <MockGitPulseFeed />
+                        <div className="flex-1 w-full min-w-0">
+                            <div className="p-4 md:p-6 bg-[#161B22] border border-[#30363D] rounded-xl shadow-2xl relative">
+                                <div className="absolute inset-0 bg-gradient-to-r from-[#238636]/5 to-transparent rounded-xl pointer-events-none"></div>
+                                <MockGitPulseFeedSecondary />
                             </div>
                         </div>
                     </RevealSection>
@@ -478,8 +511,9 @@ export default function WelcomeHero() {
                                 Announce releases to your followers. Ship It posts get algo-boosted to people working in your stack. Turn a version bump into a community event.
                             </p>
                         </div>
-                        <div className="flex-1 w-full">
-                            <div className="p-6 bg-[#161B22] border border-[#30363D] rounded-xl shadow-2xl">
+                        <div className="flex-1 w-full min-w-0">
+                            <div className="p-4 md:p-6 bg-[#161B22] border border-[#30363D] rounded-xl shadow-2xl shadow-[0_10px_40px_rgba(35,134,54,0.1)] relative">
+                                <div className="absolute inset-0 bg-gradient-to-l from-[#238636]/5 to-transparent rounded-xl pointer-events-none"></div>
                                 <MockShip />
                             </div>
                         </div>
@@ -493,8 +527,9 @@ export default function WelcomeHero() {
                                 The algorithm finds developers working in your stack — TypeScript, Rust, Python — before you've followed them. Zero followers? Incredible code still gets you seen.
                             </p>
                         </div>
-                        <div className="flex-1 w-full">
-                            <div className="p-6 bg-[#161B22] border border-[#30363D] rounded-xl shadow-2xl">
+                        <div className="flex-1 w-full min-w-0">
+                            <div className="p-4 md:p-6 bg-[#161B22] border border-[#30363D] rounded-xl shadow-2xl relative">
+                                <div className="absolute inset-0 bg-gradient-to-r from-[#238636]/5 to-transparent rounded-xl pointer-events-none"></div>
                                 <MockAlgo />
                             </div>
                         </div>
@@ -508,8 +543,9 @@ export default function WelcomeHero() {
                                 Every push, every PR, every star — streaming live. Stay on the pulse of what the smartest engineers are working on minute by minute.
                             </p>
                         </div>
-                        <div className="flex-1 w-full">
-                            <div className="p-6 bg-[#161B22] border border-[#30363D] rounded-xl shadow-2xl">
+                        <div className="flex-1 w-full min-w-0">
+                            <div className="p-4 md:p-6 bg-[#161B22] border border-[#30363D] rounded-xl shadow-2xl shadow-[0_10px_40px_rgba(35,134,54,0.1)] relative">
+                                <div className="absolute inset-0 bg-gradient-to-l from-[#238636]/5 to-transparent rounded-xl pointer-events-none"></div>
                                 <MockRealtime />
                             </div>
                         </div>
@@ -540,7 +576,7 @@ export default function WelcomeHero() {
                             {n: "100M+", l: "GitHub users"},
                             {n: "420M+", l: "Repos analyzed"},
                             {n: "10x", l: "reach factor"},
-                            {n: "0ms", l: "bullshit"}
+                            {n: "< 500ms", l: "feed latency"}
                         ].map((stat, i) => (
                             <div key={i}>
                                 <div className="text-2xl md:text-3xl text-[#E6EDF3] font-bold mb-2">{stat.n}</div>

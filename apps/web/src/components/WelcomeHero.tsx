@@ -47,13 +47,13 @@ const borderMaterial = new THREE.MeshStandardMaterial({
   metalness: 0.5,
 });
 
-// Create a glowing emissive material for eyes
-const eyeMaterial = new THREE.MeshStandardMaterial({
+// Create a glowing emissive material for eyes (using inline or cloned to avoid sharing bugs)
+const eyeMaterialProps = {
   color: 0xffffff,
   emissive: 0x238636, // GitHub active green
-  emissiveIntensity: 2.5,
+  emissiveIntensity: 3,
   toneMapped: false,
-});
+};
 
 function RobotHead() {
   const groupRef = useRef<THREE.Group>(null);
@@ -116,7 +116,9 @@ function RobotHead() {
       {/* Antenna stick */}
       <mesh position={[0, 1.4, 0]} geometry={new THREE.CylinderGeometry(0.05, 0.05, 0.6, 8)} material={darkMaterial} />
       {/* Antenna bulb (glowing) */}
-      <mesh position={[0, 1.75, 0]} geometry={new THREE.SphereGeometry(0.15, 16, 16)} material={eyeMaterial} />
+      <mesh position={[0, 1.75, 0]} geometry={new THREE.SphereGeometry(0.15, 16, 16)}>
+        <meshStandardMaterial {...eyeMaterialProps} />
+      </mesh>
 
       {/* Visor Area (deeper dark) */}
       <mesh position={[0, 0.2, 1.01]}>
@@ -127,13 +129,13 @@ function RobotHead() {
       {/* Left Eye */}
       <mesh ref={leftEyeRef} position={[-0.4, 0.2, 1.02]}>
         <circleGeometry args={[0.15, 32]} />
-        <primitive object={eyeMaterial} />
+        <meshStandardMaterial {...eyeMaterialProps} />
       </mesh>
 
       {/* Right Eye */}
       <mesh ref={rightEyeRef} position={[0.4, 0.2, 1.02]}>
         <circleGeometry args={[0.15, 32]} />
-        <primitive object={eyeMaterial} />
+        <meshStandardMaterial {...eyeMaterialProps} />
       </mesh>
       
       {/* Ear pieces */}
@@ -203,9 +205,9 @@ function RevealSection({ children, className = "" }: { children: React.ReactNode
     return (
         <motion.div
             ref={ref}
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 60 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ ...SPRING, duration: 0.6 }}
+            transition={{ ...SPRING, duration: 0.8, delay: 0.1 }}
             className={className}
         >
             {children}
@@ -255,14 +257,14 @@ function MockGitPulseFeed() {
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#238636] to-[#2EA043]"></div>
                     <div className="flex-1">
                         <div className="flex items-baseline gap-2 mb-1">
-                            <span className="font-semibold text-[#E6EDF3] text-[13px]">holykeyz</span>
+                            <span className="font-semibold text-[#E6EDF3] text-[13px]">leonxlnx</span>
                             <span className="text-[#8B949E] text-[12px]">2h</span>
                         </div>
                         <p className="text-[14px] text-[#C9D1D9] mb-2 leading-relaxed">
                             Just released the completely rewritten GitPulse landing page. Vibe coding with Three.js 🤖
                         </p>
                         <div className="inline-flex px-2 py-1 bg-[#1F6FEB]/10 border border-[#1F6FEB]/30 rounded text-[#1F6FEB] font-mono text-[11px] mb-3">
-                            git-pulse/apps/web
+                            leonxlnx/taste-skill
                         </div>
                         <div className="flex gap-4 text-[#8B949E] text-[12px]">
                             <span className="flex items-center gap-1 hover:text-[#238636] transition-colors">♡ 128</span>
@@ -285,7 +287,7 @@ function MockShip() {
                 </span>
             </div>
             <div className="bg-[#161B22] border border-[#30363D] rounded-md p-3">
-                <h5 className="font-bold text-[#E6EDF3] text-[13px] mb-1">holykeyz/git-pulse</h5>
+                <h5 className="font-bold text-[#E6EDF3] text-[13px] mb-1">leonxlnx/git-pulse</h5>
                 <p className="text-[12px] text-[#8B949E]">Major architecture overhaul. New algo feed. 10x faster response times.</p>
             </div>
             <div className="flex gap-3 mt-3 text-[11px] text-[#8B949E] font-mono">
@@ -300,8 +302,8 @@ function MockAlgo() {
     return (
         <div className="space-y-3">
             {[
-                {name: "johndoe", lang: "Rust", lcolor: "#dea584", commits: 843},
-                {name: "mira.dev", lang: "TypeScript", lcolor: "#3178c6", commits: 1240},
+                {name: "aiko.py", lang: "Python", lcolor: "#3572A5", commits: 2191},
+                {name: "chen.rs", lang: "Rust", lcolor: "#dea584", commits: 843},
             ].map((p, i) => (
                 <div key={i} className="flex items-center justify-between p-3 bg-[#161B22] border border-[#30363D] rounded-md">
                     <div className="flex items-center gap-3">
@@ -330,7 +332,7 @@ function MockRealtime() {
             
             {[
                 { a: "pushed to main", r: "vercel/next.js", c: "#238636" },
-                { a: "merged PR #412", r: "holykeyz/taste-skill", c: "#1F6FEB" },
+                { a: "merged PR #412", r: "leonxlnx/taste-skill", c: "#1F6FEB" },
                 { a: "starred", r: "tailwindlabs/tailwindcss", c: "#e3b341" },
             ].map((e, i) => (
                 <div key={i} className="flex gap-3 py-1 items-center">
@@ -372,7 +374,7 @@ export default function WelcomeHero() {
                     <div className="w-[800px] h-[500px] bg-[#238636] rounded-t-full blur-[150px] opacity-20 transform translate-y-1/2"></div>
                 </div>
                 
-                <div className="max-w-[1280px] mx-auto w-full px-6 lg:px-10 flex flex-col lg:flex-row items-center gap-12 relative z-10">
+                <div className="max-w-[1280px] mx-auto w-full px-6 lg:px-10 flex flex-col lg:flex-row items-center gap-6 lg:gap-16 relative z-10">
                     <motion.div 
                         className="flex-1 max-w-xl"
                         variants={staggerContainer}
@@ -404,7 +406,6 @@ export default function WelcomeHero() {
                                 </svg>
                                 Get started with GitHub
                             </Button>
-                            <Button href="/explore" variant="ghost">Explore trending</Button>
                         </motion.div>
                     </motion.div>
 
@@ -436,8 +437,8 @@ export default function WelcomeHero() {
                     </p>
                 </div>
                 
-                <div className="grid md:grid-cols-2 gap-8 items-start">
-                    <div>
+                <div className="grid md:grid-cols-2 gap-8 items-start overflow-hidden px-2">
+                    <div className="w-full">
                         <MockGitHubFeed />
                         <p className="text-center text-[#8B949E] mt-4 text-sm">GitHub today: Just an activity log.</p>
                     </div>
@@ -452,8 +453,8 @@ export default function WelcomeHero() {
             </RevealSection>
 
             {/* --- 3. FEATURE SHOWCASE --- */}
-            <section className="py-24 border-b border-[#30363D] max-w-[1100px] mx-auto px-6">
-                <div className="space-y-32">
+            <section className="py-32 border-b border-[#30363D] max-w-[1100px] mx-auto px-6 overflow-hidden">
+                <div className="space-y-40">
                     
                     {/* Feature 1 */}
                     <RevealSection className="flex flex-col md:flex-row items-center gap-12">
@@ -463,8 +464,9 @@ export default function WelcomeHero() {
                                 A real feed — not just logs. Discuss architecture, share code snippets, ask questions, and engage directly with developers building the open-source ecosystem.
                             </p>
                         </div>
-                        <div className="flex-1 w-full">
-                            <div className="p-6 bg-[#161B22] border border-[#30363D] rounded-xl shadow-2xl">
+                        <div className="flex-1 w-full max-w-full">
+                            <div className="p-6 bg-[#161B22] border border-[#238636]/20 rounded-xl shadow-[0_0_40px_rgba(35,134,54,0.15)] relative">
+                                <div className="absolute inset-0 bg-gradient-to-br from-[#238636]/10 to-transparent rounded-xl pointer-events-none"></div>
                                 <MockGitPulseFeed />
                             </div>
                         </div>
@@ -478,8 +480,9 @@ export default function WelcomeHero() {
                                 Announce releases to your followers. Ship It posts get algo-boosted to people working in your stack. Turn a version bump into a community event.
                             </p>
                         </div>
-                        <div className="flex-1 w-full">
-                            <div className="p-6 bg-[#161B22] border border-[#30363D] rounded-xl shadow-2xl">
+                        <div className="flex-1 w-full max-w-full">
+                            <div className="p-6 bg-[#161B22] border border-[#238636]/20 rounded-xl shadow-[0_0_40px_rgba(35,134,54,0.15)] relative">
+                                <div className="absolute inset-0 bg-gradient-to-br from-[#238636]/10 to-transparent rounded-xl pointer-events-none"></div>
                                 <MockShip />
                             </div>
                         </div>
@@ -493,8 +496,9 @@ export default function WelcomeHero() {
                                 The algorithm finds developers working in your stack — TypeScript, Rust, Python — before you've followed them. Zero followers? Incredible code still gets you seen.
                             </p>
                         </div>
-                        <div className="flex-1 w-full">
-                            <div className="p-6 bg-[#161B22] border border-[#30363D] rounded-xl shadow-2xl">
+                        <div className="flex-1 w-full max-w-full">
+                            <div className="p-6 bg-[#161B22] border border-[#238636]/20 rounded-xl shadow-[0_0_40px_rgba(35,134,54,0.15)] relative">
+                                <div className="absolute inset-0 bg-gradient-to-br from-[#238636]/10 to-transparent rounded-xl pointer-events-none"></div>
                                 <MockAlgo />
                             </div>
                         </div>
@@ -508,8 +512,9 @@ export default function WelcomeHero() {
                                 Every push, every PR, every star — streaming live. Stay on the pulse of what the smartest engineers are working on minute by minute.
                             </p>
                         </div>
-                        <div className="flex-1 w-full">
-                            <div className="p-6 bg-[#161B22] border border-[#30363D] rounded-xl shadow-2xl">
+                        <div className="flex-1 w-full max-w-full">
+                            <div className="p-6 bg-[#161B22] border border-[#238636]/20 rounded-xl shadow-[0_0_40px_rgba(35,134,54,0.15)] relative">
+                                <div className="absolute inset-0 bg-gradient-to-br from-[#238636]/10 to-transparent rounded-xl pointer-events-none"></div>
                                 <MockRealtime />
                             </div>
                         </div>
@@ -519,7 +524,7 @@ export default function WelcomeHero() {
             </section>
 
             {/* --- 4. social proof / builder stuff --- */}
-            <RevealSection className="py-32 border-b border-[#30363D] text-center px-6 bg-[#161B22]/50">
+            <RevealSection className="py-40 border-b border-[#30363D] text-center px-6 bg-gradient-to-b from-[#161B22]/50 to-transparent">
                 <div className="max-w-3xl mx-auto">
                     <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-10">Built because the problem is real.</h2>
                     
@@ -540,7 +545,7 @@ export default function WelcomeHero() {
                             {n: "100M+", l: "GitHub users"},
                             {n: "420M+", l: "Repos analyzed"},
                             {n: "10x", l: "reach factor"},
-                            {n: "0ms", l: "bullshit"}
+                            {n: "< 500ms", l: "feed latency"}
                         ].map((stat, i) => (
                             <div key={i}>
                                 <div className="text-2xl md:text-3xl text-[#E6EDF3] font-bold mb-2">{stat.n}</div>

@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { getGitHubFollowers, type GitHubFollowUser } from "@/lib/github";
+import { getGitHubFollowers, getGitHubFollowing, type GitHubFollowUser } from "@/lib/github";
 import Image from "next/image";
 import Link from "next/link";
 import FollowButton from "@/components/FollowButton";

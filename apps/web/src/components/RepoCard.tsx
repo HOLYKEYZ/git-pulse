@@ -30,10 +30,10 @@ const formattedLastPush = getRelativeTime(new Date(lastPush));
     const CardContent = (
         <>
             <div className="flex items-center justify-between mb-3">
-<h3 className="text-github-blue font-semibold text-[15px] hover:underline truncate">
+            <h3 className="text-custom-github-blue font-semibold text-[15px] hover:underline truncate">
                 {name}
             </h3>
-            <span className="rounded-full border border-git-border/60 px-2.5 py-0.5 text-[10px] text-git-muted font-medium whitespace-nowrap ml-2 bg-github-dark-bg/50">
+            <span className="rounded-full border border-git-border/60 px-2.5 py-0.5 text-[10px] text-git-muted font-medium whitespace-nowrap ml-2 bg-custom-dark-bg/50">
                 Public
             </span>
             </div>
@@ -70,19 +70,19 @@ const safeUrl = url && isValidHttpUrl(url) ? url : undefined;
 
 if (safeUrl) {
         return (
-            <a
-                href={safeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-className="flex flex-col h-full rounded-xl border border-white/5 bg-repo-card-bg/80 hover:bg-repo-card-hover-bg hover:border-white/10 p-5 shadow-sm hover:shadow-md transition-all backdrop-blur-sm"
-            >
+        <a
+            href={safeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col h-full rounded-xl border border-white/5 bg-custom-dark-bg/80 hover:bg-custom-repo-card-hover-bg hover:border-white/10 p-5 shadow-sm hover:shadow-md transition-all backdrop-blur-sm"
+          >
                 {CardContent}
             </a>
         );
     }
 
     return (
-        <div className="flex flex-col h-full rounded-xl border border-white/5 bg-repo-card-bg/80 hover:bg-repo-card-hover-bg hover:border-white/10 p-5 shadow-sm hover:shadow-md transition-all backdrop-blur-sm cursor-pointer">
+        <div className="flex flex-col h-full rounded-xl border border-white/5 bg-custom-dark-bg/80 hover:bg-custom-repo-card-hover-bg hover:border-white/10 p-5 shadow-sm hover:shadow-md transition-all backdrop-blur-sm cursor-pointer">
             {CardContent}
         </div>
     );

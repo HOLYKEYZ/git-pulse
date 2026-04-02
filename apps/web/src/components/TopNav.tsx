@@ -7,17 +7,24 @@ import { ArrowLeftIcon, HomeIcon } from "@primer/octicons-react";
 export default function TopNav() {
   const router = useRouter();
   const pathname = usePathname();
-  const getPageTitle = (pathname: string) => {
-    if (pathname === '/') return 'Home';
-    if (pathname.startsWith('/profile')) {
+const ROUTE_CONFIGS = [
+  { path: '/', title: 'Home', matchType: 'exact' },
+  { path: '/profile', title: 'Profile', matchType: 'dynamicProfile' },
+  { path: '/explore', title: 'Explore', matchType: 'startsWith' },
+  { path: '/notifications', title: 'Notifications', matchType: 'startsWith' },
+  { path: '/post', title: 'Post', matchType: 'startsWith' },
+];
+const getPageTitle = (pathname: string) => {
+  for (const config of ROUTE_CONFIGS) {
+    if (config.matchType === 'exact' && pathname === config.path) return config.title;
+    if (config.matchType === 'startsWith' && pathname.startsWith(config.path)) return config.title;
+    if (config.matchType === 'dynamicProfile' && pathname.startsWith(config.path)) {
       const lastSegment = pathname.split('/').pop();
-      return lastSegment === '' ? 'Profile' : lastSegment;
+      return lastSegment === '' ? config.title : lastSegment;
     }
-    if (pathname.startsWith('/explore')) return 'Explore';
-    if (pathname.startsWith('/notifications')) return 'Notifications';
-    if (pathname.startsWith('/post')) return 'Post';
-    return 'GitPulse';
-  };
+  }
+  return 'GitPulse';
+};
 
   // Don't show on desktop where sidebar is present, just mobile
   return (

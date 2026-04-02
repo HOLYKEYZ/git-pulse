@@ -257,7 +257,7 @@ function MockGitPulseFeed() {
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#238636] to-[#2EA043]"></div>
                     <div className="flex-1">
                         <div className="flex items-baseline gap-2 mb-1">
-                            <span className="font-semibold text-[#E6EDF3] text-[13px]">leonxlnx</span>
+                            <span className="font-semibold text-[#E6EDF3] text-[13px]">holykeyz</span>
                             <span className="text-[#8B949E] text-[12px]">2h</span>
                         </div>
                         <p className="text-[14px] text-[#C9D1D9] mb-2 leading-relaxed">
@@ -287,7 +287,7 @@ function MockShip() {
                 </span>
             </div>
             <div className="bg-[#161B22] border border-[#30363D] rounded-md p-3">
-                <h5 className="font-bold text-[#E6EDF3] text-[13px] mb-1">leonxlnx/git-pulse</h5>
+                <h5 className="font-bold text-[#E6EDF3] text-[13px] mb-1">holykeyz/git-pulse</h5>
                 <p className="text-[12px] text-[#8B949E]">Major architecture overhaul. New algo feed. 10x faster response times.</p>
             </div>
             <div className="flex gap-3 mt-3 text-[11px] text-[#8B949E] font-mono">

@@ -504,9 +504,9 @@ export async function getTopReposByDailyCommits(token: string, limit = 5): Promi
   const todayIso = todayStart.toISOString();
   const dateStr = todayIso.split("T")[0];
 
-  const randomPage = Math.floor(Math.random() * 5) + 1;
+  const randomPage = Math.floor(Math.random() * 3) + 1;
   const reposRes = await fetchWithAuth(
-    `/search/repositories?q=pushed:>=${dateStr}&sort=updated&order=desc&per_page=15&page=${randomPage}`,
+    `/search/repositories?q=pushed:>=${dateStr}&sort=updated&order=desc&per_page=30&page=${randomPage}`,
     token
   );
   
@@ -542,8 +542,9 @@ export async function getTopReposByDailyCommits(token: string, limit = 5): Promi
 
   // strictly sort by exact commit volume today overriding any star bias
   // we filter out > 150 commits as they are almost certainly automated CI/CD bot squashes
+  // we filter out > 150 commits as they are almost certainly automated CI/CD bot squashes
   const sortedRepos = verifiedRepos
-    .filter((r: any) => r.commitsToday > 0 && r.commitsToday < 150)
+    .filter((r: any) => r.commitsToday >= 3 && r.commitsToday < 150 && !r.fork && r.description && r.description.trim().length > 0)
     .sort((a: any, b: any) => b.commitsToday - a.commitsToday);
 
   return sortedRepos.slice(0, limit);
@@ -552,26 +553,17 @@ export async function getTopReposByDailyCommits(token: string, limit = 5): Promi
 export async function getTopDevsByDailyCommits(token: string, limit = 5): Promise<any[]> {
   const todayIso = new Date().toISOString().split("T")[0];
   
-  // To find the true "Most Active", we pull from globally trending established repos, 
-  // guaranteeing we catch developers actively pushing heavy volume today.
-  const trendingReposRes = await fetchWithAuth(
-    `/search/repositories?q=pushed:>=${todayIso}&sort=stars&order=desc&per_page=15`,
+  const usersRes = await fetchWithAuth(
+    `/search/users?q=followers:>20+type:user&sort=joined&per_page=40`,
     token
   );
   
-  if (!trendingReposRes?.items) return [];
+  if (!usersRes?.items) return [];
 
   const BOT_PATTERNS = [/bot$/i, /\[bot\]$/i, /^dependabot/, /^renovate/, /^github-actions/, /^stale/i, /^semantic-release/i, /^greenkeeper/i, /^imgbot/i];
   const isBot = (login: string) => BOT_PATTERNS.some((p) => p.test(login));
 
-  const uniqueUsers = new Map<string, any>();
-  for (const repo of trendingReposRes.items) {
-    if (repo.owner && repo.owner.type === 'User' && !uniqueUsers.has(repo.owner.login) && !isBot(repo.owner.login)) {
-      uniqueUsers.set(repo.owner.login, repo.owner);
-    }
-  }
-
-  const userList = Array.from(uniqueUsers.values()).slice(0, 15);
+  const userList = usersRes.items.filter((u: any) => !isBot(u.login)).slice(0, 30);
   if (userList.length === 0) return [];
 
   // Use bulk GraphQL totalContributions to fetch EXACT commits without searching limits
@@ -614,21 +606,21 @@ export async function getTopDevsByDailyCommits(token: string, limit = 5): Promis
   // Strict bot heuristic: no human physically authors >150 distinct commits a day consistently without scripting. 
   // We filter out 0 and absurdly high bot-like scripts to guarantee true human leaders.
   return activeDevs
-    .filter((d: any) => d.totalContributions > 0 && d.totalContributions < 150)
+    .filter((d: any) => d.totalContributions >= 3 && d.totalContributions < 150)
     .sort((a: any, b: any) => b.totalContributions - a.totalContributions).slice(0, limit);
 }
 
 export async function getUpcomingGitHubDevs(token: string, limit = 5): Promise<any[]> {
   const randomPage = Math.floor(Math.random() * 5) + 1;
   const usersRes = await fetchWithAuth(
-    `/search/users?q=followers:30..2000+type:user&sort=joined&order=desc&per_page=15&page=${randomPage}`,
+    `/search/users?q=followers:30..2000+type:user&sort=joined&order=desc&per_page=40&page=${randomPage}`,
     token
   );
   
   const items = usersRes?.items || [];
   if (items.length === 0) return [];
 
-  const userList = items.slice(0, 15);
+  const userList = items.slice(0, 30);
   
   // fetch exact commit velocity in bulk
   const candidatesQuery = `
@@ -699,17 +691,17 @@ export async function getDevelopersLikeYou(username: string, token: string, limi
     const myStars = totalStars;
     const myCommits = result.user.contributionsCollection?.contributionCalendar?.totalContributions || 0;
 
-    // 2. Search candidates (exact same language, followers nearby, repos nearby)
+    // 2. Search candidates (exact same language, repos nearby)
     // using basic search api because it's fast
     const searchRes = await fetchWithAuth(
-      `/search/users?q=language:${primaryLang}+followers:${Math.max(0, myFollowers - 100)}..${myFollowers + 1000}+repos:${Math.max(0, myRepos - 15)}..${myRepos + 50}&per_page=15`,
+      `/search/users?q=language:${primaryLang}+repos:${Math.max(1, myRepos - 15)}..${myRepos + 40}+type:user&per_page=40`,
       token
     );
     
     if (!searchRes?.items) return [];
 
     // 3. For each candidate, fetch exact stats via GraphQL in one giant query to avoid rate limits
-    const logins = searchRes.items.filter((u: any) => u.login !== username).slice(0, 10).map((u: any) => u.login);
+    const logins = searchRes.items.filter((u: any) => u.login !== username).slice(0, 25).map((u: any) => u.login);
     if (logins.length === 0) return [];
 
     const candidatesQuery = `
@@ -754,7 +746,7 @@ export async function getDevelopersLikeYou(username: string, token: string, limi
       const starDiff = Math.abs(myStars - candStars) / (myStars || 1);
       const commitDiff = Math.abs(myCommits - candCommits) / (myCommits || 1);
 
-      const distance = (followDiff * 1) + (repoDiff * 0.5) + (starDiff * 1.5) + (commitDiff * 2.0);
+      const distance = (commitDiff * 2.5) + (repoDiff * 0.8) + (starDiff * 0.5) + (followDiff * 0.05);
 
       scoredDevs.push({
         login: data.login,
@@ -762,7 +754,7 @@ export async function getDevelopersLikeYou(username: string, token: string, limi
         avatar_url: data.avatarUrl,
         bio: data.bio || '',
         repoName: primaryLang,
-        repoDescription: `${candStars} ⭐ | ${candFollowers} followers`,
+        repoDescription: `${primaryLang} · similar activity`,
         repoStars: candStars,
         totalContributions: candCommits,
         distance

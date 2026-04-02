@@ -115,19 +115,22 @@ export default function ToggleSidebarCard({
           <span className="text-[13px] text-git-muted truncate">
             @{dev.username || dev.login}
           </span>
-          {!hideCommitCount && dev.totalContributions !== undefined && (
-            <span className="flex items-center gap-2 text-[11px] mt-0.5">
-              <span className="text-git-green font-semibold">
-                🔥 {dev.totalContributions.toLocaleString()} {dev.label || 'commits'}
-              </span>
-              {dev.repoName && (
-                <span className="text-git-accent flex items-center gap-1 ml-auto">
-                  <span className="w-2 h-2 rounded-full" style={{backgroundColor: getLanguageColor(dev.repoName)}}></span>
-                  {dev.repoName} match
+          {!hideCommitCount && dev.totalContributions !== undefined && (() => {
+            const unit = dev.totalContributions === 1 ? 'commit' : (dev.label || 'commits');
+            return (
+              <span className="flex items-center gap-2 text-[11px] mt-0.5">
+                <span className="text-git-green font-semibold">
+                  🔥 {dev.totalContributions.toLocaleString()} {unit}
                 </span>
-              )}
-            </span>
-          )}
+                {dev.repoName && (
+                  <span className="text-git-accent flex items-center gap-1 ml-auto">
+                    <span className="w-2 h-2 rounded-full" style={{backgroundColor: getLanguageColor(dev.repoName)}}></span>
+                    {dev.repoName} match
+                  </span>
+                )}
+              </span>
+            );
+          })()}
           {dev.repoDescription && (
             <span className="text-[11px] text-git-muted mt-0.5">
               {dev.repoDescription}

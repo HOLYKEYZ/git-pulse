@@ -44,6 +44,7 @@ export default async function RightSidebar() {
         <TrendingCard repos={trendingRepos} devs={trendingDevs} />
 
         {/* upcoming projects w/ devs toggle */}
+        {(upcomingProjects.length > 0 || upcomingDevs.length > 0) && (
         <ToggleSidebarCard
           title="Upcoming"
           tab1="Projects"
@@ -55,9 +56,10 @@ export default async function RightSidebar() {
           hideCommitCount={true}
           emptyMessage1="No active upcoming projects found."
           emptyMessage2="No fast-growing devs found."
-        />
+        )}
 
         {/* most active today w/ devs toggle */}
+        {(activeProjects.length > 0 || activeDevs.length > 0) && (
         <ToggleSidebarCard
           title="Most Active Today"
           tab1="Repos"
@@ -68,7 +70,7 @@ export default async function RightSidebar() {
           type2="dev"
           emptyMessage1="No heavily pushed repos found."
           emptyMessage2="No highly active devs found today."
-        />
+        )}
 
         {/* collab matching */}
         {session?.user && <CollabWidget />}

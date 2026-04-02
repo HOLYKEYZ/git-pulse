@@ -36,6 +36,19 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
 
   if (!post) notFound();
 
+  const dbComments = await prisma.comment.findMany({
+    where: { postId: post.id, parentId: null },
+    include: { author: true },
+    orderBy: { createdAt: 'asc' }
+  });
+
+  const initialComments = dbComments.map((c: any) => ({
+    id: c.id,
+    content: c.content,
+    author: { username: c.author.username, avatar: c.author.avatar || '/icon.png' },
+    timestamp: getRelativeTime(c.createdAt)
+  }));
+
   return (
     <div className="flex flex-col w-full max-w-[600px] mx-auto min-h-screen">
       {/* header */}
@@ -109,7 +122,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
 
       {/* comment section */}
       <div className="px-4 py-4">
-        <CommentSection postId={post.id} />
+        <CommentSection postId={post.id} initialComments={initialComments} />
       </div>
     </div>
   );

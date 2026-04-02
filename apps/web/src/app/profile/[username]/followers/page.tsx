@@ -10,7 +10,8 @@ export default async function FollowersPage({ params }: {params: Promise<{userna
   const { username } = resolvedParams;
   const token = session?.user?.accessToken;
 
-  const followers: GitHubFollowUser[] = token ? await getGitHubFollowers(username, token) : [];
+const followers: GitHubFollowUser[] = token ? await getGitHubFollowers(username, token) : [];
+const currentUserFollowing = token ? await getGitHubFollowing(session.user.login, token) : [];
 
   return (
     <div className="flex flex-col animate-slide-up">
@@ -56,7 +57,8 @@ export default async function FollowersPage({ params }: {params: Promise<{userna
                             {user.bio && <p className="text-xs text-git-muted mt-0.5 truncate">{user.bio}</p>}
                         </div>
                         {session?.user?.login && session.user.login !== user.login &&
-          <FollowButton targetUsername={user.login} initialIsFollowing={false} />
+          <FollowButton targetUsername={user.login} const isFollowing = currentUserFollowing.some(f => f.login === user.login);
+initialIsFollowing={isFollowing} />
           }
                     </div>
         )}

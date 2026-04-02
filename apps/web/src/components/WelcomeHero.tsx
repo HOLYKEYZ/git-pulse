@@ -19,7 +19,7 @@ const COLORS = {
 };
 
 /* -------------------------------------------------------------------------- */
-/*                                ANIMATIONS                                  */
+/*                                animations                                  */
 /* -------------------------------------------------------------------------- */
 const SPRING = { type: "spring" as const, stiffness: 100, damping: 20 };
 const staggerContainer = {
@@ -32,7 +32,7 @@ const fadeUp = {
 };
 
 /* -------------------------------------------------------------------------- */
-/*                            ROBOT HEAD (THREE.JS)                           */
+/*                            robot head (three.js)                           */
 /* -------------------------------------------------------------------------- */
 
 // Custom materials
@@ -47,10 +47,10 @@ const borderMaterial = new THREE.MeshStandardMaterial({
   metalness: 0.5,
 });
 
-// Create a glowing emissive material for eyes (using inline or cloned to avoid sharing bugs)
+// create a glowing emissive material for eyes (using inline or cloned to avoid sharing bugs)
 const eyeMaterialProps = {
   color: 0xffffff,
-  emissive: 0x238636, // GitHub active green
+  emissive: 0x238636, // github active green
   emissiveIntensity: 3,
   toneMapped: false,
 };
@@ -146,7 +146,7 @@ function RobotHead() {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                                UI COMPONENTS                               */
+/*                                ui components                               */
 /* -------------------------------------------------------------------------- */
 
 function Button({ children, href, variant = "primary" }: { children: React.ReactNode, href: string, variant?: "primary" | "ghost" }) {
@@ -216,7 +216,7 @@ function RevealSection({ children, className = "" }: { children: React.ReactNode
 }
 
 /* -------------------------------------------------------------------------- */
-/*                                MOCK UI CARDS                               */
+/*                                mock ui cards                               */
 /* -------------------------------------------------------------------------- */
 
 function MockGitHubFeed() {
@@ -347,7 +347,7 @@ function MockRealtime() {
 
 
 /* -------------------------------------------------------------------------- */
-/*                                MAIN COMPONENT                              */
+/*                                main components                              */
 /* -------------------------------------------------------------------------- */
 
 export default function WelcomeHero() {
@@ -392,7 +392,7 @@ export default function WelcomeHero() {
                         </motion.h1>
                         
                         <motion.p variants={fadeUp} className="text-[18px] text-[#8B949E] leading-relaxed mb-6">
-                            GitHub has 100M developers and zero social feed. GitPulse fixes that — follow builders, post updates, ship releases, and get discovered by algorithm even with 0 followers.
+                            GitHub has 100M developers and zero social feed. GitPulse fixes that - follow builders, post updates, ship releases, and get discovered by algorithm even with 0 followers.
                         </motion.p>
                         
                         <motion.div variants={fadeUp} className="mb-10 text-[15px]">

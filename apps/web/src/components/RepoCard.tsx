@@ -74,7 +74,7 @@ if (safeUrl) {
                 href={safeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col h-full rounded-xl border border-white/5 bg-[#0d1117]/80 hover:bg-[#161b22] hover:border-white/10 p-5 shadow-sm hover:shadow-md transition-all backdrop-blur-sm"
+className="flex flex-col h-full rounded-xl border border-white/5 bg-repo-card-bg/80 hover:bg-repo-card-hover-bg hover:border-white/10 p-5 shadow-sm hover:shadow-md transition-all backdrop-blur-sm"
             >
                 {CardContent}
             </a>
@@ -82,7 +82,7 @@ if (safeUrl) {
     }
 
     return (
-        <div className="flex flex-col h-full rounded-xl border border-white/5 bg-[#0d1117]/80 hover:bg-[#161b22] hover:border-white/10 p-5 shadow-sm hover:shadow-md transition-all backdrop-blur-sm cursor-pointer">
+        <div className="flex flex-col h-full rounded-xl border border-white/5 bg-repo-card-bg/80 hover:bg-repo-card-hover-bg hover:border-white/10 p-5 shadow-sm hover:shadow-md transition-all backdrop-blur-sm cursor-pointer">
             {CardContent}
         </div>
     );

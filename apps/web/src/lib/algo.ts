@@ -47,22 +47,22 @@ export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDeta
   };
 
   // 1. tech stack novelty
-  const noveltyLanguages = ["Rust", "Zig", "Elixir", "Go", "Gleam", "Ocaml", "Haskell", "F#", "HolyC", "Vue", "Angular", "Svelte"];
-  const commonLanguages = ["JavaScript", "TypeScript", "Python", "Java", "C++", "C#", "PHP", "Ruby", "C", "React", "NextJs", "NodeJs", "Express"];
+const NOVELTY_LANGUAGES = ["Rust", "Zig", "Elixir", "Go", "Gleam", "Ocaml", "Haskell", "F#", "HolyC", "Vue", "Angular", "Svelte"];
+const COMMON_LANGUAGES = ["JavaScript", "TypeScript", "Python", "Java", "C++", "C#", "PHP", "Ruby", "C", "React", "NextJs", "NodeJs", "Express"];
 
-  if (factors.language) {
-    if (noveltyLanguages.includes(factors.language)) {
-      breakdown.language = 25;
-    } else if (!commonLanguages.includes(factors.language)) {
-      breakdown.language = 10;
-    }
+if (factors.language) {
+  if (NOVELTY_LANGUAGES.includes(factors.language)) {
+    breakdown.language = LANGUAGE_NOVELTY_SCORE_HIGH;
+  } else if (!COMMON_LANGUAGES.includes(factors.language)) {
+    breakdown.language = LANGUAGE_NOVELTY_SCORE_LOW;
   }
+}
   score += breakdown.language;
 
   // 2. stars (reduced max weight to prevent pure popularity dominance)
   if (factors.stars >= 20 && factors.stars <= 1000) {
-    const normalizedStar = Math.min(factors.stars, 1000);
-    breakdown.stars = 10 + Math.min(normalizedStar * 0.02, 20); // max 30 pts
+const normalizedStar = Math.min(factors.stars, MAX_STARS_THRESHOLD);
+breakdown.stars = MIN_STARS_SCORE + Math.min(normalizedStar * STARS_WEIGHT, MAX_STARS_SCORE);
   } else if (factors.stars > 1000) {
     breakdown.stars = 15; // diminishing returns
   } else if (factors.stars > 0) {
@@ -71,13 +71,13 @@ export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDeta
   score += breakdown.stars;
 
   // 3. forks
-  breakdown.forks = Math.min(factors.forks * 1.0, 15);
+breakdown.forks = Math.min(factors.forks * FORKS_WEIGHT, MAX_FORKS_SCORE);
   score += breakdown.forks;
 
   // 4. completeness
-  if (factors.hasDescription) {
-    breakdown.completeness = 10;
-    score += breakdown.completeness;
+if (factors.hasDescription) {
+  breakdown.completeness = COMPLETENESS_SCORE;
+}
   }
 
   // 5. commit volume (heavily prioritized max 80 pts)
@@ -87,32 +87,32 @@ export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDeta
       score += breakdown.penalty;
     } else {
       // steeper log scale to reward solid commit activity
-      breakdown.commitVolume = Math.min(Math.log2(factors.commitCount) * 10, 80);
+breakdown.commitVolume = Math.min(Math.log2(factors.commitCount) * COMMIT_VOLUME_WEIGHT, MAX_COMMIT_VOLUME_SCORE);
       score += breakdown.commitVolume;
     }
   }
 
   // 6. push consistency (max 80 pts)
   if (factors.pushConsistency !== undefined && factors.pushConsistency > 0) {
-    breakdown.pushConsistency = factors.pushConsistency * 80;
+breakdown.pushConsistency = factors.pushConsistency * PUSH_CONSISTENCY_WEIGHT;
     score += breakdown.pushConsistency;
   }
 
   // 7. recent activity
-  if (factors.daysSincePush <= 7) {
-    breakdown.recentActivity = 20;
-  } else if (factors.daysSincePush <= 30) {
-    breakdown.recentActivity = 10;
-  } else if (factors.daysSincePush > 365) {
-    breakdown.recentActivity = -30; // stronger penalty for dead projects
-  }
+if (factors.daysSincePush <= RECENT_ACTIVITY_THRESHOLD_LOW) {
+  breakdown.recentActivity = RECENT_ACTIVITY_SCORE_HIGH;
+} else if (factors.daysSincePush <= RECENT_ACTIVITY_THRESHOLD_MEDIUM) {
+  breakdown.recentActivity = RECENT_ACTIVITY_SCORE_MEDIUM;
+} else if (factors.daysSincePush > RECENT_ACTIVITY_THRESHOLD_HIGH) {
+  breakdown.recentActivity = RECENT_ACTIVITY_PENALTY;
+}
   score += breakdown.recentActivity;
 
   // 8. follower bias ("anti-clout" mechanic)
   if (factors.authorFollowers !== undefined) {
     if (factors.authorFollowers > 1000) {
       // heavily penalize huge accounts who post repos with low activity
-      breakdown.followerBias = factors.commitCount === 0 ? -50 : -20;
+breakdown.followerBias = factors.commitCount === 0 ? FOLLOWER_BIAS_PENALTY_HIGH : FOLLOWER_BIAS_PENALTY_LOW;
     } else if (factors.authorFollowers < 100) {
       breakdown.followerBias = 15; // boost small creators
     }
@@ -120,7 +120,7 @@ export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDeta
   score += breakdown.followerBias;
 
   // 9. time decay
-  const decayFactor = Math.pow(Math.max(factors.daysSincePost, 1), 1.2);
+const decayFactor = Math.pow(Math.max(factors.daysSincePost, 1), DECAY_EXPONENT);
   breakdown.decayMultiplier = 1 / decayFactor;
 
   const finalScore = Math.max(score / decayFactor, 0);

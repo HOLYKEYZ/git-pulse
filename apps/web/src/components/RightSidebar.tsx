@@ -56,6 +56,7 @@ export default async function RightSidebar() {
           hideCommitCount={true}
           emptyMessage1="No active upcoming projects found."
           emptyMessage2="No fast-growing devs found."
+        />
         )}
 
         {/* most active today w/ devs toggle */}
@@ -70,6 +71,7 @@ export default async function RightSidebar() {
           type2="dev"
           emptyMessage1="No heavily pushed repos found."
           emptyMessage2="No highly active devs found today."
+        />
         )}
 
         {/* collab matching */}

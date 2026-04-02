@@ -553,17 +553,26 @@ export async function getTopReposByDailyCommits(token: string, limit = 5): Promi
 export async function getTopDevsByDailyCommits(token: string, limit = 5): Promise<any[]> {
   const todayIso = new Date().toISOString().split("T")[0];
   
-  const usersRes = await fetchWithAuth(
-    `/search/users?q=followers:>20+type:user&sort=joined&per_page=40`,
+  // Funnel: Find 100 repos that were pushed to TODAY
+  const reposRes = await fetchWithAuth(
+    `/search/repositories?q=pushed:>=${todayIso}&sort=updated&order=desc&per_page=100`,
     token
   );
   
-  if (!usersRes?.items) return [];
+  if (!reposRes?.items) return [];
 
   const BOT_PATTERNS = [/bot$/i, /\[bot\]$/i, /^dependabot/, /^renovate/, /^github-actions/, /^stale/i, /^semantic-release/i, /^greenkeeper/i, /^imgbot/i];
   const isBot = (login: string) => BOT_PATTERNS.some((p) => p.test(login));
 
-  const userList = usersRes.items.filter((u: any) => !isBot(u.login)).slice(0, 30);
+  // Extract unique human owners from these highly active repos
+  const uniqueUsers = new Map<string, any>();
+  for (const repo of reposRes.items) {
+    if (repo.owner && repo.owner.type === 'User' && !uniqueUsers.has(repo.owner.login) && !isBot(repo.owner.login)) {
+      uniqueUsers.set(repo.owner.login, repo.owner);
+    }
+  }
+
+  const userList = Array.from(uniqueUsers.values()).slice(0, 40);
   if (userList.length === 0) return [];
 
   // Use bulk GraphQL totalContributions to fetch EXACT commits without searching limits
@@ -611,16 +620,33 @@ export async function getTopDevsByDailyCommits(token: string, limit = 5): Promis
 }
 
 export async function getUpcomingGitHubDevs(token: string, limit = 5): Promise<any[]> {
-  const randomPage = Math.floor(Math.random() * 5) + 1;
-  const usersRes = await fetchWithAuth(
-    `/search/users?q=followers:30..2000+type:user&sort=joined&order=desc&per_page=40&page=${randomPage}`,
+  // Funnel: Find 50 repos created recently that gained 10 to 200 stars.
+  // Their owners are likely "upcoming" developers gaining traction.
+  const date = new Date();
+  date.setDate(date.getDate() - 90);
+  const dateStr = date.toISOString().split("T")[0];
+
+  const reposRes = await fetchWithAuth(
+    `/search/repositories?q=created:>=${dateStr}+stars:10..200&sort=stars&order=desc&per_page=50`,
     token
   );
   
-  const items = usersRes?.items || [];
+  const items = reposRes?.items || [];
   if (items.length === 0) return [];
 
-  const userList = items.slice(0, 30);
+  const BOT_PATTERNS = [/bot$/i, /\[bot\]$/i, /^dependabot/, /^renovate/, /^github-actions/, /^stale/i, /^semantic-release/i, /^greenkeeper/i, /^imgbot/i];
+  const isBot = (login: string) => BOT_PATTERNS.some((p) => p.test(login));
+
+  // Extract unique human owners
+  const uniqueUsers = new Map<string, any>();
+  for (const repo of items) {
+    if (repo.owner && repo.owner.type === 'User' && !uniqueUsers.has(repo.owner.login) && !isBot(repo.owner.login)) {
+      uniqueUsers.set(repo.owner.login, repo.owner);
+    }
+  }
+
+  const userList = Array.from(uniqueUsers.values()).slice(0, 30);
+  if (userList.length === 0) return [];
   
   // fetch exact commit velocity in bulk
   const candidatesQuery = `

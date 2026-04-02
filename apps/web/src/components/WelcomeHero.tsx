@@ -277,6 +277,40 @@ function MockGitPulseFeed() {
     )
 }
 
+function MockGitPulseFeedFeature() {
+    return (
+        <div className="bg-[#161B22] border border-[#30363D] rounded-lg p-0 w-full relative overflow-hidden shadow-[0_0_30px_rgba(35,134,54,0.1)]">
+            <div className="p-3 border-b border-[#30363D] bg-[#0D1117]">
+                <h4 className="text-[12px] font-semibold text-[#238636] uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#238636] animate-pulse"></span>
+                    GitPulse
+                </h4>
+            </div>
+            <div className="p-4 space-y-4">
+                <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1F6FEB] to-[#58A6FF]"></div>
+                    <div className="flex-1">
+                        <div className="flex items-baseline gap-2 mb-1">
+                            <span className="font-semibold text-[#E6EDF3] text-[13px]">alex.dev</span>
+                            <span className="text-[#8B949E] text-[12px]">12m</span>
+                        </div>
+                        <p className="text-[14px] text-[#C9D1D9] mb-2 leading-relaxed">
+                            Finally nailed the memory leak issue in the WebGL renderer! 📉 The optimization guide is up in discussions. Make sure you are properly disposing your orphaned textures.
+                        </p>
+                        <div className="inline-flex px-2 py-1 bg-[#238636]/10 border border-[#238636]/30 rounded text-[#238636] font-mono text-[11px] mb-3">
+                            alex/engine-core
+                        </div>
+                        <div className="flex gap-4 text-[#8B949E] text-[12px]">
+                            <span className="flex items-center gap-1 hover:text-[#238636] transition-colors">♡ 342</span>
+                            <span className="flex items-center gap-1 hover:text-[#1F6FEB] transition-colors">💬 45</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
 function MockShip() {
     return (
         <div className="border-l-2 border-[#238636] pl-4 py-2">
@@ -467,7 +501,7 @@ export default function WelcomeHero() {
                         <div className="flex-1 w-full max-w-full">
                             <div className="p-6 bg-[#161B22] border border-[#238636]/20 rounded-xl shadow-[0_0_40px_rgba(35,134,54,0.15)] relative">
                                 <div className="absolute inset-0 bg-gradient-to-br from-[#238636]/10 to-transparent rounded-xl pointer-events-none"></div>
-                                <MockGitPulseFeed />
+                                <MockGitPulseFeedFeature />
                             </div>
                         </div>
                     </RevealSection>

@@ -70,12 +70,9 @@ const config: Config = {
           "Menlo",
           "monospace",
         ],
-      customGithubBlue: '#58a6ff',
-      customDarkBg: '#0d1117',
-      customRepoCardHoverBg: '#161b22'
+      },
     },
   },
-};
 };
 
 export default config;

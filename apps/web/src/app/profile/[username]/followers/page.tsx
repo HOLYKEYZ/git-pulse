@@ -14,7 +14,7 @@ const followers: GitHubFollowUser[] = token ? await getGitHubFollowers(username,
 const currentUserFollowing = token ? await getGitHubFollowing(session.user.login, token) : [];
 
   return (
-    <div className="flex flex-col animate-slide-up">
+    <div className="flex-1 w-full lg:max-w-[600px] min-h-screen lg:border-r lg:border-git-border lg:pr-2 animate-slide-up">
             {/* header */}
             <div className="px-4 py-3 border-b border-git-border flex items-center gap-3">
                 <Link href={`/profile/${username}`} className="text-git-muted hover:text-git-text transition-colors">
@@ -38,7 +38,9 @@ const currentUserFollowing = token ? await getGitHubFollowing(session.user.login
                     </div>
         }
 
-                {followers.map((user) =>
+                {followers.map((user) => {
+                  const isFollowing = currentUserFollowing.some((f) => f.login === user.login);
+                  return (
         <div key={user.login} className="flex items-center gap-3 px-4 py-3 hover:bg-[#161b22]/50 transition-colors">
                         <Link href={`/profile/${user.login}`}>
                             <Image
@@ -57,11 +59,11 @@ const currentUserFollowing = token ? await getGitHubFollowing(session.user.login
                             {user.bio && <p className="text-xs text-git-muted mt-0.5 truncate">{user.bio}</p>}
                         </div>
                         {session?.user?.login && session.user.login !== user.login &&
-          <FollowButton targetUsername={user.login} const isFollowing = currentUserFollowing.some(f => f.login === user.login);
-initialIsFollowing={isFollowing} />
+          <FollowButton targetUsername={user.login} initialIsFollowing={isFollowing} />
           }
                     </div>
-        )}
+                  );
+                })}
             </div>
         </div>);
 

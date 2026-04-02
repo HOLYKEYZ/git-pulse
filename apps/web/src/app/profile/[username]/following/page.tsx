@@ -12,7 +12,7 @@ export default async function FollowingPage({ params }: {params: Promise<{userna
   const following: GitHubFollowUser[] = token ? await getGitHubFollowing(username, token) : [];
 
   return (
-    <div className="flex flex-col animate-slide-up">
+    <div className="flex-1 w-full lg:max-w-[600px] min-h-screen lg:border-r lg:border-git-border lg:pr-2 animate-slide-up">
             {/* header */}
             <div className="px-4 py-3 border-b border-git-border flex items-center gap-3">
                 <Link href={`/profile/${username}`} className="text-git-muted hover:text-git-text transition-colors">

@@ -553,29 +553,29 @@ export async function getTopReposByDailyCommits(token: string, limit = 5): Promi
 export async function getTopDevsByDailyCommits(token: string, limit = 5): Promise<any[]> {
   const todayIso = new Date().toISOString().split("T")[0];
   
-  // Funnel: Find 100 repos that were pushed to TODAY
-  const reposRes = await fetchWithAuth(
-    `/search/repositories?q=pushed:>=${todayIso}&sort=updated&order=desc&per_page=100`,
-    token
-  );
+  // Funnel: Use the public Events API firehose (Zero waste strategy)
+  // This guarantees we only catch developers literally pushing code RIGHT NOW globally.
+  const eventsRes = await fetchWithAuth(`/events?per_page=100`, token);
   
-  if (!reposRes?.items) return [];
+  if (!eventsRes || !Array.isArray(eventsRes)) return [];
 
   const BOT_PATTERNS = [/bot$/i, /\[bot\]$/i, /^dependabot/, /^renovate/, /^github-actions/, /^stale/i, /^semantic-release/i, /^greenkeeper/i, /^imgbot/i];
   const isBot = (login: string) => BOT_PATTERNS.some((p) => p.test(login));
 
-  // Extract unique human owners from these highly active repos
+  // Extract unique human actors who just triggered a Push or Create event
   const uniqueUsers = new Map<string, any>();
-  for (const repo of reposRes.items) {
-    if (repo.owner && repo.owner.type === 'User' && !uniqueUsers.has(repo.owner.login) && !isBot(repo.owner.login)) {
-      uniqueUsers.set(repo.owner.login, repo.owner);
+  for (const event of eventsRes) {
+    if ((event.type === 'PushEvent' || event.type === 'CreateEvent' || event.type === 'PullRequestEvent') && event.actor?.login) {
+      if (!isBot(event.actor.login) && !uniqueUsers.has(event.actor.login)) {
+        uniqueUsers.set(event.actor.login, { login: event.actor.login, avatar_url: event.actor.avatar_url });
+      }
     }
   }
 
-  const userList = Array.from(uniqueUsers.values()).slice(0, 40);
+  const userList = Array.from(uniqueUsers.values()).slice(0, 30);
   if (userList.length === 0) return [];
 
-  // Use bulk GraphQL totalContributions to fetch EXACT commits without searching limits
+  // Use bulk GraphQL totalContributions to fetch EXACT commits without searching caps
   const candidatesQuery = `
     query {
       ${userList.map((user: any, i: number) => `

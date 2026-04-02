@@ -462,7 +462,7 @@ export default function WelcomeHero() {
                 </div>
             </section>
 
-            {/* --- 2. PROBLEM STATEMENT --- */}
+            {/* --- 2. problem statement --- */}
             <RevealSection className="py-24 border-b border-[#30363D] max-w-[1000px] mx-auto px-6">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">Your best work deserves to be seen.</h2>

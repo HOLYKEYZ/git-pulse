@@ -75,7 +75,7 @@ if (matches.length === 0) return null;
                     <Link
                         key={match.username}
                         href={`/profile/${match.username}`}
-                        className="flex items-center gap-3 hover:bg-[#161b22] rounded-md p-1.5 -mx-1.5 transition-colors group"
+className="flex items-center gap-3 hover:bg-git-card-hover rounded-md p-1.5 -mx-1.5 transition-colors group"
                     >
                         <Image
                             src={match.avatar}

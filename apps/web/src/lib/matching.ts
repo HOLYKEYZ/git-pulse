@@ -72,13 +72,16 @@ function cosineSimilarity(a: TechWeight[], b: TechWeight[]): number {
   ...b.map((x) => x.language)]
   );
 
+  const weightMapA = new Map(a.map((x) => [x.language, x.weight]));
+  const weightMapB = new Map(b.map((x) => [x.language, x.weight]));
+
   let dotProduct = 0;
   let normA = 0;
   let normB = 0;
 
   for (const lang of allLangs) {
-    const wA = a.find((x) => x.language === lang)?.weight || 0;
-    const wB = b.find((x) => x.language === lang)?.weight || 0;
+    const wA = weightMapA.get(lang) || 0;
+    const wB = weightMapB.get(lang) || 0;
     dotProduct += wA * wB;
     normA += wA * wA;
     normB += wB * wB;

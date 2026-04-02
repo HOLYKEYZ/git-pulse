@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { getGitHubReceivedEvents, type GitHubEvent } from "@/lib/github";
+import { getGitHubReceivedEvents, type GitHubEvent, isBot } from "@/lib/github";
 import { prisma } from "@/lib/prisma";
 import FeedClient from "@/components/FeedClient";
 import { type PostProps } from "@/components/PostCard";
@@ -12,14 +12,6 @@ import { Suspense } from "react";
 import { SidebarSkeleton } from "@/components/Skeletons";
 
 // known bot patterns to filter out
-const BOT_PATTERNS = [
-/bot$/i, /\[bot\]$/i, /^dependabot/i, /^renovate/i, /^copilot/i,
-/^github-actions/i, /^dmca/i, /^snyk/i, /^greenkeeper/i, /^imgbot/i,
-/^codecov/i, /^stale/i, /^mergify/i, /^allcontributors/i];
-
-
-function isBot(login: string): boolean {
-  return BOT_PATTERNS.some((pattern) => pattern.test(login));
 }
 
 /**

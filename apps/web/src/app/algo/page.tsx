@@ -128,7 +128,7 @@ return (
                 </div>
                 
                 <div className="shrink-0 flex flex-col items-end">
-                  <span className="text-2xl font-black text-[#2ea043]">{score.toFixed(2)} pts</span>
+                  <span className="text-2xl font-black text-git-scoreGreen">{score.toFixed(2)} pts</span>
                 </div>
               </div>
 

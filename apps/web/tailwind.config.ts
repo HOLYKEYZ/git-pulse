@@ -9,6 +9,9 @@ const config: Config = {
     theme: {
     extend: {
       colors: {
+        git: {
+          scoreGreen: '#2ea043',
+        },
         'gh-dark': '#0D1117',
         'gh-canvas': '#161B22',
         'gh-border': '#30363D',

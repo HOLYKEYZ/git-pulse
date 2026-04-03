@@ -17,18 +17,7 @@ interface ToggleSidebarCardProps {
   hideCommitCount?: boolean;
 }
 
-const LANGUAGE_COLORS: Record<string, string> = {
-  TypeScript: "#3178c6", JavaScript: "#f1e05a", Python: "#3572A5",
-  Rust: "#dea584", Go: "#00ADD8", Shell: "#89e051",
-  HTML: "#e34c26", CSS: "#563d7c", Java: "#b07219",
-  "C++": "#f34b7d", C: "#555555", Ruby: "#701516",
-  PHP: "#4F5D95", Swift: "#F05138", Kotlin: "#A97BFF",
-};
-
-export default function ToggleSidebarCard({
-  title,
-  tab1,
-  tab2,
+import { LANGUAGE_COLORS, DEFAULT_LANGUAGE_COLOR } from '../lib/colors';
   items1,
   items2,
   type1,
@@ -69,13 +58,13 @@ export default function ToggleSidebarCard({
           <span className="flex items-center gap-1.5 truncate">
             <span
               className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-              style={{ backgroundColor: getLanguageColor(repo.language) }}
+style={{ backgroundColor: LANGUAGE_COLORS[repo.language] || DEFAULT_LANGUAGE_COLOR }}
             />
             <span className="truncate">{repo.language}</span>
           </span>
         ) : (
           <span className="flex items-center gap-1.5 truncate">
-            <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-[#8b949e]" />
+<span className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-git-muted" />
             <span className="truncate">Unknown</span>
           </span>
         )}
@@ -124,7 +113,7 @@ export default function ToggleSidebarCard({
                 </span>
                 {dev.repoName && (
                   <span className="text-git-accent flex items-center gap-1 ml-auto">
-                    <span className="w-2 h-2 rounded-full" style={{backgroundColor: getLanguageColor(dev.repoName)}}></span>
+                    <span className="w-2 h-2 rounded-full" style={{backgroundColor: LANGUAGE_COLORS[dev.repoName] || DEFAULT_LANGUAGE_COLOR}}></span>
                     {dev.repoName} match
                   </span>
                 )}

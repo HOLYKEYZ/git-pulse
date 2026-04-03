@@ -18,6 +18,11 @@ interface ToggleSidebarCardProps {
 }
 
 import { LANGUAGE_COLORS, DEFAULT_LANGUAGE_COLOR } from '../lib/colors';
+
+export default function ToggleSidebarCard({
+  title,
+  tab1,
+  tab2,
   items1,
   items2,
   type1,

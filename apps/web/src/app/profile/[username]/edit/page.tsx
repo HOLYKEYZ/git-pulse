@@ -120,7 +120,7 @@ export default function EditProfilePage({ params }: { params: Promise<{ username
             </div>
 
             {error && (
-                <div className="mb-4 p-3 rounded-lg border border-[#f85149]/30 bg-[#f85149]/5 text-xs text-[#f85149]">
+                <div className="mb-4 p-3 rounded-lg border border-git-error/30 bg-git-error/5 text-xs text-git-error">
                     {error}
                 </div>
             )}

@@ -1,4 +1,40 @@
 import { prisma } from "@/lib/prisma";
+import { Prisma } from '@prisma/client';
+
+type PostWithAuthorAndFollowers = {
+  id: number;
+  createdAt: Date;
+  author: {
+    username: string;
+    avatar: string | null;
+    _count: {
+      followers: number;
+    };
+  };
+  repoEmbed: {
+    name: string;
+    url: string;
+    language: string;
+    stars: number;
+    forks: number;
+    lastPush: string | null;
+    description: string | null;
+    commitCount: number;
+    pushConsistency: number;
+  };
+};
+
+type RepoEmbed = {
+  name: string;
+  url: string;
+  language: string;
+  stars: number;
+  forks: number;
+  lastPush: string | null;
+  description: string | null;
+  commitCount: number;
+  pushConsistency: number;
+};
 import { calculatePostScoreDetailed } from "@/lib/algo";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
@@ -7,7 +43,7 @@ import Image from "next/image";
 export const revalidate = 0;
 
 export default async function AlgoVisualizationPage() {
-let posts: any[] = [];
+let posts: PostWithAuthorAndFollowers[] = [];
 let errorMessage = null;
 try {
   posts = await prisma.post.findMany({
@@ -23,7 +59,7 @@ try {
   const scoredPosts = posts
     .filter(p => p.repoEmbed !== null && typeof p.repoEmbed === "object" && !Array.isArray(p.repoEmbed))
     .map(p => {
-    const r = p.repoEmbed as Record<string, any>;
+const r = p.repoEmbed as RepoEmbed;
     const daysSincePost = Math.max((Date.now() - p.createdAt.getTime()) / (1000 * 60 * 60 * 24), 1);
     const pushDate = r.lastPush ? new Date(r.lastPush) : p.createdAt;
     const daysSincePush = Math.max((Date.now() - pushDate.getTime()) / (1000 * 60 * 60 * 24), 0);

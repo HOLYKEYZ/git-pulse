@@ -8,7 +8,7 @@ const config: Config = {
   ],
     theme: {
     extend: {
-colors: {
+      colors: {
         'gh-dark': '#0D1117',
         'gh-canvas': '#161B22',
         'gh-border': '#30363D',
@@ -23,23 +23,23 @@ colors: {
           'git-green-hover': '#2ea043',
           'git-error': '#f85149',
 git: {
-          bg: "var(--bg)",
-          card: "var(--card)",
-          border: "var(--border)",
-          green: "var(--green)",
-          accent: "var(--accent)",
-          text: "var(--text)",
-          muted: "var(--muted)",
-          notification: "var(--notification)",
-          hover: "var(--hover)",
+bg: "var(--bg)",
+card: "var(--card)",
+border: "var(--border)",
+green: "var(--green)",
+accent: "var(--accent)",
+text: "var(--text)",
+muted: "var(--muted)",
+notification: "var(--notification)",
+hover: "var(--hover)",
           'tab-active-border': '#f78166',
           'tab-count-bg': '#30363d',
-          contribution: {
-            0: "#161B22",
-            1: "#0e4429",
-            2: "#006d32",
-            3: "#26a641",
-            4: "#39d353",
+contribution: {
+0: "#161B22",
+1: "#0e4429",
+2: "#006d32",
+3: "#26a641",
+4: "#39d353",
           },
         },
         githubBlue: '#2f81f7',

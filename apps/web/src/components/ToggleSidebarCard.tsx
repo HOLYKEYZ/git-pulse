@@ -17,7 +17,7 @@ interface ToggleSidebarCardProps {
   hideCommitCount?: boolean;
 }
 
-import { LANGUAGE_COLORS, DEFAULT_LANGUAGE_COLOR } from '../lib/colors';
+import { LANGUAGE_COLORS } from '../lib/colors';
 
 export default function ToggleSidebarCard({
   title,
@@ -63,7 +63,7 @@ export default function ToggleSidebarCard({
           <span className="flex items-center gap-1.5 truncate">
             <span
               className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-style={{ backgroundColor: LANGUAGE_COLORS[repo.language] || DEFAULT_LANGUAGE_COLOR }}
+              style={{ backgroundColor: LANGUAGE_COLORS[repo.language] || "#8b949e" }}
             />
             <span className="truncate">{repo.language}</span>
           </span>
@@ -118,7 +118,7 @@ style={{ backgroundColor: LANGUAGE_COLORS[repo.language] || DEFAULT_LANGUAGE_COL
                 </span>
                 {dev.repoName && (
                   <span className="text-git-accent flex items-center gap-1 ml-auto">
-                    <span className="w-2 h-2 rounded-full" style={{backgroundColor: LANGUAGE_COLORS[dev.repoName] || DEFAULT_LANGUAGE_COLOR}}></span>
+                    <span className="w-2 h-2 rounded-full" style={{backgroundColor: LANGUAGE_COLORS[dev.repoName] || "#8b949e"}}></span>
                     {dev.repoName} match
                   </span>
                 )}

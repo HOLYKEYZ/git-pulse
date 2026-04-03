@@ -29,18 +29,11 @@ interface TrendingCardProps {
   isExplorePage?: boolean;
 }
 
-const LANGUAGE_COLORS: Record<string, string> = {
-  TypeScript: "#3178c6", JavaScript: "#f1e05a", Python: "#3572A5",
-  Rust: "#dea584", Go: "#00ADD8", Shell: "#89e051",
-  HTML: "#e34c26", CSS: "#563d7c", Java: "#b07219",
-  "C++": "#f34b7d", C: "#555555", Ruby: "#701516",
-  PHP: "#4F5D95", Swift: "#F05138", Kotlin: "#A97BFF",
-};
-
 export default function TrendingCard({ repos, devs, isExplorePage }: TrendingCardProps) {
   const getLanguageColor = (lang?: string | null) => {
-    if (!lang) return "#8b949e";
-    return LANGUAGE_COLORS[lang] || "#8b949e";
+    if (!lang) return "bg-language-default";
+    const formattedLang = lang?.toLowerCase().replace("+", "-") || "default";
+    return `bg-language-${formattedLang}`;
   };
   const [view, setView] = useState<"repos" | "devs">("repos");
 
@@ -90,7 +83,7 @@ export default function TrendingCard({ repos, devs, isExplorePage }: TrendingCar
               <div className="flex items-center gap-3 text-[13px] text-git-muted">
                 {repo.language && (
                   <span className="flex items-center gap-1">
-                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: getLanguageColor(repo.language) }} />
+<span className={`w-3 h-3 rounded-full ${getLanguageColor(repo.language)}`} />
                     {repo.language}
                   </span>
                 )}

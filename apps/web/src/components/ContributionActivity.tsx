@@ -103,7 +103,7 @@ function MonthSection({ month }: { month: MonthlyActivity }) {
                       </Link>
                       <div className="flex-1 h-[8px] bg-timeline-bg-dark rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-[#1f6feb] rounded-full"
+className="h-full bg-timeline-progress-blue rounded-full"
                           style={{ width: `${Math.max((repo.count / maxCommits) * 100, 4)}%` }}
                         />
                       </div>

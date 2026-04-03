@@ -8,7 +8,7 @@ const config: Config = {
   ],
     theme: {
     extend: {
-      colors: {
+colors: {
         'gh-dark': '#0D1117',
         'gh-canvas': '#161B22',
         'gh-border': '#30363D',
@@ -22,7 +22,7 @@ const config: Config = {
         'gh-green-glow': 'rgba(35, 134, 54, 0.15)',
           'git-green-hover': '#2ea043',
           'git-error': '#f85149',
-        git: {
+git: {
           bg: "var(--bg)",
           card: "var(--card)",
           border: "var(--border)",

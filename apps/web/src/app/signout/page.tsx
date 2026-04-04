@@ -1,5 +1,10 @@
 import { signOut } from "@/lib/auth";
 
+const handleSignOutAction = async () => {
+  "use server";
+  await signOut({ redirectTo: "/" });
+};
+
 export default function SignOutPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-git-bg px-4 py-12 sm:px-6 lg:px-8">
@@ -22,11 +27,7 @@ export default function SignOutPage() {
         </div>
 
         <div className="mt-6 flex flex-col gap-3">
-          <form
-            action={async () => {
-              "use server";
-              await signOut({ redirectTo: "/" });
-            }}
+          <form action={handleSignOutAction}
           >
             <button
               type="submit"

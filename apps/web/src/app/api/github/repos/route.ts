@@ -1,28 +1,36 @@
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
+import { withCache } from "@/lib/cache";
 export async function GET() {
     const session = await auth();
     if (!session?.user?.accessToken) {
         return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
+    const cacheKey = `github-repos-${session.user.id}`;
+    try {
+        const allRepos = await withCache(cacheKey, () => fetchUserReposFromGitHub(session.user.accessToken));
+        return NextResponse.json(allRepos);
+    } catch (error: unknown) {
+        console.error("Error fetching GitHub repositories:", error);
+        return NextResponse.json({ error: "server error" }, { status: 500 });
+    }
+}
 
-try {
+async function fetchUserReposFromGitHub(accessToken: string) {
   let nextPageUrl: string | null = "https://api.github.com/user/repos?sort=updated&per_page=100&affiliation=owner,collaborator";
   let allRepos: any[] = [];
 
   while (nextPageUrl) {
     const res: Response = await fetch(nextPageUrl as string, {
       headers: {
-        Authorization: `Bearer ${session.user.accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
         Accept: "application/vnd.github+json",
-      },
-      // next 14 fetch options
-      cache: 'no-store'
+      }
     });
 
     if (!res.ok) {
-      return NextResponse.json({ error: "failed to fetch repos" }, { status: res.status });
+      throw new Error(`Failed to fetch repos: ${res.status}`);
     }
 
     const data = await res.json();
@@ -45,10 +53,5 @@ try {
       nextPageUrl = null;
     }
   }
-
-return NextResponse.json(allRepos);
-} catch (error: unknown) {
-  console.error("Error fetching GitHub repositories:", error);
-  return NextResponse.json({ error: "server error" }, { status: 500 });
-}
+  return allRepos;
 }

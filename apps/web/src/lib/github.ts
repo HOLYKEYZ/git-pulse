@@ -708,7 +708,7 @@ export async function getUpcomingGitHubDevs(token: string, limit = 5): Promise<a
       totalContributions: contributions,
       velocityScore
     };
-  }).filter((u): u is any => u !== null && u.totalContributions > 0);
+  }).filter((u: any): u is any => u !== null && u.totalContributions > 0);
 
   return scoredDevs
     .sort((a: any, b: any) => b.velocityScore - a.velocityScore)

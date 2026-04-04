@@ -399,9 +399,10 @@ export async function getUpcomingGitHubProjects(token: string, limit = 5): Promi
   if (items.length === 0) return [];
 
   // Use a batched GraphQL query to get Exact Commit Counts for all repos at once to avoid Rate Limits
+  // Reduced to 6 repos to lower complexity
   const query = `
     query {
-      ${items.map((repo: any, i: number) => {
+      ${items.slice(0, 6).map((repo: any, i: number) => {
         const [owner, name] = repo.full_name.split('/');
         return `
           repo${i}: repository(owner: "${owner}", name: "${name}") {
@@ -514,9 +515,10 @@ export async function getTopReposByDailyCommits(token: string, limit = 5): Promi
   if (items.length === 0) return [];
 
   // use GraphQL batching to fetch exactly how many commits were made today per repo
+  // Reduced to 8 repos to lower complexity
   const query = `
     query {
-      ${items.map((repo: any, i: number) => {
+      ${items.slice(0, 8).map((repo: any, i: number) => {
         const [owner, name] = repo.full_name.split('/');
         return `
           repo${i}: repository(owner: "${owner}", name: "${name}") {
@@ -576,9 +578,10 @@ export async function getTopDevsByDailyCommits(token: string, limit = 5): Promis
   if (userList.length === 0) return [];
 
   // Use bulk GraphQL totalContributions to fetch EXACT commits without searching caps
+  // Reduced to 5 candidates for lower complexity
   const candidatesQuery = `
     query {
-      ${userList.map((user: any, i: number) => `
+      ${userList.slice(0, 5).map((user: any, i: number) => `
         user${i}: user(login: "${user.login}") {
           contributionsCollection {
             contributionCalendar {
@@ -639,9 +642,10 @@ export async function getUpcomingGitHubDevs(token: string, limit = 5): Promise<a
   if (userList.length === 0) return [];
   
   // fetch exact commit velocity in bulk
+  // Reduced to 8 candidates for lower complexity
   const candidatesQuery = `
     query {
-      ${userList.map((user: any, i: number) => `
+      ${userList.slice(0, 8).map((user: any, i: number) => `
         user${i}: user(login: "${user.login}") {
           contributionsCollection {
             contributionCalendar { totalContributions }
@@ -952,30 +956,30 @@ export async function getContributionActivity(username: string, token: string): 
         query($login: String!, $from: DateTime!) {
           user(login: $login) {
             contributionsCollection(from: $from) {
-              commitContributionsByRepository(maxRepositories: 50) {
+              commitContributionsByRepository(maxRepositories: 20) {
                 repository { nameWithOwner }
                 contributions { totalCount }
               }
-              repositoryContributions(first: 50) {
+              repositoryContributions(first: 20) {
                 nodes { repository { nameWithOwner } }
               }
-              pullRequestContributionsByRepository(maxRepositories: 50) {
+              pullRequestContributionsByRepository(maxRepositories: 20) {
                 repository { nameWithOwner }
-                contributions(first: 10) {
+                contributions(first: 5) {
                   totalCount
                   nodes { pullRequest { title, url, number } }
                 }
               }
-              issueContributionsByRepository(maxRepositories: 50) {
+              issueContributionsByRepository(maxRepositories: 20) {
                 repository { nameWithOwner }
-                contributions(first: 10) {
+                contributions(first: 5) {
                   totalCount
                   nodes { issue { title, url, number } }
                 }
               }
-              pullRequestReviewContributionsByRepository(maxRepositories: 50) {
+              pullRequestReviewContributionsByRepository(maxRepositories: 20) {
                 repository { nameWithOwner }
-                contributions(first: 10) {
+                contributions(first: 5) {
                   totalCount
                   nodes { pullRequest { title, url, number } }
                 }

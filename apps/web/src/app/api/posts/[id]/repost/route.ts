@@ -4,15 +4,14 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: Request, { params }: {params: Promise<{id: string;}>}) {
+export async function POST(req: Request, { params }: {params: {id: string;}}) {
   const session = await auth();
   if (!session?.user?.login) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    const resolvedParams = await params;
-    const { id: postId } = resolvedParams;
+    const { id: postId } = params;
 
     const user = await prisma.user.findUnique({
       where: { username: session.user.login }

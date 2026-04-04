@@ -47,8 +47,8 @@ export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDeta
   };
 
   // 1. tech stack novelty
-  const noveltyLanguages = ["Rust", "Zig", "Elixir", "Go", "Gleam", "Ocaml", "Haskell", "F#", "HolyC", "Vue", "Angular", "Svelte"];
-  const commonLanguages = ["JavaScript", "TypeScript", "Python", "Java", "C++", "C#", "PHP", "Ruby", "C", "React", "NextJs", "NodeJs", "Express"];
+  const noveltyLanguages = ["Rust", "Zig", "Elixir", "Go", "Gleam", "Ocaml", "Haskell", "F#", "HolyC",];
+  const commonLanguages = ["JavaScript", "TypeScript", "Python", "Java", "C++", "C#", "PHP", "Ruby", "C", "Ejs", "Html", "Css"];
 
   if (factors.language) {
     if (noveltyLanguages.includes(factors.language)) {

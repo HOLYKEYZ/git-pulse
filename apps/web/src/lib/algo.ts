@@ -154,32 +154,21 @@ export interface DevProfile {
   achievementScore: number;
 }
 
-// maps known github achievement slugs to numeric contribution-style weights.
-// higher = stronger signal of sustained open-source involvement.
-export const ACHIEVEMENT_SCORES: Record<string, number> = {
-  'pull-shark': 3,
-  'starstruck': 2,
-  'galaxy-brain': 4,
-  'quickdraw': 1,
-  'pair-extraordinaire': 2,
-  'yolo': 1,
-  'arctic-code-vault-contributor': 1,
-  'public-sponsor': 2,
-};
-
 /**
- * sums achievement scores from a list of scraped achievements.
- * multiplier tiers (x2, x4 etc.) amplify the base score.
+ * computes a dynamic achievement score from scraped github achievement data.
+ * every achievement contributes a base weight of 1 (having any achievement signals contribution behavior).
+ * the multiplier field from github's own tier system (x2, x4, x16 etc.) naturally
+ * amplifies the score — higher tiers indicate more sustained open-source involvement.
+ * total score = sum of (1 * tier_multiplier) across all achievements.
  */
 export function computeAchievementScore(
   achievements: { name: string; multiplier?: number }[]
 ): number {
   let total = 0;
   for (const a of achievements) {
-    const slug = a.name.toLowerCase().replace(/\s+/g, '-');
-    const base = ACHIEVEMENT_SCORES[slug] ?? 1;
+    // base weight of 1 per achievement, scaled by github's tier multiplier
     const tier = a.multiplier ?? 1;
-    total += base * tier;
+    total += tier;
   }
   return total;
 }

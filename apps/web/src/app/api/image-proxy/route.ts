@@ -16,9 +16,8 @@ export async function GET(req: NextRequest) {
     const parsedUrl = new URL(url);
 
     // prevent obvious ssrf to local ip space
-import { isPrivateIPAddress } from '@/lib/utils/url';
-if (isPrivateIPAddress(parsedUrl)) {
-  return NextResponse.json({ error: "SSRF prevention" }, { status: 403 });
+    if (isPrivateIPAddress(parsedUrl)) {
+      return NextResponse.json({ error: "SSRF prevention" }, { status: 403 });
 }
 
     const response = await fetch(url, {

@@ -138,3 +138,76 @@ export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDeta
 export function calculatePostScore(factors: ScoreFactors): number {
   return calculatePostScoreDetailed(factors).score;
 }
+
+// ─── developers like you — profiling utilities ──────────────────────────────
+
+export interface LanguageWeight {
+  name: string;
+  weight: number; // ratio of repos using this language (0-1)
+}
+
+export interface DevProfile {
+  languages: LanguageWeight[]; // top 3, weighted by repo count
+  commitVelocity: number;     // contributions this year / 365
+  repoCount: number;
+  avgStarsPerRepo: number;
+  achievementScore: number;
+}
+
+// maps known github achievement slugs to numeric contribution-style weights.
+// higher = stronger signal of sustained open-source involvement.
+export const ACHIEVEMENT_SCORES: Record<string, number> = {
+  'pull-shark': 3,
+  'starstruck': 2,
+  'galaxy-brain': 4,
+  'quickdraw': 1,
+  'pair-extraordinaire': 2,
+  'yolo': 1,
+  'arctic-code-vault-contributor': 1,
+  'public-sponsor': 2,
+};
+
+/**
+ * sums achievement scores from a list of scraped achievements.
+ * multiplier tiers (x2, x4 etc.) amplify the base score.
+ */
+export function computeAchievementScore(
+  achievements: { name: string; multiplier?: number }[]
+): number {
+  let total = 0;
+  for (const a of achievements) {
+    const slug = a.name.toLowerCase().replace(/\s+/g, '-');
+    const base = ACHIEVEMENT_SCORES[slug] ?? 1;
+    const tier = a.multiplier ?? 1;
+    total += base * tier;
+  }
+  return total;
+}
+
+/**
+ * cosine similarity between two language-weight vectors.
+ * returns a value between 0 (completely different) and 1 (identical).
+ * both vectors are sparse — only matching language names contribute.
+ */
+export function cosineSimilarity(a: LanguageWeight[], b: LanguageWeight[]): number {
+  const bMap = new Map(b.map(l => [l.name, l.weight]));
+
+  let dotProduct = 0;
+  let magA = 0;
+  let magB = 0;
+
+  for (const lang of a) {
+    const bWeight = bMap.get(lang.name) ?? 0;
+    dotProduct += lang.weight * bWeight;
+    magA += lang.weight * lang.weight;
+  }
+
+  for (const lang of b) {
+    magB += lang.weight * lang.weight;
+  }
+
+  const magnitude = Math.sqrt(magA) * Math.sqrt(magB);
+  if (magnitude === 0) return 0;
+
+  return dotProduct / magnitude;
+}

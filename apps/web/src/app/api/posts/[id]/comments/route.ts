@@ -4,19 +4,19 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(req: Request, { params }: { params: { id: string } }) {
     const session = await auth();
     if (!session?.user?.login) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     try {
-        const resolvedParams = await params;
+const { id: postId } = params;
         const { id: postId } = resolvedParams;
         const body = await req.json();
         const { content, parentId } = body;
 
-        if (!content) {
+if (!content || content.length > 1000) {
             return NextResponse.json({ error: "Content is required" }, { status: 400 });
         }
 
@@ -28,7 +28,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
             return NextResponse.json({ error: "User not found in DB" }, { status: 404 });
         }
 
-        const comment = await prisma.comment.create({
+if (parentId !== undefined && parentId !== null) {
+  const parentComment = await prisma.comment.findUnique({ where: { id: parentId } });
+  if (!parentComment) {
+    return NextResponse.json({ error: "Parent comment not found" }, { status: 400 });
+  }
+}
+const comment = await prisma.comment.create({
             data: {
                 content,
                 postId,

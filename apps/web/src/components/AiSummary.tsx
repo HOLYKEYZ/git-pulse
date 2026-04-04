@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+const SUMMARY_ERROR_MESSAGE = "Unable to generate summary for this repository.";
+
 interface AiSummaryProps {
     owner: string;
     repoName: string;
@@ -12,7 +14,7 @@ export default function AiSummary({ owner, repoName }: AiSummaryProps) {
     const [loading, setLoading] = useState(false);
     const [visible, setVisible] = useState(false);
 
-    const fetchPitch = async () => {
+const fetchPitch = async () => {
         if (pitch) {
             setVisible(!visible);
             return;
@@ -25,10 +27,10 @@ export default function AiSummary({ owner, repoName }: AiSummaryProps) {
                 const data = await res.json();
                 setPitch(data.pitch);
             } else {
-                setPitch("Unable to generate summary for this repository.");
+                setPitch(SUMMARY_ERROR_MESSAGE);
             }
         } catch {
-            setPitch("Unable to generate summary for this repository.");
+            setPitch(SUMMARY_ERROR_MESSAGE);
         } finally {
             setLoading(false);
         }

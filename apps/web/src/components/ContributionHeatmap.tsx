@@ -10,14 +10,7 @@ interface ContributionHeatmapProps {
     joinYear: number;
 }
 
-// inline hex colors — not tailwind classes — so they survive jit purge
-const LEVEL_COLORS: Record<ContributionDay["contributionLevel"], string> = {
-    NONE: "#161b22",
-    FIRST_QUARTILE: "#0e4429",
-    SECOND_QUARTILE: "#006d32",
-    THIRD_QUARTILE: "#26a641",
-    FOURTH_QUARTILE: "#39d353",
-};
+import { LEVEL_COLORS } from '@/lib/constants/colors';
 
 const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 

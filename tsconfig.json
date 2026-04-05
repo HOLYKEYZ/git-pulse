@@ -13,10 +13,6 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./apps/web/src/*"]
-    }
   },
   "exclude": ["node_modules"]
 }

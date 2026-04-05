@@ -47,7 +47,7 @@ export default async function StarsPage({ params }: {params: Promise<{username: 
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-git-border text-[11px] text-git-muted hover:border-git-accent hover:text-git-accent cursor-pointer transition-colors">
               <span
                 className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: LANGUAGE_COLORS[lang] || "#8b949e" }} />
+style={{ backgroundColor: getLanguageColor(lang) }} />
               {lang}
             </span>
           )}
@@ -67,7 +67,7 @@ export default async function StarsPage({ params }: {params: Promise<{username: 
             name={repo.name}
             description={repo.description || "No description provided."}
             language={repo.language || ""}
-            languageColor={LANGUAGE_COLORS[repo.language || ""] || "#8b949e"}
+languageColor={getLanguageColor(repo.language)}
             stars={repo.stargazers_count}
             forks={repo.forks_count}
             lastPush={new Date(repo.pushed_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}

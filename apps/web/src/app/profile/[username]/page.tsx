@@ -81,13 +81,15 @@ export default async function ProfilePage({ params }: {params: Promise<{username
             <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
                 {/* ── left sidebar (user info - 260px sleek) ──────────────── */}
                 <div className="w-full md:w-[260px] shrink-0 flex flex-col gap-5 md:sticky md:top-8 md:self-start">
-                    <div className="relative group mx-auto md:mx-0 w-48 h-48 md:w-56 md:h-56">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-              src={ghUser.avatar_url}
-              alt={ghUser.login}
-              className="relative w-full h-full rounded-full border border-git-border shadow-sm object-cover bg-git-card" />
-            
+                        <div className="relative group mx-auto md:mx-0 w-48 h-48 md:w-56 md:h-56">
+                          <Image
+                            src={ghUser.avatar_url}
+                            alt={ghUser.login}
+                            fill
+                            className="relative w-full h-full rounded-full border border-git-border shadow-sm object-cover bg-git-card"
+                            sizes="(max-width: 768px) 192px, 224px"
+                          />
+                        
                         {/* status component — absolutely positioned over avatar on desktop / below on mobile */}
                         <div className="absolute -bottom-2 -right-3 md:right-0 z-10">
                             <UserStatus 

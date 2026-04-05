@@ -1,13 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 
+async function getAuthenticatedTokenOrResponse(req: NextRequest): Promise<string | NextResponse> {
+  const session = await auth();
+  const token = session?.user?.accessToken;
+  if (!token) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  return token;
+}
+
 export async function PUT(req: NextRequest) {
   try {
-    const session = await auth();
-    const token = session?.user?.accessToken;
-    
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const token = await getAuthenticatedTokenOrResponse(req);
+    if (token instanceof NextResponse) {
+      return token;
     }
 
     const body = await req.json();
@@ -45,11 +52,9 @@ export async function PUT(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const session = await auth();
-    const token = session?.user?.accessToken;
-    
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const token = await getAuthenticatedTokenOrResponse(req);
+    if (token instanceof NextResponse) {
+      return token;
     }
 
     // Handle unfollow via query params for DELETE

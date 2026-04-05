@@ -119,7 +119,7 @@ const [selectedRepoDisplayName, setSelectedRepoDisplayName] = useState('');
           <button
             type="submit"
             disabled={!selectedRepoFullName || !version || !changelog.trim()}
-            className="rounded-md bg-git-green px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-[#2ea043] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:bg-[#238636] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+className="rounded-md bg-git-green px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-git-ship-it-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:bg-git-ship-it-disabled disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
           >
             🚢 Ship It
           </button>

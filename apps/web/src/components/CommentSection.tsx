@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Comment {
     id: string;
@@ -84,7 +86,7 @@ export default function CommentSection({ postId, initialComments = [] }: Comment
                             </Link>
                             <span className="text-[10px] text-git-muted">{comment.timestamp}</span>
                         </div>
-                        <p className="text-sm text-git-text leading-relaxed">{comment.content}</p>
+<ReactMarkdown remarkPlugins={[remarkGfm]} className="text-sm text-git-text leading-relaxed">{comment.content}</ReactMarkdown>
                     </div>
                 </div>
             ))}

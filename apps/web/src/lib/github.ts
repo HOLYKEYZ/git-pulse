@@ -617,27 +617,26 @@ export async function getTopReposByDailyCommits(token: string, limit = 5): Promi
 
   if (cleanItems.length === 0) return [];
 
-  // Step 3: batched GraphQL — exact commits since midnight UTC
-  const query = `
-    query {
-      ${cleanItems.map((repo, i) => {
-        const [owner, name] = repo.full_name.split('/');
-        return `
-          repo${i}: repository(owner: "${owner}", name: "${name}") {
-            defaultBranchRef {
-              target {
-                ... on Commit {
-                  history(since: "${todayIso}") { totalCount }
-                }
+  // step 3: chunked graphql — exact commits since midnight utc (avoids 502)
+  const gqlRes = await batchGraphQL(
+    cleanItems,
+    (repo: any, i: number) => {
+      const [owner, name] = repo.full_name.split('/');
+      return `
+        repo${i}: repository(owner: "${owner}", name: "${name}") {
+          defaultBranchRef {
+            target {
+              ... on Commit {
+                history(since: "${todayIso}") { totalCount }
               }
             }
           }
-        `;
-      }).join('\n')}
-    }
-  `;
-
-  const gqlRes = await fetchGraphQL(query, {}, token);
+        }
+      `;
+    },
+    token,
+    10
+  );
 
   const verifiedRepos = cleanItems.map((repo, i) => {
     const commitsToday = gqlRes?.[`repo${i}`]?.defaultBranchRef?.target?.history?.totalCount || 0;

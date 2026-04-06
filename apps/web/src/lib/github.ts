@@ -219,6 +219,49 @@ async function fetchGraphQL(query: string, variables: Record<string, unknown>, t
   });
 }
 
+/**
+ * executes a batched graphql query by chunking items into smaller groups
+ * to avoid github's 502 bad gateway on large queries (>10 aliases).
+ * each chunk fires in parallel, results are merged into one keyed object.
+ */
+async function batchGraphQL<T>(
+  items: T[],
+  buildFragment: (item: T, globalIndex: number) => string,
+  token: string,
+  chunkSize = 10
+): Promise<Record<string, any>> {
+  if (items.length === 0) return {};
+
+  const chunks: T[][] = [];
+  for (let i = 0; i < items.length; i += chunkSize) {
+    chunks.push(items.slice(i, i + chunkSize));
+  }
+
+  const results = await Promise.all(
+    chunks.map(async (chunk, chunkIdx) => {
+      const query = `
+        query {
+          ${chunk.map((item, i) => {
+            const globalIdx = chunkIdx * chunkSize + i;
+            return buildFragment(item, globalIdx);
+          }).join('\n')}
+        }
+      `;
+      return fetchGraphQL(query, {}, token);
+    })
+  );
+
+  // merge all chunk results into one object
+  const merged: Record<string, any> = {};
+  for (const result of results) {
+    if (result) {
+      Object.assign(merged, result);
+    }
+  }
+
+  return merged;
+}
+
 // ─── rest functions ──────────────────────────────────────────────────────────
 
 /**

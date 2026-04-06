@@ -881,32 +881,31 @@ export async function getDevelopersLikeYou(username: string, token: string, limi
     const topCandidates = candidates.slice(0, 20);
     if (topCandidates.length === 0) return [];
 
-    // Step 3: single batched GraphQL — MUST use first: 50 repos for accurate language distribution
-    const candidatesQuery = `
-      query {
-        ${topCandidates.map((u: any, i: number) => `
-          user${i}: user(login: "${u.login}") {
-            login
-            name
-            avatarUrl
-            bio
-            repositories(first: 50, privacy: PUBLIC, ownerAffiliations: OWNER) {
-              totalCount
-              nodes {
-                primaryLanguage { name }
-                stargazerCount
-              }
-            }
-            contributionsCollection {
-              contributionCalendar { totalContributions }
+    // step 3: chunked graphql — chunkSize=5 because each user requests first:50 repos (avoids 502)
+    const candRes = await batchGraphQL(
+      topCandidates,
+      (u: any, i: number) => `
+        user${i}: user(login: "${u.login}") {
+          login
+          name
+          avatarUrl
+          bio
+          repositories(first: 50, privacy: PUBLIC, ownerAffiliations: OWNER) {
+            totalCount
+            nodes {
+              primaryLanguage { name }
+              stargazerCount
             }
           }
-        `).join('\n')}
-      }
-    `;
-
-    const candRes = await fetchGraphQL(candidatesQuery, {}, token);
-    if (!candRes) return [];
+          contributionsCollection {
+            contributionCalendar { totalContributions }
+          }
+        }
+      `,
+      token,
+      5
+    );
+    if (!candRes || Object.keys(candRes).length === 0) return [];
 
     // Step 4: score with multi-signal distance
     const scoredDevs: any[] = [];

@@ -36,7 +36,7 @@ async function UpcomingSection({ token }: { token: string }) {
       items2={devs}
       type1="repo"
       type2="dev"
-      hideCommitCount={true}
+
       emptyMessage1="No active upcoming projects found."
       emptyMessage2="No fast-growing devs found."
     />
@@ -76,7 +76,7 @@ async function DevelopersLikeYouSection({ token, login }: { token: string; login
       items2={[]}
       type1="dev"
       type2="dev"
-      hideCommitCount={true}
+
       emptyMessage1="No matching developers found."
       emptyMessage2="Ecosystem peers will appear here soon."
     />

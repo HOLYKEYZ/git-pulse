@@ -752,26 +752,25 @@ export async function getUpcomingGitHubDevs(token: string, limit = 5): Promise<a
   const userList = items.filter((u: any) => !isBot(u.login)).slice(0, 20);
   if (userList.length === 0) return [];
 
-  // single batched GraphQL for all candidates
-  const candidatesQuery = `
-    query {
-      ${userList.map((user: any, i: number) => `
-        user${i}: user(login: "${user.login}") {
-          login
-          avatarUrl
-          name
-          createdAt
-          followers { totalCount }
-          repositories(privacy: PUBLIC, ownerAffiliations: OWNER) { totalCount }
-          contributionsCollection {
-            contributionCalendar { totalContributions }
-          }
+  // chunked graphql for all candidates (avoids 502)
+  const candRes = await batchGraphQL(
+    userList,
+    (user: any, i: number) => `
+      user${i}: user(login: "${user.login}") {
+        login
+        avatarUrl
+        name
+        createdAt
+        followers { totalCount }
+        repositories(privacy: PUBLIC, ownerAffiliations: OWNER) { totalCount }
+        contributionsCollection {
+          contributionCalendar { totalContributions }
         }
-      `).join('\n')}
-    }
-  `;
-
-  const candRes = await fetchGraphQL(candidatesQuery, {}, token);
+      }
+    `,
+    token,
+    10
+  );
   const now = Date.now();
 
   const scoredDevs = userList.map((user: any, i: number) => {
@@ -800,10 +799,6 @@ export async function getUpcomingGitHubDevs(token: string, limit = 5): Promise<a
     .slice(0, limit);
 }
 
-/**
- * Advanced algorithm for finding "Developers Like You"
- * Weights: Tech Stack (Primary), Commits (High), Stars (Medium), Repos (Medium), Followers (Medium)
- */
 /**
  * developers like you — multi-dimensional profile matching.
  * builds a profile vector from top 3 languages, commit velocity, repo count, avg stars.

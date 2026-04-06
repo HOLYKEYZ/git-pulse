@@ -125,9 +125,9 @@ export default function ToggleSidebarCard({
               </span>
             );
           })()}
-          {dev.repoDescription && (
+          {(dev.repoDescription || dev.repoName) && (
             <span className="text-[11px] text-git-muted mt-0.5">
-              {dev.repoDescription}
+              {dev.repoDescription || dev.repoName}
             </span>
           )}
         </div>

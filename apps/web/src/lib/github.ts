@@ -475,27 +475,26 @@ export async function getUpcomingGitHubProjects(token: string, limit = 5): Promi
 
   if (cleanItems.length === 0) return [];
 
-  // batched GraphQL for total commit count
-  const query = `
-    query {
-      ${cleanItems.map((repo: any, i: number) => {
-        const [owner, name] = repo.full_name.split('/');
-        return `
-          repo${i}: repository(owner: "${owner}", name: "${name}") {
-            defaultBranchRef {
-              target {
-                ... on Commit {
-                  history { totalCount }
-                }
+  // chunked graphql for total commit count (avoids 502 on large batches)
+  const gqlRes = await batchGraphQL(
+    cleanItems,
+    (repo: any, i: number) => {
+      const [owner, name] = repo.full_name.split('/');
+      return `
+        repo${i}: repository(owner: "${owner}", name: "${name}") {
+          defaultBranchRef {
+            target {
+              ... on Commit {
+                history { totalCount }
               }
             }
           }
-        `;
-      }).join('\n')}
-    }
-  `;
-
-  const gqlRes = await fetchGraphQL(query, {}, token);
+        }
+      `;
+    },
+    token,
+    10
+  );
   const now = Date.now();
 
   const scoredRepos = cleanItems.map((repo: any, i: number) => {

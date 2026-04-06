@@ -25,11 +25,11 @@ token = await authConfig.callbacks.jwt({ token, account, profile, user, isNewUse
           const user = await prisma.user.upsert({
             where: { githubId: account.providerAccountId },
             update: {
-              username: profile?.login,
+username: profile.login,
               name: profile.name ?? null,
               email: profile.email ?? null,
-              avatar: profile?.avatar_url ?? profile.image ?? null,
-              bio: profile?.bio ?? null
+              avatar: profile.avatar_url ?? profile.image ?? null,
+              bio: profile.bio ?? null
             },
             create: {
               githubId: account.providerAccountId,

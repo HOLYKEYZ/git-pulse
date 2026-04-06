@@ -660,14 +660,9 @@ export async function getTopDevsByDailyCommits(token: string, limit = 5): Promis
   todayStart.setUTCHours(0, 0, 0, 0);
   const todayIso = todayStart.toISOString();
 
-  // Step 1: fetch BOTH public stream AND received events for larger pool
-  const [publicEvents, receivedEvents] = await Promise.all([
-    fetchWithAuth(`/events?per_page=100`, token),
-    // received_events requires knowing current user — use public events only if unavailable
-    fetchWithAuth(`/events?per_page=100`, token) // fallback duplicate, replace with received if username available
-  ]);
-
-  const allEvents = [...(Array.isArray(publicEvents) ? publicEvents : [])];
+  // step 1: fetch public event stream — people pushing code right now
+  const eventsRes = await fetchWithAuth(`/events?per_page=100`, token);
+  const allEvents = Array.isArray(eventsRes) ? eventsRes : [];
 
   // Step 2: count push events per actor — frequency signals highest activity
   const pushCounts = new Map<string, { login: string; avatar_url: string; count: number }>();
@@ -694,24 +689,23 @@ export async function getTopDevsByDailyCommits(token: string, limit = 5): Promis
 
   if (userList.length === 0) return [];
 
-  // Step 4: single batched GraphQL — exact today commits for all 25
-  const candidatesQuery = `
-    query {
-      ${userList.map((user, i) => `
-        user${i}: user(login: "${user.login}") {
-          login
-          avatarUrl
-          name
-          contributionsCollection(from: "${todayIso}") {
-            totalCommitContributions
-            restrictedContributionsCount
-          }
+  // step 4: chunked graphql — exact today commits (avoids 502)
+  const candRes = await batchGraphQL(
+    userList,
+    (user: any, i: number) => `
+      user${i}: user(login: "${user.login}") {
+        login
+        avatarUrl
+        name
+        contributionsCollection(from: "${todayIso}") {
+          totalCommitContributions
+          restrictedContributionsCount
         }
-      `).join('\n')}
-    }
-  `;
-
-  const candRes = await fetchGraphQL(candidatesQuery, {}, token);
+      }
+    `,
+    token,
+    10
+  );
 
   const activeDevs = userList.map((user, i) => {
     const data = candRes?.[`user${i}`];

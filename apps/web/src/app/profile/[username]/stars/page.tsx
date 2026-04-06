@@ -3,17 +3,10 @@ import { getGitHubStarredRepos, getGitHubUser } from "@/lib/github";
 import RepoCard from "@/components/RepoCard";
 import ProfileTabs from "@/components/ProfileTabs";
 
-const LANGUAGE_COLORS: Record<string, string> = {
-  TypeScript: "#3178c6", JavaScript: "#f1e05a", Python: "#3572A5",
-  Rust: "#dea584", Go: "#00ADD8", Shell: "#89e051",
-  HTML: "#e34c26", CSS: "#563d7c", Java: "#b07219",
-  "C++": "#f34b7d", C: "#555555", Ruby: "#701516"
-};
-
-export default async function StarsPage({ params }: {params: Promise<{username: string}>;}) {
+import { getLanguageColor } from "@/lib/colors";
+export default async function StarsPage({ params }: { params: { username: string }; }) {
   const session = await auth();
-  const resolvedParams = await params;
-  const { username } = resolvedParams;
+  const { username } = params;
   const token = session?.user?.accessToken;
 
   let repos: any[] = []; 

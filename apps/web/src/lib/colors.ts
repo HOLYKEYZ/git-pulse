@@ -1,9 +1,18 @@
 export const LANGUAGE_COLORS: Record<string, string> = {
-    TypeScript: "#3178c6",
-    JavaScript: "#f1e05a",
-    Python: "#3572A5",
-    Java: "#b07219",
-    "C++": "#f34b7d",
+  TypeScript: "#3178c6", JavaScript: "#f1e05a", Python: "#3572A5",
+  Rust: "#dea584", Go: "#00ADD8", Shell: "#89e051",
+  HTML: "#e34c26", CSS: "#563d7c", Java: "#b07219",
+  "C++": "#f34b7d", C: "#555555", Ruby: "#701516"
+};
+
+export const DEFAULT_LANGUAGE_COLOR = "#cccccc";
+
+export function getLanguageColor(language: string | null | undefined): string {
+  if (language && LANGUAGE_COLORS[language]) {
+    return LANGUAGE_COLORS[language];
+  }
+  return DEFAULT_LANGUAGE_COLOR;
+}
     C: "#555555",
     "C#": "#178600",
     Ruby: "#701516",

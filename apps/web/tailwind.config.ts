@@ -8,7 +8,12 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      colors: {
+colors: {
+          'git-tab-active-border': GIT_TAB_ACTIVE_BORDER,
+          'git-text': GIT_TEXT,
+          'git-muted': GIT_MUTED,
+          'git-border': GIT_BORDER,
+          'git-tab-count-bg': GIT_TAB_COUNT_BG,
         'gh-dark': '#0D1117',
         'gh-canvas': '#161B22',
         'gh-border': '#30363D',

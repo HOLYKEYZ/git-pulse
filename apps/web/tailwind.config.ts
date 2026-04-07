@@ -6,8 +6,15 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  theme: {
-    extend: {
+import { GITHUB_DARK_PRIMARY_BG, GITHUB_DARK_SECONDARY_BORDER, GITHUB_DARK_SECONDARY_BG } from '../lib/colors';
+
+theme: {
+extend: {
+      colors: {
+        'gh-dark-primary-bg': GITHUB_DARK_PRIMARY_BG,
+        'gh-dark-secondary-border': GITHUB_DARK_SECONDARY_BORDER,
+        'gh-dark-secondary-bg': GITHUB_DARK_SECONDARY_BG,
+      },
       colors: {
         language: {
           TypeScript: '#3178c6',

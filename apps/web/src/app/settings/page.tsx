@@ -135,12 +135,12 @@ export default function SettingsPage() {
                                 {/* preview swatch */}
                                 <div className="w-full h-20 rounded-md mb-3 overflow-hidden border border-git-border">
                                     <div className="h-full flex">
-                                        <div className="w-1/4 bg-[#0d1117]" />
-                                        <div className="flex-1 bg-[#0d1117] border-x border-[#30363d] flex flex-col gap-1 p-2">
+<div className="w-1/4 bg-gh-dark-primary-bg" />
+<div className="flex-1 bg-gh-dark-primary-bg border-x border-gh-dark-secondary-border flex flex-col gap-1 p-2">
                                             <div className="h-2 w-3/4 bg-[#30363d] rounded" />
                                             <div className="h-2 w-1/2 bg-[#30363d] rounded" />
                                         </div>
-                                        <div className="w-1/4 bg-[#161b22]" />
+<div className="w-1/4 bg-gh-dark-secondary-bg" />
                                     </div>
                                 </div>
                                 <span className="text-sm font-medium text-git-text">GitHub Dark</span>

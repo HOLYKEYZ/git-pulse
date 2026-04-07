@@ -6,7 +6,12 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  theme: {
+theme: {
+      extend: {
+        colors: {
+          sponsor: SPONSOR_COLOR,
+        },
+      },
     extend: {
       colors: {
         language: {

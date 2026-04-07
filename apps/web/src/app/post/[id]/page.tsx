@@ -9,10 +9,9 @@ import RepoCard from "@/components/RepoCard";
 import PostContentRenderer from "@/components/PostContentRenderer";
 import { notFound } from "next/navigation";
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  const resolvedParams = await params;
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const post = await prisma.post.findUnique({
-    where: { id: resolvedParams.id },
+    where: { id: params.id },
     select: { content: true, author: { select: { username: true } } }
   });
   if (!post) return { title: "Post Not Found | GitPulse" };
@@ -22,12 +21,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
-export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function PostPage({ params }: { params: { id: string } }) {
   const session = await auth();
-  const resolvedParams = await params;
 
   const post = await prisma.post.findUnique({
-    where: { id: resolvedParams.id },
+    where: { id: params.id },
     include: {
       author: true,
       _count: { select: { comments: true, reactions: true } }

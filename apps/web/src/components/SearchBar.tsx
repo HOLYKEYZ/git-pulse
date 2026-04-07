@@ -164,7 +164,7 @@ export default function SearchBar() {
                     <div className="text-sm font-medium text-git-text truncate hover:text-git-accent transition-colors">
                       {repo.name}
                     </div>
-                    {repo.description && <div className="text-[10px] text-git-muted line-clamp-1">{repo.description}</div>}
+                    {repo.description && <div className="text-[10px] text-git-muted line-clamp-1" dangerouslySetInnerHTML={{ __html: sanitizeHtmlContent(repo.description || '') }}></div>}
                   </div>
                 </Link>
               )}

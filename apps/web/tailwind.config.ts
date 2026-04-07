@@ -6,13 +6,15 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  theme: {
-    extend: {
-      colors: {
-        language: {
-          TypeScript: '#3178c6',
-          JavaScript: '#f1e05a',
-          Python: '#3572A5',
+theme: {
+  extend: {
+    colors: {
+      language: LANGUAGE_COLORS,
+      'header-background': HEADER_BACKGROUND_COLOR,
+      // ...
+    },
+  },
+}
           Java: '#b07219',
           'C++': '#f34b7d',
           C: '#555555',

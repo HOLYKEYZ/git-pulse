@@ -30,11 +30,6 @@ interface TrendingCardProps {
 }
 
 export default function TrendingCard({ repos, devs, isExplorePage }: TrendingCardProps) {
-  const getLanguageColor = (lang?: string | null) => {
-    if (!lang) return "bg-language-default";
-    const formattedLang = lang?.toLowerCase().replace("+", "-") || "default";
-    return `bg-language-${formattedLang}`;
-  };
   const [view, setView] = useState<"repos" | "devs">("repos");
 
   return (
@@ -83,7 +78,7 @@ export default function TrendingCard({ repos, devs, isExplorePage }: TrendingCar
               <div className="flex items-center gap-3 text-[13px] text-git-muted">
                 {repo.language && (
                   <span className="flex items-center gap-1">
-<span className={`w-3 h-3 rounded-full ${getLanguageColor(repo.language)}`} />
+<span className="w-3 h-3 rounded-full" style={{ backgroundColor: LANGUAGE_COLORS[repo.language?.toLowerCase().replace("+", "-") || "default"] || DEFAULT_LANGUAGE_COLOR }} />
                     {repo.language}
                   </span>
                 )}

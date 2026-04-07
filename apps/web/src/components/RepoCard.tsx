@@ -7,7 +7,6 @@ interface RepoCardProps {
     name: string;
     description: string;
     language: string;
-    languageColor: string;
     stars: number;
     forks: number;
     lastPush: string;
@@ -23,8 +22,8 @@ export default function RepoCard({
     forks,
     lastPush,
     url,
-}: RepoCardProps) {
-    const resolvedColor = languageColor || getLanguageColor(language);
+}: Omit<RepoCardProps, 'languageColor'>) {
+const resolvedColor = getLanguageColor(language);
 
 const formattedLastPush = getRelativeTime(new Date(lastPush));
     const CardContent = (

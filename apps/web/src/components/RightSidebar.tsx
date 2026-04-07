@@ -76,7 +76,7 @@ async function DevelopersLikeYouSection({ token, login }: { token: string; login
       items2={[]}
       type1="dev"
       type2="dev"
-
+      hideCommitCount={true}
       emptyMessage1="No matching developers found."
       emptyMessage2="Ecosystem peers will appear here soon."
     />

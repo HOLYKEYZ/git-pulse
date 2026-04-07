@@ -582,7 +582,7 @@ export async function getTopReposByDailyCommits(token: string, limit = 5): Promi
 
   const [searchRes1, searchRes2, eventsRes] = await Promise.all([
     fetchWithAuth(`/search/repositories?q=pushed:>=${dateStr}+stars:<500000&sort=updated&order=desc&per_page=15&page=${randomPage1}`, token),
-    fetchWithAuth(`/search/repositories?q=pushed:>=${dateStr}+stars:<500000&sort=updated&order=desc&per_page=15&page=${randomPage2}`, token),
+    fetchWithAuth(`/search/repositories?q=pushed:>=${dateStr}+stars:<500000&sort=stars&order=desc&per_page=10`, token),
     fetchWithAuth(`/events?per_page=100`, token),
   ]);
 

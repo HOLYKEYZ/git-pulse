@@ -72,6 +72,3 @@ Write exactly 2 sentences. The first sentence should explain WHAT the project do
 
   return text;
 }
-
-// heuristic fallback — no llm needed(only if llms fail, dont wanna use heuristics at all)
-

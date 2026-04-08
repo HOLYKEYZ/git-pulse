@@ -13,13 +13,12 @@ export default async function StarsPage({ params }: { params: { username: string
   let hasError = false; 
   let ghUser = null;
   
-  try { 
-    ghUser = await getGitHubUser(username, token as string);
-    
-    if (token) {
-      repos = await getGitHubStarredRepos(username, token, 1, 100) || [];
-    }
-  } catch (error) { 
+try { 
+  if (token) {
+    ghUser = await getGitHubUser(username, token);
+    repos = await getGitHubStarredRepos(username, token, 1, 100) || [];
+  }
+} catch (error) {
     console.error('Error fetching starred repositories:', error); 
     hasError = true; 
   }

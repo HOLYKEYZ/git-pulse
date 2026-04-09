@@ -99,7 +99,7 @@ onClick={() => { setIsOpen(!isOpen); setErrorMessage(null); }}
       ) : (
         /* non-editable display */
         (initialEmoji || initialText) && (
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-git-border bg-git-card/50 shadow-sm sm:max-w-[280px]">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-git-border bg-[#0d1117] shadow-sm sm:max-w-[280px]">
             {initialEmoji && <span className="text-[16px] shrink-0">{initialEmoji}</span>}
             {initialText && <span className="text-[13px] text-git-text truncate leading-tight">{initialText}</span>}
           </div>
@@ -110,8 +110,8 @@ onClick={() => { setIsOpen(!isOpen); setErrorMessage(null); }}
       {isOpen && isOwnProfile && (
         <>
         <div className="fixed inset-0 z-[998] bg-black/60" onClick={() => setIsOpen(false)} />
-        <div className="absolute top-full left-0 mt-2 z-[999] w-full min-w-[320px] max-w-sm bg-git-bg border border-git-border rounded-xl shadow-2xl overflow-hidden animate-fade-in">
-          <div className="flex items-center justify-between px-3 py-2 border-b border-git-border bg-git-card">
+        <div className="absolute top-full left-0 mt-2 z-[999] w-full min-w-[320px] max-w-sm bg-[#0d1117] border border-git-border rounded-xl shadow-2xl overflow-hidden animate-fade-in">
+          <div className="flex items-center justify-between px-3 py-2 border-b border-git-border bg-[#161b22]">
             <h3 className="text-xs font-semibold text-git-text">Edit status</h3>
             <button onClick={() => setIsOpen(false)} className="text-git-muted hover:text-git-text transition-colors p-1">
               <XIcon size={16} />
@@ -120,7 +120,7 @@ onClick={() => { setIsOpen(!isOpen); setErrorMessage(null); }}
 
           <div className="p-3 flex flex-col gap-3">
             {/* inputs */}
-            <div className="flex items-center gap-2 p-2 rounded-md bg-git-bg border border-git-border focus-within:border-git-accent transition-colors">
+            <div className="flex items-center gap-2 p-2 rounded-md bg-[#0d1117] border border-git-border focus-within:border-git-accent transition-colors">
               <input
                 id="status-emoji-input"
                 type="text"

@@ -86,7 +86,9 @@ export default function CommentSection({ postId, initialComments = [] }: Comment
                             </Link>
                             <span className="text-[10px] text-git-muted">{comment.timestamp}</span>
                         </div>
-<ReactMarkdown remarkPlugins={[remarkGfm]} className="text-sm text-git-text leading-relaxed">{comment.content}</ReactMarkdown>
+<div className="text-sm text-git-text leading-relaxed markdown-body">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>{comment.content}</ReactMarkdown>
+                            </div>
                     </div>
                 </div>
             ))}

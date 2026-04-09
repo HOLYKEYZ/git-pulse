@@ -11,12 +11,11 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     }
 
     try {
-const { id: postId } = params;
-        const { id: postId } = resolvedParams;
+        const { id: postId } = params;
         const body = await req.json();
         const { content, parentId } = body;
 
-if (!content || content.length > 1000) {
+        if (!content || content.length > 1000) {
             return NextResponse.json({ error: "Content is required" }, { status: 400 });
         }
 
@@ -28,13 +27,14 @@ if (!content || content.length > 1000) {
             return NextResponse.json({ error: "User not found in DB" }, { status: 404 });
         }
 
-if (parentId !== undefined && parentId !== null) {
-  const parentComment = await prisma.comment.findUnique({ where: { id: parentId } });
-  if (!parentComment) {
-    return NextResponse.json({ error: "Parent comment not found" }, { status: 400 });
-  }
-}
-const comment = await prisma.comment.create({
+        if (parentId !== undefined && parentId !== null) {
+            const parentComment = await prisma.comment.findUnique({ where: { id: parentId } });
+            if (!parentComment) {
+                return NextResponse.json({ error: "Parent comment not found" }, { status: 400 });
+            }
+        }
+
+        const comment = await prisma.comment.create({
             data: {
                 content,
                 postId,

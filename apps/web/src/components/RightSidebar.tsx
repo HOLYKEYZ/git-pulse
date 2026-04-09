@@ -58,6 +58,30 @@ async function ActiveTodaySection({ token }: { token: string }) {
       items2={devs}
       type1="repo"
       type2="dev"
+      emptyMessage1="No heavily pushed repos found."
+      emptyMessage2="No highly active devs found today."
+    />
+  );
+}
+
+async function DevelopersLikeYouSection({ token, login }: { token: string; login: string }) {
+  const devs = await getDevelopersLikeYou(login, token, 10);
+  if (devs.length === 0) return null;
+  return (
+    <ToggleSidebarCard
+      title="Developers Like You"
+      tab1="Matches"
+      tab2="Ecosystem"
+      items1={devs.slice(0, 5)}
+      items2={devs.slice(5, 10)}
+      type1="dev"
+      type2="dev"
+      hideCommitCount={true}
+      emptyMessage1="No matching developers found."
+      emptyMessage2="Ecosystem peers will appear here soon."
+    />
+  );
+}
 
 async function ExploreSection({ token }: { token: string }) {
   const [users, repos] = await Promise.all([

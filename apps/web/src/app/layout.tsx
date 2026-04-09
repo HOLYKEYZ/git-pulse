@@ -16,7 +16,6 @@ export const viewport: Viewport = {
   themeColor: "#0a0a0f",
 };
 
-export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
     title: {

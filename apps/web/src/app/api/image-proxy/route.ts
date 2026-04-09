@@ -16,9 +16,9 @@ export async function GET(req: NextRequest) {
     const parsedUrl = new URL(url);
 
     // prevent obvious ssrf to local ip space
-    if (isPrivateIPAddress(parsedUrl)) {
+    if (parsedUrl.hostname === 'localhost' || parsedUrl.hostname === '127.0.0.1' || parsedUrl.hostname.startsWith('192.168.') || parsedUrl.hostname.startsWith('10.')) {
       return NextResponse.json({ error: "SSRF prevention" }, { status: 403 });
-}
+    }
 
     const response = await fetch(url, {
       headers: {

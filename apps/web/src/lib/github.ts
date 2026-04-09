@@ -821,6 +821,7 @@ export async function getDevelopersLikeYou(username: string, token: string, limi
           contributionsCollection {
             contributionCalendar { totalContributions }
           }
+          followers { totalCount }
         }
       }
     `;
@@ -852,6 +853,7 @@ export async function getDevelopersLikeYou(username: string, token: string, limi
     const myCommits = result.user.contributionsCollection?.contributionCalendar?.totalContributions || 0;
     const myCommitRate = myCommits / 365;
     const myAvgStars = myRepoNodes.length > 0 ? myTotalStars / myRepoNodes.length : 0;
+    const myFollowers = result.user.followers?.totalCount || 0;
     const repoRangeLow = Math.max(1, myRepoCount - 8);
     const repoRangeHigh = myRepoCount + 25;
 
@@ -900,6 +902,7 @@ export async function getDevelopersLikeYou(username: string, token: string, limi
           contributionsCollection {
             contributionCalendar { totalContributions }
           }
+          followers { totalCount }
         }
       `,
       token,
@@ -934,18 +937,21 @@ export async function getDevelopersLikeYou(username: string, token: string, limi
       const candCommitRate = candCommits / 365;
       const candAvgStars = candTotalStars / candRepoCount;
       const candTotalRepos = data.repositories?.totalCount || 0;
+      const candFollowers = data.followers?.totalCount || 0;
 
       // multi-signal distance — lower = better match
       const langSim = cosineSimilarity(top3Languages, candTop3);
       const commitRateDiff = Math.abs(myCommitRate - candCommitRate) / Math.max(myCommitRate, candCommitRate, 1);
       const repoCountDiff = Math.abs(myRepoCount - candTotalRepos) / Math.max(myRepoCount, candTotalRepos, 1);
       const avgStarsDiff = Math.abs(myAvgStars - candAvgStars) / Math.max(myAvgStars, candAvgStars, 1);
+      const followerDiff = Math.abs(myFollowers - candFollowers) / Math.max(myFollowers, candFollowers, 1);
 
       const distance =
         (1 - langSim)    * 3.5  // language most important
         + commitRateDiff * 2.5  // commit velocity next
         + repoCountDiff  * 1.0  // scale of work
-        + avgStarsDiff   * 0.3; // stars least important, anti-clout
+        + avgStarsDiff   * 0.3  // stars 
+        + followerDiff   * 1.5; // followers weight;
 
       // find actual shared languages for display
       const sharedLangs = top3Languages
@@ -970,25 +976,25 @@ export async function getDevelopersLikeYou(username: string, token: string, limi
       });
     }
 
-    // Step 5: sort by distance, achievement bonus for top 8 only
+    // Step 5: sort by distance, achievement bonus for top items
     scoredDevs.sort((a, b) => a.distance - b.distance);
-    const top8 = scoredDevs.slice(0, 8);
+    const topItems = scoredDevs.slice(0, limit);
 
     try {
       const achievementResults = await Promise.all(
-        top8.map(dev => getUserAchievements(dev.login))
+        topItems.map(dev => getUserAchievements(dev.login))
       );
-      for (let i = 0; i < top8.length; i++) {
+      for (let i = 0; i < topItems.length; i++) {
         const achScore = computeAchievementScore(achievementResults[i] || []);
-        top8[i].distance -= Math.min(achScore * 0.1, 1.5);
-        top8[i].achievementScore = achScore;
+        topItems[i].distance -= Math.min(achScore * 0.1, 1.5);
+        topItems[i].achievementScore = achScore;
       }
-      top8.sort((a, b) => a.distance - b.distance);
+      topItems.sort((a, b) => a.distance - b.distance);
     } catch {
       // achievements are bonus — don't fail silently breaks the whole function
     }
 
-    return top8.slice(0, limit);
+    return topItems;
 
   } catch (err) {
     console.error('[getDevelopersLikeYou] Error:', err);

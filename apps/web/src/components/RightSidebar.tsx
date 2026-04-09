@@ -51,37 +51,13 @@ async function ActiveTodaySection({ token }: { token: string }) {
   if (projects.length === 0 && devs.length === 0) return null;
   return (
     <ToggleSidebarCard
-      title="Most Active Today"
+      title="Active Today"
       tab1="Repos"
       tab2="Devs"
       items1={projects}
       items2={devs}
       type1="repo"
       type2="dev"
-      emptyMessage1="No heavily pushed repos found."
-      emptyMessage2="No highly active devs found today."
-    />
-  );
-}
-
-async function DevelopersLikeYouSection({ token, login }: { token: string; login: string }) {
-  const devs = await getDevelopersLikeYou(login, token, 5);
-  if (devs.length === 0) return null;
-  return (
-    <ToggleSidebarCard
-      title="Developers Like You"
-      tab1="Matches"
-      tab2="Ecosystem"
-      items1={devs}
-      items2={[]}
-      type1="dev"
-      type2="dev"
-      hideCommitCount={true}
-      emptyMessage1="No matching developers found."
-      emptyMessage2="Ecosystem peers will appear here soon."
-    />
-  );
-}
 
 async function ExploreSection({ token }: { token: string }) {
   const [users, repos] = await Promise.all([

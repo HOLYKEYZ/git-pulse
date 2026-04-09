@@ -12,6 +12,10 @@ export async function POST(req: Request, { params }: { params: { username: strin
 
   try {
 const { username: targetUsername } = params;
+const githubUsernameRegex = /^[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*$/;
+if (!githubUsernameRegex.test(targetUsername)) {
+  return NextResponse.json({ error: 'Invalid username format' }, { status: 400 });
+}
 
     if (session.user.login === targetUsername) {
       return NextResponse.json({ error: "Cannot follow yourself" }, { status: 400 });

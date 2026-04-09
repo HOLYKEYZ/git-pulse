@@ -33,7 +33,7 @@ return (
                 )}
 
                 {/* Rich Tooltip displaying the description */}
-                <div className="absolute hidden group-hover:block bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 w-64 p-3 bg-achievements-hoverBackground backdrop-blur-md border border-git-border text-white text-xs rounded-md shadow-xl pointer-events-none">
+                <div className="absolute hidden group-hover:block bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 w-64 p-3 bg-[#161b22] border border-git-border text-white text-xs rounded-md shadow-xl pointer-events-none">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-bold text-[13px]">{badge.name}</span>
                     {badge.multiplier && (
@@ -45,7 +45,7 @@ return (
                   <div className="text-achievements-descriptionText leading-snug">
                     {badge.description || "Achievement unlocked."}
                   </div>
-                  <svg className="absolute text-achievements-hoverBackground h-2 w-full left-0 top-full drop-shadow-sm" x="0px" y="0px" viewBox="0 0 255 255" xmlSpace="preserve"><polygon className="fill-current" points="0,0 127.5,127.5 255,0" /></svg>
+                  <svg className="absolute text-[#161b22] h-2 w-full left-0 top-full drop-shadow-sm" x="0px" y="0px" viewBox="0 0 255 255" xmlSpace="preserve"><polygon className="fill-current" points="0,0 127.5,127.5 255,0" /></svg>
                 </div>
               </div>
             ))}

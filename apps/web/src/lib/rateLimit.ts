@@ -14,13 +14,10 @@ export default function rateLimit(options?: RateLimitOptions) {
   return {
     check: (limit: number, token: string) =>
       new Promise<void>((resolve, reject) => {
-        const tokenCount = (tokenCache.get(token) as number[]) || [0];
-        if (tokenCount[0] === 0) {
-          tokenCache.set(token, tokenCount);
-        }
-        tokenCount[0] += 1;
-
-        const currentUsage = tokenCount[0];
+const tokenCount = tokenCache.get(token) as number || 0;
+        tokenCount += 1;
+        tokenCache.set(token, tokenCount);
+        const currentUsage = tokenCount;
         const isRateLimited = currentUsage > limit;
 
         if (isRateLimited) {

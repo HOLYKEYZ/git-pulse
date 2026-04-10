@@ -32,20 +32,20 @@ return (
                   </div>
                 )}
 
-                {/* Rich Tooltip displaying the description */}
-                <div className="absolute hidden group-hover:block bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 w-64 p-3 bg-[#161b22] border border-git-border text-white text-xs rounded-md shadow-xl pointer-events-none">
+                {/* GitHub-native styled Tooltip */}
+                <div className="absolute hidden group-hover:block bottom-full left-1/2 -translate-x-1/2 mb-3 z-50 w-72 p-3 bg-git-card border border-git-border text-git-text rounded-md shadow-xl pointer-events-none">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-bold text-[13px]">{badge.name}</span>
+                    <span className="font-bold text-[14px] text-git-text">{badge.name}</span>
                     {badge.multiplier && (
-                      <span className="text-[10px] bg-red-500/10 text-red-300 px-1.5 py-0.5 rounded-full border border-red-500/20">
+                      <span className="text-[11px] font-normal text-[#e89196] border border-[#e89196]/30 bg-[#e89196]/10 px-1.5 py-0.5 rounded-full">
                         x{badge.multiplier} tier
                       </span>
                     )}
                   </div>
-                  <div className="text-achievements-descriptionText leading-snug">
+                  <div className="text-[13px] text-git-text leading-snug">
                     {badge.description || "Achievement unlocked."}
                   </div>
-                  <svg className="absolute text-[#161b22] h-2 w-full left-0 top-full drop-shadow-sm" x="0px" y="0px" viewBox="0 0 255 255" xmlSpace="preserve"><polygon className="fill-current" points="0,0 127.5,127.5 255,0" /></svg>
+                  <svg className="absolute text-git-card h-2.5 w-full left-0 top-full drop-shadow-sm" x="0px" y="0px" viewBox="0 0 255 255" xmlSpace="preserve"><polygon className="fill-current" points="0,0 127.5,127.5 255,0" /></svg>
                 </div>
               </div>
             ))}

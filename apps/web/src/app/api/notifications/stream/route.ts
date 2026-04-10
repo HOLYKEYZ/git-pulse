@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -6,7 +7,7 @@ export const dynamic = "force-dynamic";
 export async function GET(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return new Response("Unauthorized", { status: 401 });
+return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const username = session.user.login;

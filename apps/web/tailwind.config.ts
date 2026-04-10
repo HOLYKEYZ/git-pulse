@@ -12,6 +12,7 @@ theme: {
       'gh-dark-bg-primary': '#0d1117',
       'gh-dark-border': '#30363d',
       'gh-dark-bg-secondary': '#161b22',
+      'git-header-bg': '#0d1117',
     },
   },
     extend: {

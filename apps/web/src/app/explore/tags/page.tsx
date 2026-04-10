@@ -34,7 +34,7 @@ export default async function TagsPage() {
 
   return (
     <div className="flex flex-col animate-slide-up pb-12 w-full max-w-3xl mx-auto">
-            <div className="px-4 py-6 border-b border-git-border bg-[#0d1117] sticky top-0 z-10 flex items-center gap-3">
+            <div className="px-4 py-6 border-b border-git-border bg-git-header-bg sticky top-0 z-10 flex items-center gap-3">
                 <span className="text-2xl font-black text-git-text">#</span>
                 <h1 className="text-xl font-bold text-git-text">Trending Hashtags</h1>
             </div>

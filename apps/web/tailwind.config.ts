@@ -6,7 +6,14 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  theme: {
+theme: {
+  extend: {
+    colors: {
+      'gh-dark-bg-primary': '#0d1117',
+      'gh-dark-border': '#30363d',
+      'gh-dark-bg-secondary': '#161b22',
+    },
+  },
     extend: {
       colors: {
         language: {

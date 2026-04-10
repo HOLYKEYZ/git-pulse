@@ -27,7 +27,7 @@ body {
 /* ─── Theme: Midnight (X-dark) ─────────────────────────────────────────── */
 [data-theme="midnight"] {
   --bg: #000000;
-  --card: #16181c;
+  --card: #000000;
   --border: #2f3336;
   --accent: #58a6ff;
   --text: #e7e9ea;

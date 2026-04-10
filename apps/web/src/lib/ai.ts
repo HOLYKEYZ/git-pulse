@@ -34,13 +34,19 @@ export async function generateRepoPitch(repo: RepoContext): Promise<string> {
           return await geminiPitch(repo);
         } catch (error) {
           console.error("[AI] Gemini failed, no pitch generated:", error);
-          return "";
+          return await heuristicPitch(repo);
         }
       }
-      return "";
+      return await heuristicPitch(repo);
     },
     1000 * 60 * 60 * 24 // 24-hour cache ttl
   );
+}
+
+async function heuristicPitch(repo: RepoContext): Promise<string> {
+  const firstSentence = repo.description ? `The ${repo.name} project is a ${repo.description}.` : `The ${repo.name} project is primarily developed in ${repo.language || 'an unspecified language'}.`;
+  const secondSentence = repo.stars > 0 || repo.forks > 0 ? `With ${repo.stars} stars and ${repo.forks} forks, this project has gained significant attention from the developer community.` : `This project is categorized under ${repo.topics.join(', ') || 'unknown topics'}.`;
+  return `${firstSentence} ${secondSentence}`;
 }
 
 /**

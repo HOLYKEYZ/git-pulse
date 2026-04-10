@@ -1,4 +1,4 @@
-import { LRUCache } from 'lru-cache';
+import { redis } from './cache';
 
 type RateLimitOptions = {
   uniqueTokenPerInterval?: number;
@@ -6,25 +6,27 @@ type RateLimitOptions = {
 };
 
 export default function rateLimit(options?: RateLimitOptions) {
-  const tokenCache = new LRUCache({
-    max: options?.uniqueTokenPerInterval || 500,
-    ttl: options?.interval || 60000,
-  });
+  const windowSecs = options?.interval ? Math.floor(options.interval / 1000) : 60;
 
   return {
-    check: (limit: number, token: string) =>
-      new Promise<void>((resolve, reject) => {
-const tokenCount = tokenCache.get(token) as number || 0;
-        tokenCount += 1;
-        tokenCache.set(token, tokenCount);
-        const currentUsage = tokenCount;
-        const isRateLimited = currentUsage > limit;
+    check: async (limit: number, token: string) => {
+      if (!process.env.UPSTASH_REDIS_REST_URL) return; // fail open if no config
 
-        if (isRateLimited) {
-          reject('Rate limit exceeded');
-        } else {
-          resolve();
+      const key = `ratelimit:${token}`;
+      try {
+        const currentCount = await redis.incr(key);
+        if (currentCount === 1) {
+          await redis.expire(key, windowSecs);
         }
-      }),
+        if (currentCount > limit) {
+          throw new Error('Rate limit exceeded');
+        }
+      } catch (err) {
+        if (err instanceof Error && err.message === 'Rate limit exceeded') {
+          throw err;
+        }
+        console.error('Redis Rate limit error:', err);
+      }
+    },
   };
 }

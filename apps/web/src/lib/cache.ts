@@ -31,7 +31,7 @@ export async function withCache<T>(key: string, fn: () => Promise<T>, ttl?: numb
     // don't cache null/undefined or empty arrays to avoid poisoning the cache with bad responses
     // however, if i want to cache empty results, i should adjust this logic.
     // for the github api, i usually want to cache successful responses.
-if (result !== null && result !== undefined && (!Array.isArray(result) || result.length !== 0)) {
+if (result !== null && result !== undefined) {
       if (ttl) {
         apiCache.set(key, result, { ttl });
       } else {

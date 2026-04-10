@@ -2,6 +2,13 @@ import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
 // get current user's github profile data
+function getGitHubApiHeaders(accessToken: string) {
+    return {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/vnd.github+json",
+    };
+}
+
 export async function GET() {
     const session = await auth();
     if (!session?.user?.accessToken) {
@@ -10,10 +17,7 @@ export async function GET() {
 
     try {
         const res = await fetch("https://api.github.com/user", {
-            headers: {
-                Authorization: `Bearer ${session.user.accessToken}`,
-                Accept: "application/vnd.github+json",
-            },
+            headers: getGitHubApiHeaders(session.user.accessToken),
         });
 
         if (!res.ok) {
@@ -55,11 +59,10 @@ export async function PATCH(request: Request) {
             }
         }
 
-        const res = await fetch("https://api.github.com/user", {
+const res = await fetch("https://api.github.com/user", {
             method: "PATCH",
             headers: {
-                Authorization: `Bearer ${session.user.accessToken}`,
-                Accept: "application/vnd.github+json",
+                ...getGitHubApiHeaders(session.user.accessToken),
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(payload),

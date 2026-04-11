@@ -202,7 +202,7 @@ export default function ContributionHeatmap({ weeks: initialWeeks, totalContribu
                         <div className="flex items-center gap-1.5 text-xs text-git-muted">
                             <span>Less</span>
                             <div className="flex gap-[3px]">
-                                <div className="w-[11px] h-[11px] rounded-[2px] bg-[#161b22] border border-[#1b232d]" />
+                                <div className="w-[11px] h-[11px] rounded-[2px] bg-contribution-none border border-[#1b232d]" />
                                 <div className="w-[11px] h-[11px] rounded-[2px] bg-[#0e4429] border border-[#115533]" />
                                 <div className="w-[11px] h-[11px] rounded-[2px] bg-[#006d32] border border-[#00823c]" />
                                 <div className="w-[11px] h-[11px] rounded-[2px] bg-[#26a641] border border-[#29b748]" />

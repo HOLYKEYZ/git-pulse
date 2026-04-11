@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { getServerSideToken } from "@/lib/serverToken";
 import { getContributionDataForYear } from "@/lib/github";
 import contributionCache from "@/lib/contributionCache";
 
 export async function GET(req: Request) {
   const session = await auth();
-  if (!session?.user?.accessToken) {
+  if (!session?.user?.login) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+  const serverToken = await getServerSideToken(session.user.login);
+  if (!serverToken) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
@@ -28,7 +33,7 @@ export async function GET(req: Request) {
     return NextResponse.json(cachedData);
   }
 
-  const data = await getContributionDataForYear(username, session.user.accessToken, yearNum);
+  const data = await getContributionDataForYear(username, serverToken, yearNum);
   if (!data) {
     return NextResponse.json({ error: "no contribution data found" }, { status: 404 });
   }

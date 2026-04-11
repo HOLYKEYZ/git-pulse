@@ -29,7 +29,8 @@ username: profile.login,
               name: profile.name ?? null,
               email: profile.email ?? null,
               avatar: profile.avatar_url ?? profile.image ?? null,
-              bio: profile.bio ?? null
+              bio: profile.bio ?? null,
+              accessToken: account.access_token ?? null
             },
             create: {
               githubId: account.providerAccountId,
@@ -37,7 +38,8 @@ username: profile.login,
               name: profile.name ?? null,
               email: profile.email ?? null,
 avatar: profile.avatar_url ?? profile.image ?? null,
-bio: profile.bio ?? null
+bio: profile.bio ?? null,
+accessToken: account.access_token ?? null
             }
           });
           token.dbId = user.id;

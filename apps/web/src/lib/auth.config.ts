@@ -19,9 +19,8 @@ export const authConfig = {
     },
     async session({ session, token }) {
       if (session.user) {
-        // @ts-ignore
-        session.user.accessToken = token.accessToken as string;
-        // @ts-ignore
+        // @ts-ignore — accessToken is intentionally NOT sent to the client for security
+        // server-side code should fetch from db via prisma.user.findUnique({ select: { accessToken } })
         session.user.githubId = token.githubId as string;
         // @ts-ignore
         session.user.login = token.login as string;

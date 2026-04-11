@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { getServerSideToken } from "@/lib/serverToken";
 import { getGitHubReceivedEvents, type GitHubEvent } from "@/lib/github";
 import { prisma } from "@/lib/prisma";
 import FeedClient from "@/components/FeedClient";
@@ -280,13 +281,16 @@ export default async function HomePage() {
   // activity: real github events, bot-filtered, from followed users
   // ═══════════════════════════════════════════════════════════════════════
   let activityPosts: PostProps[] = [];
-  if (session?.user?.login && session.user.accessToken) {
-    const events = await getGitHubReceivedEvents(session.user.login, session.user.accessToken);
-    activityPosts = events.
-    filter(isWorthShowing).
-    map(mapEventToPost).
-    filter((p): p is PostProps => p !== null).
-    slice(0, 20);
+  if (session?.user?.login) {
+    const token = await getServerSideToken(session.user.login);
+    if (token) {
+      const events = await getGitHubReceivedEvents(session.user.login, token);
+      activityPosts = events.
+      filter(isWorthShowing).
+      map(mapEventToPost).
+      filter((p): p is PostProps => p !== null).
+      slice(0, 20);
+    }
   }
 
   return (

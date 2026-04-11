@@ -1,0 +1,16 @@
+import { prisma } from "./prisma";
+
+/**
+ * fetches the user's github access token from the database.
+ * this is the ONLY way to get the token — it is never sent to the client session.
+ * 
+ * @param username the github login of the user
+ * @returns the access token string, or null if not found
+ */
+export async function getServerSideToken(username: string): Promise<string | null> {
+  const user = await prisma.user.findUnique({
+    where: { username },
+    select: { accessToken: true },
+  });
+  return user?.accessToken ?? null;
+}

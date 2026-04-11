@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { getServerSideToken } from "@/lib/serverToken";
 import {
   getGitHubUser,
   getGitHubRepos,
@@ -26,7 +27,7 @@ export default async function ProfilePage({ params }: {params: Promise<{username
   const session = await auth();
   const resolvedParams = await params;
   const { username } = resolvedParams;
-  const token = session?.user?.accessToken;
+  const token = session?.user?.login ? await getServerSideToken(session.user.login) : null;
   const isOwnProfile = session?.user?.login === username;
 
   // parallel data fetching — all at once for speed

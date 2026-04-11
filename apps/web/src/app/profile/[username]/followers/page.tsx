@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { getServerSideToken } from "@/lib/serverToken";
 import { getGitHubFollowers, getGitHubFollowing, type GitHubFollowUser } from "@/lib/github";
 import Image from "next/image";
 import Link from "next/link";
@@ -7,7 +8,7 @@ import FollowButton from "@/components/FollowButton";
 export default async function FollowersPage({ params }: { params: { username: string }; }) {
   const session = await auth();
   const { username } = params;
-  const token = session?.user?.accessToken;
+  const token = session?.user?.login ? await getServerSideToken(session.user.login) : null;
 
 const followers: GitHubFollowUser[] = token ? await getGitHubFollowers(username, token) : [];
 const currentUserFollowing = token ? await getGitHubFollowing(session.user.login, token) : [];

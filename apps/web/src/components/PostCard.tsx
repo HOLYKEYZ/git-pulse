@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { BookmarkIcon, ShareAndroidIcon, SyncIcon } from '@primer/octicons-react';
+import { ShareAndroidIcon, SyncIcon } from '@primer/octicons-react';
 import RepoCard from './RepoCard';
 import AiSummary from './AiSummary';
 import ReactionPicker from './ReactionPicker';
@@ -284,15 +284,6 @@ export default function PostCard({ post }: {post: PostProps;}) {
               className="flex items-center gap-1.5 text-git-muted hover:text-git-accent transition-colors group"
               title="Share post">
               <ShareAndroidIcon size={16} className="group-hover:bg-git-accent/10 rounded" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-              className="flex items-center gap-1.5 text-git-muted hover:text-[#e3b341] transition-colors group"
-              title="Bookmark">
-              <BookmarkIcon size={16} className="group-hover:bg-[#e3b341]/10 rounded" />
             </button>
           </div>
         </div>

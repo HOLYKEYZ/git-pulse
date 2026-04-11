@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import crypto from "crypto";
+import { hashApiKey } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
@@ -16,12 +16,11 @@ export async function GET() {
 
   const user = await prisma.user.findUnique({
     where: { username: session.user.login },
-    select: { apiKey: true }
+    select: { hashedApiKey: true }
   });
 
   return NextResponse.json({
-    hasKey: !!user?.apiKey,
-    keyPreview: user?.apiKey ? `gp_...${user.apiKey.slice(-4)}` : null
+    hasKey: !!user?.hashedApiKey
   });
 }
 
@@ -31,11 +30,12 @@ export async function POST() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const rawKey = `gp_${crypto.randomBytes(32).toString("hex")}`;
+  const rawKey = `gp_${crypto.randomBytes(32).toString('hex')}`;
+  const hashedKey = await hashApiKey(rawKey);
 
   await prisma.user.update({
     where: { username: session.user.login },
-    data: { apiKey: rawKey }
+    data: { hashedApiKey: hashedKey }
   });
 
   return NextResponse.json({
@@ -52,7 +52,7 @@ export async function DELETE() {
 
   await prisma.user.update({
     where: { username: session.user.login },
-    data: { apiKey: null }
+    data: { hashedApiKey: null }
   });
 
   return NextResponse.json({ success: true, message: "API key revoked." });

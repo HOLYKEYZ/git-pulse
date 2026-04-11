@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { getServerSideToken } from "@/lib/serverToken";
 import { NextResponse } from "next/server";
 
 // get current user's github profile data
@@ -11,13 +12,17 @@ function getGitHubApiHeaders(accessToken: string) {
 
 export async function GET() {
     const session = await auth();
-    if (!session?.user?.accessToken) {
+    if (!session?.user?.login) {
+        return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    }
+    const token = await getServerSideToken(session.user.login);
+    if (!token) {
         return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
 
     try {
         const res = await fetch("https://api.github.com/user", {
-            headers: getGitHubApiHeaders(session.user.accessToken),
+            headers: getGitHubApiHeaders(token),
         });
 
         if (!res.ok) {
@@ -43,7 +48,11 @@ export async function GET() {
 // update current user's github profile
 export async function PATCH(request: Request) {
     const session = await auth();
-    if (!session?.user?.accessToken) {
+    if (!session?.user?.login) {
+        return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    }
+    const patchToken = await getServerSideToken(session.user.login);
+    if (!patchToken) {
         return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
 
@@ -62,7 +71,7 @@ export async function PATCH(request: Request) {
 const res = await fetch("https://api.github.com/user", {
             method: "PATCH",
             headers: {
-                ...getGitHubApiHeaders(session.user.accessToken),
+                ...getGitHubApiHeaders(patchToken),
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(payload),

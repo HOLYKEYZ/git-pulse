@@ -1,15 +1,20 @@
 import { auth } from "@/lib/auth";
+import { getServerSideToken } from "@/lib/serverToken";
 import { NextResponse } from "next/server";
 
 import { withCache } from "@/lib/cache";
 export async function GET() {
     const session = await auth();
-    if (!session?.user?.accessToken) {
+    if (!session?.user?.login) {
+        return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    }
+    const serverToken = await getServerSideToken(session.user.login);
+    if (!serverToken) {
         return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
     const cacheKey = `github-repos-${session.user.id}`;
     try {
-        const allRepos = await withCache(cacheKey, () => fetchUserReposFromGitHub(session.user.accessToken));
+        const allRepos = await withCache(cacheKey, () => fetchUserReposFromGitHub(serverToken));
         return NextResponse.json(allRepos);
     } catch (error: unknown) {
         console.error("Error fetching GitHub repositories:", error);

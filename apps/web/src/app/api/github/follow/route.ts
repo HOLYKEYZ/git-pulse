@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { getServerSideToken } from "@/lib/serverToken";
 
 async function getAuthenticatedTokenOrResponse(req: NextRequest): Promise<string | NextResponse> {
   const session = await auth();
-  const token = session?.user?.accessToken;
+  const token = session?.user?.login ? await getServerSideToken(session.user.login) : null;
   if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

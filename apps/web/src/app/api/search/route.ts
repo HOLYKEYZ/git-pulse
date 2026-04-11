@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 import { auth } from "@/lib/auth";
+import { getServerSideToken } from "@/lib/serverToken";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -15,8 +16,11 @@ export async function GET(request: Request) {
 
   const session = await auth();
   const headers: Record<string, string> = { "Accept": "application/vnd.github.v3+json" };
-  if (session?.user?.accessToken) {
-    headers["Authorization"] = `Bearer ${session.user.accessToken}`;
+  if (session?.user?.login) {
+    const token = await getServerSideToken(session.user.login);
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
   }
 
   // parallel fetch: db posts, github users, github repos

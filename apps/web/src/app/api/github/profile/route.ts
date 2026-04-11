@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { getServerSideToken } from "@/lib/serverToken";
 
 export async function PATCH(req: NextRequest) {
   try {
     const session = await auth();
-    const token = session?.user?.accessToken;
+    const token = session?.user?.login ? await getServerSideToken(session.user.login) : null;
     
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

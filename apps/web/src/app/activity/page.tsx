@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { getServerSideToken } from "@/lib/serverToken";
 import { redirect } from "next/navigation";
 import { getRelativeTime } from "@/lib/utils";
 import { getGitHubReceivedEvents, type GitHubEvent } from "@/lib/github";
@@ -22,8 +23,8 @@ export default async function ActivityPage() {
     let hasError = false;
 
     try {
-        const token = session.user.accessToken;
-        // Fetch real dashboard events (what the user sees on github.com)
+        const token = session?.user?.login ? await getServerSideToken(session.user.login) : null;
+        // fetch real dashboard events (what the user sees on github.com)
         events = token ? await getGitHubReceivedEvents(session.user.login, token) : [];
     } catch (err) {
         console.error("[Activity] GitHub Fetch Error:", err);

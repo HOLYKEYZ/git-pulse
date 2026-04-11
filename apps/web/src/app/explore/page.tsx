@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
+import { getServerSideToken } from "@/lib/serverToken";
 import TrendingCard from "@/components/TrendingCard";
 import ToggleSidebarCard from "@/components/ToggleSidebarCard";
 import { 
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
 
 export default async function ExplorePage() {
   const session = await auth();
-  const token = session?.user?.accessToken || "";
+  const token = session?.user?.login ? (await getServerSideToken(session.user.login) || "") : "";
 
   let trendingRepos: any[] = [];
   let trendingDevs: any[] = [];

@@ -25,7 +25,9 @@ model User {
   followers Follow[]  @relation("following") // users who follow this user
   following Follow[]  @relation("follower")  // users this user follows
   notifications Notification[]
-  apiKey    String?  @unique  // Hashed API key for programmatic access
+  apiKey      String?  @unique  // hashed api key for programmatic access
+  accessToken String?  // github oauth token, stored server-side only — never sent to client
+  isAdmin     Boolean  @default(false)
   statusEmoji String?
   statusText  String?
   showActivity      Boolean @default(true)

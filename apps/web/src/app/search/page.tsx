@@ -90,7 +90,7 @@ useEffect(() => {
 
   return (
     <div className="flex flex-col animate-slide-up pb-12">
-            <div className="px-4 py-6 border-b border-git-border bg-[#0d1117] sticky top-0 z-10">
+            <div className="px-4 py-6 border-b border-git-border bg-git-bg sticky top-0 z-10">
                 <h1 className="text-xl font-bold text-git-text mb-1">
                     Search results for &quot;{query}&quot;
                 </h1>

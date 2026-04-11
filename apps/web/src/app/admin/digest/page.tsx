@@ -99,7 +99,7 @@ const res = await fetch("/api/admin/digest");
                             </thead>
                             <tbody>
                                 {data.posts.map((p, i) =>
-              <tr key={p.id} className="border-b border-git-border last:border-b-0 hover:bg-[#161b22] transition-colors">
+              <tr key={p.id} className="border-b border-git-border last:border-b-0 hover:bg-git-hover transition-colors">
                                         <td className="px-3 py-2 text-git-muted">{i + 1}</td>
                                         <td className="px-3 py-2 text-git-text">@{p.author}</td>
                                         <td className="px-3 py-2 text-git-muted truncate max-w-[200px]">{p.contentPreview}</td>

@@ -132,10 +132,10 @@ const formattedPost = { ...data.post, timestamp: getRelativeTime(data.post.times
                   <div key={i} className="p-4 border-b border-git-border animate-pulse flex gap-3">
                     <div className="w-10 h-10 rounded-full bg-git-border shrink-0" />
                     <div className="flex-1 space-y-3 py-1">
-                      <div className="h-4 bg-[#21262d] rounded w-1/4" />
+                      <div className="h-4 bg-git-border rounded w-1/4" />
                       <div className="space-y-2">
-                        <div className="h-3 bg-[#21262d] rounded w-full" />
-                        <div className="h-3 bg-[#21262d] rounded w-5/6" />
+                        <div className="h-3 bg-git-border rounded w-full" />
+                        <div className="h-3 bg-git-border rounded w-5/6" />
                       </div>
                     </div>
                   </div>

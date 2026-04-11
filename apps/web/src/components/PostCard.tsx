@@ -123,7 +123,7 @@ export default function PostCard({ post }: {post: PostProps;}) {
   return (
     <div 
       onClick={handleNavigate} 
-      className="relative flex flex-col px-4 py-4 border-b border-git-border hover:bg-[#161b22]/50 transition-colors cursor-pointer"
+      className="relative flex flex-col px-4 py-4 border-b border-git-border hover:bg-git-hover transition-colors cursor-pointer"
     >
       
       {/* repost header */}

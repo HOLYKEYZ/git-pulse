@@ -70,7 +70,7 @@ export default async function ExplorePage() {
                         type="text" 
                         name="q"
                         placeholder="Search posts, users, and repos..." 
-                        className="w-full bg-[#161b22] border border-git-border rounded-full py-2 pl-10 pr-4 text-[14px] text-git-text placeholder:text-git-muted outline-none focus:border-git-accent focus:bg-git-bg transition-colors"
+                        className="w-full bg-git-card border border-git-border rounded-full py-2 pl-10 pr-4 text-[14px] text-git-text placeholder:text-git-muted outline-none focus:border-git-accent focus:bg-git-bg transition-colors"
                     />
                 </form>
             </div>

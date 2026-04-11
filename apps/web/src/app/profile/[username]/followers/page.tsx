@@ -40,7 +40,7 @@ const currentUserFollowing = token ? await getGitHubFollowing(session.user.login
                 {followers.map((user) => {
                   const isFollowing = currentUserFollowing.some((f) => f.login === user.login);
                   return (
-        <div key={user.login} className="flex items-center gap-3 px-4 py-3 hover:bg-[#161b22]/50 transition-colors">
+        <div key={user.login} className="flex items-center gap-3 px-4 py-3 hover:bg-git-hover transition-colors">
                         <Link href={`/profile/${user.login}`}>
                             <Image
               src={user.avatar_url}

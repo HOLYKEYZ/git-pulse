@@ -37,7 +37,7 @@ export default async function FollowingPage({ params }: {params: Promise<{userna
         }
 
                 {following.map((user) =>
-        <div key={user.login} className="flex items-center gap-3 px-4 py-3 hover:bg-[#161b22]/50 transition-colors">
+        <div key={user.login} className="flex items-center gap-3 px-4 py-3 hover:bg-git-hover transition-colors">
                         <Link href={`/profile/${user.login}`}>
                             <Image
               src={user.avatar_url}

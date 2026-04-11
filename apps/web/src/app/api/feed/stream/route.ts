@@ -1,17 +1,30 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { calculatePostScoreDetailed } from '@/lib/utils';
 
 // force edge/nodejs runtime without caching
 export const dynamic = "force-dynamic";
 
 import { auth } from '@/lib/auth';
+
+// vercel hobby plan kills functions at 60s — we close cleanly at 55s
+const SSE_TIMEOUT_MS = 55_000;
+
 export async function GET(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response('Unauthorized', { status: 401 });
+  if (!session?.user?.login) return new Response('Unauthorized', { status: 401 });
+
+  const currentUsername = session.user.login;
   const encoder = new TextEncoder();
 
-  // i create a transformstream to hold the sse connection open
+  // fetch the current user's following list to filter the feed
+  const currentUser = await prisma.user.findUnique({
+    where: { username: currentUsername },
+    select: {
+      following: { select: { followingId: true } }
+    }
+  });
+  const followingIds = currentUser?.following.map((f) => f.followingId) || [];
+
   const stream = new TransformStream();
   const writer = stream.writable.getWriter();
 
@@ -28,15 +41,21 @@ export async function GET(req: NextRequest) {
   const fetchPostsInterval = setInterval(async () => {
     const now = new Date();
     try {
-      // find any pure-feed visible posts created between lastCheckedTime and now
+      // only fetch posts from users the current user follows
+      const whereClause: any = {
+        createdAt: { gt: lastCheckedTime, lte: now }
+      };
+
+      // if the user follows anyone, filter to only those authors
+      if (followingIds.length > 0) {
+        whereClause.authorId = { in: followingIds };
+      }
+
       const newPosts = await prisma.post.findMany({
-        where: {
-          createdAt: { gt: lastCheckedTime, lte: now }
-        },
+        where: whereClause,
         include: {
           author: { select: { username: true, githubId: true } },
-          reactions: true,
-          _count: { comments: true }
+          reactions: true
         },
         orderBy: { createdAt: "desc" }
       });
@@ -44,9 +63,7 @@ export async function GET(req: NextRequest) {
       lastCheckedTime = now;
 
       if (newPosts.length > 0) {
-        // blast posts down the pipe
         for (const post of newPosts) {
-          const { score, passedBadge } = calculatePostScoreDetailed(post);
           writeEvent({
             type: "NEW_POST",
             post: {
@@ -59,13 +76,13 @@ export async function GET(req: NextRequest) {
               content: post.content,
               timestamp: post.createdAt.toISOString(),
               likes: post.reactions.length,
-              comments: post._count.comments,
+              comments: 0,
               reactions: post.reactions,
               images: post.images,
               repoUrl: post.repoUrl,
               repoEmbed: post.repoEmbed,
-              score,
-              passedBadge
+              score: 0,
+              passedBadge: false
             }
           });
         }
@@ -75,7 +92,14 @@ export async function GET(req: NextRequest) {
     }
   }, 5000);
 
+  // deterministic 55s timeout — close before vercel kills us at 60s
+  const timeoutHandle = setTimeout(() => {
+    clearInterval(fetchPostsInterval);
+    writer.close().catch(() => {});
+  }, SSE_TIMEOUT_MS);
+
   req.signal.addEventListener("abort", () => {
+    clearTimeout(timeoutHandle);
     clearInterval(fetchPostsInterval);
     writer.close().catch(() => {});
   });

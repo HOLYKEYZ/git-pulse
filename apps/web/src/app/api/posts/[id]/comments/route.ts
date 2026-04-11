@@ -17,6 +17,13 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     }
 
     try {
+        // rate limit: 30 comments per hour per user
+        await commentLimiter.check(30, session.user.login);
+    } catch {
+        return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+    }
+
+    try {
         const { id: postId } = params;
         const body = await req.json();
         const { content, parentId } = body;

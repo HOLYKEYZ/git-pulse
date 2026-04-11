@@ -39,8 +39,8 @@ const stream = new ReadableStream({
     // send initial count immediately
     await sendCount();
 
-    // poll database every 10 seconds and push updates
-    interval = setInterval(sendCount, 10000);
+    // poll database every 30 seconds and push updates
+    interval = setInterval(sendCount, 30000);
 
     // clean up on disconnect
     req.signal.addEventListener("abort", () => {

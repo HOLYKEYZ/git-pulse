@@ -11,15 +11,19 @@ interface ContributionHeatmapProps {
 }
 
 // inline hex colors — not tailwind classes — so they survive jit purge
-const LEVEL_COLORS: Record<ContributionDay["contributionLevel"], string> = {
-    NONE: "#161b22",
-    FIRST_QUARTILE: "#0e4429",
-    SECOND_QUARTILE: "#006d32",
-    THIRD_QUARTILE: "#26a641",
-    FOURTH_QUARTILE: "#39d353",
-};
 
 const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+const getContributionLevelClass = (level: ContributionDay["contributionLevel"]): string => {
+    switch (level) {
+        case "NONE": return "bg-contribution-none";
+        case "FIRST_QUARTILE": return "bg-contribution-first-quartile";
+        case "SECOND_QUARTILE": return "bg-contribution-second-quartile";
+        case "THIRD_QUARTILE": return "bg-contribution-third-quartile";
+        case "FOURTH_QUARTILE": return "bg-contribution-fourth-quartile";
+        default: return "bg-contribution-none"; // Fallback
+    }
+};
 
 export default function ContributionHeatmap({ weeks: initialWeeks, totalContributions: initialTotal, username, joinYear }: ContributionHeatmapProps) {
     const scrollRef = useRef<HTMLDivElement>(null);

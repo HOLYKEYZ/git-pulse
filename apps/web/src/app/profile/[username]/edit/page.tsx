@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -15,10 +15,9 @@ interface ProfileData {
     login: string;
 }
 
-export default function EditProfilePage({ params }: { params: Promise<{ username: string }> }) {
+export default function EditProfilePage({ params }: { params: { username: string } }) {
     const router = useRouter();
-    const resolvedParams = use(params);
-    const { username } = resolvedParams;
+const { username } = params;
     const [profile, setProfile] = useState<ProfileData | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);

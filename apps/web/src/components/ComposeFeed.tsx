@@ -67,7 +67,7 @@ export default function ComposeFeed() {
 
   return (
     <div className="rounded-xl border border-git-border bg-git-card overflow-hidden">
-      <div className="bg-[#0d1117] border-b border-git-border px-4 py-2 flex gap-4 text-sm font-medium">
+      <div className="bg-git-dark-bg-header border-b border-git-border px-4 py-2 flex gap-4 text-sm font-medium">
         <button
           type="button"
           onClick={() => setPreviewMode(false)}
@@ -149,7 +149,7 @@ export default function ComposeFeed() {
           </div>
           
           <div className="flex items-center gap-4">
-            <span className={`text-xs font-mono ${content.length > maxLength ? 'text-[#f85149]' : 'text-git-muted'}`}>
+            <span className={`text-xs font-mono ${content.length > maxLength ? 'text-git-error-text' : 'text-git-muted'}`}>
               {content.length}/{maxLength}
             </span>
             <button

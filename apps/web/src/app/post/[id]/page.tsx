@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
+import BackButton from "@/components/BackButton";
 import { getRelativeTime } from "@/lib/utils";
 import CommentSection from "@/components/CommentSection";
 import RepoCard from "@/components/RepoCard";
@@ -51,11 +52,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
     <div className="flex flex-col w-full max-w-[600px] mx-auto min-h-screen">
       {/* header */}
       <div className="sticky top-0 z-10 flex items-center gap-3 px-4 py-3 border-b border-git-border bg-git-bg/80 backdrop-blur-md">
-        <Link href="/" className="text-git-muted hover:text-git-text transition-colors">
-          <svg height="20" viewBox="0 0 16 16" width="20" className="fill-current">
-            <path d="M7.78 12.53a.75.75 0 0 1-1.06 0L2.47 8.28a.75.75 0 0 1 0-1.06l4.25-4.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042L4.81 7h7.44a.75.75 0 0 1 0 1.5H4.81l2.97 2.97a.75.75 0 0 1 0 1.06Z" />
-          </svg>
-        </Link>
+        <BackButton />
         <h1 className="text-lg font-bold text-git-text">Post</h1>
       </div>
 

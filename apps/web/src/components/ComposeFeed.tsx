@@ -12,7 +12,7 @@ export default function ComposeFeed() {
   const [previewMode, setPreviewMode] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const maxLength = 280;
+  const maxLength = 500;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,6 +55,8 @@ export default function ComposeFeed() {
         setContent('');
         setImages([]);
         setPreviewMode(false);
+        // scroll to top so user sees their new post
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         // refresh the server components to show new post without hard reload
         router.refresh();
       }

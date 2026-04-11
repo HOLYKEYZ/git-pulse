@@ -8,7 +8,21 @@ const config: Config = {
   ],
 theme: {
   extend: {
-    colors: {
+colors: {
+        contribution: {
+            none: '#161b22',
+            'first-quartile': '#0e4429',
+            'second-quartile': '#006d32',
+            'third-quartile': '#26a641',
+            'fourth-quartile': '#39d353',
+        },
+        git: {
+            'dark-bg-header': '#0d1117',
+            'error-text': '#f85149',
+            'dark-bg-primary': '#0d1117',
+            'dark-bg-secondary': '#010409',
+        },
+        // Existing colors start here
       'gh-dark-bg-primary': '#0d1117',
       'gh-dark-border': '#30363d',
       'gh-dark-bg-secondary': '#161b22',

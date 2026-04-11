@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { getServerSideToken } from "@/lib/serverToken";
 import { getGitHubStarredRepos, getGitHubUser } from "@/lib/github";
 import RepoCard from "@/components/RepoCard";
 import ProfileTabs from "@/components/ProfileTabs";
@@ -7,7 +8,7 @@ import { getLanguageColor } from "@/lib/colors";
 export default async function StarsPage({ params }: { params: { username: string }; }) {
   const session = await auth();
   const { username } = params;
-  const token = session?.user?.accessToken;
+  const token = session?.user?.login ? await getServerSideToken(session.user.login) : null;
 
   let repos: any[] = []; 
   let hasError = false; 

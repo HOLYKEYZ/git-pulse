@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { getServerSideToken } from "@/lib/serverToken";
 import { getGitHubAllRepos } from "@/lib/github";
 import RepoCard from "@/components/RepoCard";
 import Link from "next/link";
@@ -14,7 +15,7 @@ export default async function ReposPage({ params }: {params: Promise<{username: 
   const session = await auth();
   const resolvedParams = await params;
   const { username } = resolvedParams;
-  const token = session?.user?.accessToken;
+  const token = session?.user?.login ? await getServerSideToken(session.user.login) : null;
 
 let repos: any[] = []; let hasError = false; try { repos = token ? await getGitHubAllRepos(username, token, 1, 30, "updated") : []; } catch (error) { console.error('Error fetching repositories:', error); hasError = true; }
 

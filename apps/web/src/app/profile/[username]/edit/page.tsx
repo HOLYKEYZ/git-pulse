@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 
 interface ProfileData {
@@ -17,6 +18,7 @@ interface ProfileData {
 
 export default function EditProfilePage({ params }: { params: { username: string } }) {
     const router = useRouter();
+    const { data: session } = useSession();
 const { username } = params;
     const [profile, setProfile] = useState<ProfileData | null>(null);
     const [loading, setLoading] = useState(true);
@@ -31,6 +33,14 @@ const { username } = params;
     const [twitterUsername, setTwitterUsername] = useState("");
     const [location, setLocation] = useState("");
     const [company, setCompany] = useState("");
+
+    // auth guard: redirect if trying to edit another user's profile
+    useEffect(() => {
+        // @ts-ignore — login is added by our auth config
+        if (session?.user?.login && session.user.login !== username) {
+            router.push(`/profile/${username}`);
+        }
+    }, [session, username, router]);
 
     useEffect(() => {
         const load = async () => {
@@ -55,6 +65,10 @@ const { username } = params;
     }, []);
 
     const handleSave = async () => {
+        // confirmation before modifying live github profile
+        if (!window.confirm("this will update your live GitHub profile. are you sure?")) {
+            return;
+        }
         setSaving(true);
         setError(null);
         setSuccess(false);

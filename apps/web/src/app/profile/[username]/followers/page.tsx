@@ -11,7 +11,7 @@ export default async function FollowersPage({ params }: { params: { username: st
   const token = session?.user?.login ? await getServerSideToken(session.user.login) : null;
 
 const followers: GitHubFollowUser[] = token ? await getGitHubFollowers(username, token) : [];
-const currentUserFollowing = token ? await getGitHubFollowing(session.user.login, token) : [];
+const currentUserFollowing = (token && session?.user?.login) ? await getGitHubFollowing(session.user.login, token) : [];
 
   return (
     <div className="flex-1 w-full lg:max-w-[600px] min-h-screen lg:border-r lg:border-git-border lg:pr-2 animate-slide-up">

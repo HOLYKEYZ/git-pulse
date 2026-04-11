@@ -120,9 +120,9 @@ function GitHubActivityCard({ event }: { event: GitHubEvent }) {
                                 </div>
                             ))}
                             {commits.length > 3 && (
-                                <div className="text-xs text-git-muted mt-1 ml-1 cursor-pointer hover:text-git-accent">
+                                <Link href={`https://github.com/${repo}/commits/${branch}`} target="_blank" className="text-xs text-git-muted mt-1 ml-1 hover:text-git-accent transition-colors">
                                     {commits.length - 3} more commit{commits.length - 3 > 1 ? 's' : ''} »
-                                </div>
+                                </Link>
                             )}
                         </div>
                     </div>

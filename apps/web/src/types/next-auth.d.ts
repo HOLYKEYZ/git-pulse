@@ -4,8 +4,8 @@ declare module "next-auth" {
   interface Session {
     user: {
       githubId: string;
-      accessToken: string;
       login: string; // github username
+      // note: accessToken is intentionally NOT included here — it lives in the DB only
     } & DefaultSession["user"];
   }
 
@@ -16,8 +16,9 @@ declare module "next-auth" {
 
 declare module "next-auth/jwt" {
   interface JWT {
-    accessToken: string;
+    accessToken: string; // still stored in the jwt for the server-side upsert flow
     githubId: string;
     login: string;
+    dbId: string;
   }
 }

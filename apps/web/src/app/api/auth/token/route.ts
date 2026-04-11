@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { hashApiKey } from "@/lib/security";
+import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
 
@@ -16,11 +17,11 @@ export async function GET() {
 
   const user = await prisma.user.findUnique({
     where: { username: session.user.login },
-    select: { hashedApiKey: true }
+    select: { apiKey: true }
   });
 
   return NextResponse.json({
-    hasKey: !!user?.hashedApiKey
+    hasKey: !!user?.apiKey
   });
 }
 
@@ -35,7 +36,7 @@ export async function POST() {
 
   await prisma.user.update({
     where: { username: session.user.login },
-    data: { hashedApiKey: hashedKey }
+    data: { apiKey: hashedKey }
   });
 
   return NextResponse.json({
@@ -52,7 +53,7 @@ export async function DELETE() {
 
   await prisma.user.update({
     where: { username: session.user.login },
-    data: { hashedApiKey: null }
+    data: { apiKey: null }
   });
 
   return NextResponse.json({ success: true, message: "API key revoked." });

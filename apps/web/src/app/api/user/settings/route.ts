@@ -63,9 +63,15 @@ export async function DELETE() {
   }
 
   try {
-    await prisma.user.delete({
-      where: { username: session.user.login },
-    });
+    // Explicitly delete associated data before removing the user account
+    await prisma.$transaction([
+      prisma.post.deleteMany({ where: { author: { username: session.user.login } } }),
+      prisma.comment.deleteMany({ where: { author: { username: session.user.login } } }),
+      prisma.reaction.deleteMany({ where: { user: { username: session.user.login } } }),
+      prisma.apiKey.deleteMany({ where: { user: { username: session.user.login } } }),
+      prisma.follow.deleteMany({ where: { OR: [{ follower: { username: session.user.login } }, { following: { username: session.user.login } }] } }),
+      prisma.user.delete({ where: { username: session.user.login } }),
+    ]);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting account:", error);

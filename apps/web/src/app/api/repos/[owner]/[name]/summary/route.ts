@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { getServerSideToken } from "@/lib/serverToken";
 import { generateRepoPitch } from "@/lib/ai";
 
 export const dynamic = "force-dynamic";
@@ -9,7 +10,11 @@ export async function GET(
   { params }: { params: { owner: string; name: string } }
 ) {
   const session = await auth();
-  if (!session?.user?.accessToken) {
+  if (!session?.user?.login) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const serverToken = await getServerSideToken(session.user.login);
+  if (!serverToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -21,7 +26,7 @@ const { owner, name } = params;
       `https://api.github.com/repos/${owner}/${name}`,
       {
         headers: {
-          Authorization: `Bearer ${session.user.accessToken}`,
+          Authorization: `Bearer ${serverToken}`,
           Accept: "application/vnd.github.v3+json"
         }
       }
@@ -43,7 +48,7 @@ const { owner, name } = params;
         `https://api.github.com/repos/${owner}/${name}/readme`,
         {
           headers: {
-            Authorization: `Bearer ${session.user.accessToken}`,
+          Authorization: `Bearer ${serverToken}`,
             Accept: "application/vnd.github.v3+json"
           }
         }

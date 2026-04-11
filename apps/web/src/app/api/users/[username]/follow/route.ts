@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { getServerSideToken } from "@/lib/serverToken";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request, { params }: { params: { username: string } }) {
   const session = await auth();
-  if (!session?.user?.login || !session.user.accessToken) {
+  if (!session?.user?.login) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const serverToken = await getServerSideToken(session.user.login);
+  if (!serverToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -51,7 +56,7 @@ if (!githubUsernameRegex.test(targetUsername)) {
       fetch(`https://api.github.com/user/following/${targetUsername}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${session.user.accessToken}`,
+          Authorization: `Bearer ${serverToken}`,
           Accept: "application/vnd.github.v3+json"
         }
       }).catch((err) => console.error(`GitHub unfollow sync failed for ${targetUsername}:`, err))]
@@ -71,7 +76,7 @@ if (!githubUsernameRegex.test(targetUsername)) {
     fetch(`https://api.github.com/user/following/${targetUsername}`, {
       method: "PUT",
       headers: {
-        Authorization: `Bearer ${session.user.accessToken}`,
+        Authorization: `Bearer ${serverToken}`,
         Accept: "application/vnd.github.v3+json",
         "Content-Length": "0"
       }

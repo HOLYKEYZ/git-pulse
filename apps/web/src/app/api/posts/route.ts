@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { getServerSideToken } from "@/lib/serverToken";
 import { prisma } from "@/lib/prisma";
 import rateLimit from "@/lib/rateLimit";
 import { getRepoCommitCount, getRepoConsistency } from "@/lib/github";
@@ -86,14 +87,17 @@ export async function POST(req: Request) {
             "Accept": "application/vnd.github.v3+json"
           };
           // use session token if available for higher rate limits
-          if (session?.user?.accessToken) {
-            headers["Authorization"] = `Bearer ${session.user.accessToken}`;
+          if (session?.user?.login) {
+            const repoFetchToken = await getServerSideToken(session.user.login);
+            if (repoFetchToken) {
+              headers["Authorization"] = `Bearer ${repoFetchToken}`;
+            }
           }
 
           const res = await fetch(`https://api.github.com/repos/${owner}/${repoName}`, { headers });
           if (res.ok) {
             const data = await res.json();
-            const token = session?.user?.accessToken || "";
+            const token = session?.user?.login ? (await getServerSideToken(session.user.login) || "") : "";
 
             // fetch additional metrics for the algo
             const [commitCount, pushConsistency] = await Promise.all([

@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { calculatePostScoreDetailed } from '@/lib/utils';
 
 // force edge/nodejs runtime without caching
 export const dynamic = "force-dynamic";
@@ -34,7 +35,8 @@ export async function GET(req: NextRequest) {
         },
         include: {
           author: { select: { username: true, githubId: true } },
-          reactions: true
+          reactions: true,
+          _count: { comments: true }
         },
         orderBy: { createdAt: "desc" }
       });
@@ -44,6 +46,7 @@ export async function GET(req: NextRequest) {
       if (newPosts.length > 0) {
         // blast posts down the pipe
         for (const post of newPosts) {
+          const { score, passedBadge } = calculatePostScoreDetailed(post);
           writeEvent({
             type: "NEW_POST",
             post: {
@@ -56,13 +59,13 @@ export async function GET(req: NextRequest) {
               content: post.content,
               timestamp: post.createdAt.toISOString(),
               likes: post.reactions.length,
-              comments: 0,
+              comments: post._count.comments,
               reactions: post.reactions,
               images: post.images,
               repoUrl: post.repoUrl,
               repoEmbed: post.repoEmbed,
-              score: 0,
-              passedBadge: false
+              score,
+              passedBadge
             }
           });
         }

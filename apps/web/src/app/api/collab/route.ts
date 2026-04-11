@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { getServerSideToken } from "@/lib/serverToken";
 import { getUserTechStack, findSimilarDevs } from "@/lib/matching";
 import { withCache } from "@/lib/cache";
 
@@ -7,7 +8,11 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
     const session = await auth();
-    if (!session?.user?.login || !session.user.accessToken) {
+    if (!session?.user?.login) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const serverToken = await getServerSideToken(session.user.login);
+    if (!serverToken) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -19,7 +24,7 @@ export async function GET() {
             async () => {
                 const stack = await getUserTechStack(
                     session.user!.login!,
-                    session.user!.accessToken!
+                    serverToken
                 );
 
                 if (stack.length === 0) {

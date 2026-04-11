@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
+import { getServerSideToken } from "@/lib/serverToken";
 import { 
   getGitHubTrendingRepos, getGitHubTrendingDevelopers, 
   getSuggestedGitHubUsers, getTopReposToStar,
@@ -106,7 +107,7 @@ async function ExploreSection({ token }: { token: string }) {
 
 export default async function RightSidebar() {
   const session = await auth();
-  const token = session?.user?.accessToken;
+  const token = session?.user?.login ? await getServerSideToken(session.user.login) : null;
 
   if (!token) return null;
 

@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import rateLimit from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
+
+const commentLimiter = rateLimit({
+  interval: 60 * 60 * 1000, // 1 hour
+  uniqueTokenPerInterval: 500
+});
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
     const session = await auth();

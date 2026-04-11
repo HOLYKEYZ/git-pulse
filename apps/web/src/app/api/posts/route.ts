@@ -21,14 +21,16 @@ export async function POST(req: Request) {
   if (!username) {
     const authHeader = req.headers.get("authorization");
     if (authHeader && authHeader.toLowerCase().startsWith("bearer ") && authHeader.slice(7).startsWith("gp_")) {
-      const apiKey = authHeader.slice(7); // remove "bearer "
+      const rawApiKey = authHeader.slice(7); // remove "bearer "
+      // hash the incoming key to compare against the stored hash
+      const { hashApiKey } = await import("@/lib/security");
+      const hashedKey = await hashApiKey(rawApiKey);
       const tokenUser = await prisma.user.findUnique({
-        where: { apiKey },
-      // No select clause, fetch full user object to avoid redundant lookup
+        where: { apiKey: hashedKey },
       });
       if (tokenUser) {
         username = tokenUser.username;
-        userInDb = tokenUser; // Store the full user object
+        userInDb = tokenUser;
       }
     }
   }
@@ -49,6 +51,15 @@ export async function POST(req: Request) {
 
     if (!content) {
       return NextResponse.json({ error: "Content is required" }, { status: 400 });
+    }
+
+    // server-side input validation — client can be bypassed
+    if (typeof content !== "string" || content.length > 500) {
+      return NextResponse.json({ error: "Content must be 500 characters or less" }, { status: 400 });
+    }
+
+    if (images && (!Array.isArray(images) || images.length > 4)) {
+      return NextResponse.json({ error: "Maximum 4 images allowed" }, { status: 400 });
     }
 
     const user = userInDb || await prisma.user.findUnique({

@@ -14,6 +14,8 @@ export default auth((req) => {
     const isPublicRoute = PUBLIC_ROUTES.some(route =>
         route === '/' ? pathname === '/' : pathname.startsWith(route)
     );
+    const isAdminRoute = pathname.startsWith('/admin');
+    const isAlgoRoute = pathname.startsWith('/algo');
 
     // if logged in and trying to access login page, redirect to home
     if (isAuthPage && isLoggedIn) {
@@ -27,6 +29,12 @@ export default auth((req) => {
 
     // redirect unauthenticated users to login for protected routes
     if (!isLoggedIn) {
+        return NextResponse.redirect(new URL('/login', req.nextUrl));
+    }
+
+    // admin routes require authentication (admin role check happens in the api/page)
+    // algo route requires authentication
+    if ((isAdminRoute || isAlgoRoute) && !isLoggedIn) {
         return NextResponse.redirect(new URL('/login', req.nextUrl));
     }
 

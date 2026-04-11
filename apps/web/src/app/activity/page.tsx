@@ -137,7 +137,7 @@ function GitHubActivityCard({ event }: { event: GitHubEvent }) {
             if (pr) {
                 CardContent = (
                     <div className="mt-2 p-4 rounded-md border border-git-border bg-git-bg group hover:bg-white/[0.02] transition-colors cursor-pointer">
-                        <Link href={pr.html_url} target="_blank" className="block">
+                        <Link href={pr.html_url || "#"} target="_blank" className="block">
                             <h3 className="font-semibold text-git-text text-[15px] mb-1 group-hover:text-git-accent transition-colors">
                                 {pr.title}
                             </h3>
@@ -167,7 +167,7 @@ function GitHubActivityCard({ event }: { event: GitHubEvent }) {
             if (issue) {
                 CardContent = (
                     <div className="mt-2 p-4 rounded-md border border-git-border bg-git-bg group hover:bg-white/[0.02] transition-colors cursor-pointer">
-                        <Link href={issue.html_url} target="_blank" className="block">
+                        <Link href={issue.html_url || "#"} target="_blank" className="block">
                             <h3 className="font-semibold text-git-text text-[15px] mb-1 group-hover:text-git-accent transition-colors">
                                 {issue.title}
                             </h3>

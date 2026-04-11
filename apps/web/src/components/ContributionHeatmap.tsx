@@ -10,7 +10,6 @@ interface ContributionHeatmapProps {
     joinYear: number;
 }
 
-// inline hex colors — not tailwind classes — so they survive jit purge
 
 const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 

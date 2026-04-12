@@ -32,9 +32,6 @@ export default auth((req) => {
         return NextResponse.redirect(new URL('/login', req.nextUrl));
     }
 
-    // admin routes require authentication (admin role check happens in the api/page)
-    // algo route requires authentication
-
     return null;
 })
 

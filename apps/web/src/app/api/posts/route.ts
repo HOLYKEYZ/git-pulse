@@ -70,9 +70,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "User not found in DB" }, { status: 404 });
     }
 
-    // extract hashtags
+    // extract hashtags and store as lowercase for case-insensitive exact matching
     const matchedTags: string[] = content.match(/#[\w-]+/g) || [];
-    const hashtags = Array.from(new Set(matchedTags)).map((tag) => tag.substring(1));
+    const hashtags = Array.from(new Set(matchedTags)).map((tag) => tag.substring(1).toLowerCase());
 
     let repoEmbed: any = null;
 

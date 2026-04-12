@@ -75,16 +75,16 @@ function mapPrismaPostToProps(p: any): PostProps {
 }
 
 export default async function TagFeedPage({ params }: PageProps) {
-  const { tag: rawTag } = await params;
-  const normalizedTag = `#${rawTag.toLowerCase()}`;
+    const { tag: rawTag } = await params;
+    const normalizedTag = rawTag.toLowerCase();
 
-  // fetch posts that contain this exact tag (case insensitive through prisma)
-  const dbPosts = await prisma.post.findMany({
-    where: {
-      hashtags: {
-        has: normalizedTag
-      }
-    },
+    // fetch posts that contain this exact tag (case insensitive through prisma array bounds)
+    const dbPosts = await prisma.post.findMany({
+      where: {
+        hashtags: {
+          has: normalizedTag
+        }
+      },
     include: { 
       author: true, 
       _count: { select: { comments: true, reactions: true } },

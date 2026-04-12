@@ -31,9 +31,9 @@ export default function PinnedRepos({ repos }: PinnedReposProps) {
                                 <span className="text-sm font-semibold text-git-link-blue hover:underline truncate">
                                     {repo.name}
                                 </span>
-                                <span className="rounded-full border border-git-border/60 px-2 py-0.5 text-[10px] sm:text-[11px] text-git-muted font-medium bg-transparent leading-none ml-1">
-                                    Public
-                                </span>
+<span className="rounded-full border border-git-border/60 px-2 py-0.5 text-[10px] sm:text-[11px] text-git-muted font-medium bg-transparent leading-none ml-1">
+  {repo.visibility ? repo.visibility.charAt(0).toUpperCase() + repo.visibility.slice(1) : 'Public'}
+</span>
                             </div>
                             {/* Drag handle / context menu placeholder matching github */}
 <GrabberIcon size={16} className="fill-git-muted shrink-0" />

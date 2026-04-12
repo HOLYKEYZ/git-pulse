@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 
 interface ProfileData {
@@ -18,7 +17,6 @@ interface ProfileData {
 
 export default function EditProfilePage({ params }: { params: { username: string } }) {
     const router = useRouter();
-    const { data: session } = useSession();
 const { username } = params;
     const [profile, setProfile] = useState<ProfileData | null>(null);
     const [loading, setLoading] = useState(true);
@@ -34,20 +32,19 @@ const { username } = params;
     const [location, setLocation] = useState("");
     const [company, setCompany] = useState("");
 
-    // auth guard: redirect if trying to edit another user's profile
-    useEffect(() => {
-        // @ts-ignore — login is added by our auth config
-        if (session?.user?.login && session.user.login !== username) {
-            router.push(`/profile/${username}`);
-        }
-    }, [session, username, router]);
-
     useEffect(() => {
         const load = async () => {
             try {
                 const res = await fetch("/api/github/user");
                 if (!res.ok) throw new Error("failed to load profile");
                 const data = await res.json();
+                
+                // auth guard: redirect if trying to edit another user's profile
+                if (data.login && data.login !== username) {
+                    router.push(`/profile/${username}`);
+                    return; // stop execution
+                }
+
                 setProfile(data);
                 setName(data.name || "");
                 setBio(data.bio || "");

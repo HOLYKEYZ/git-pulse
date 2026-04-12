@@ -23,10 +23,9 @@ import { PeopleIcon, OrganizationIcon, LocationIcon, LinkIcon } from "@primer/oc
 import ProfileTabs from "@/components/ProfileTabs";
 import UserStatus from "@/components/UserStatus";
 
-export default async function ProfilePage({ params }: {params: Promise<{username: string;}>}) {
+export default async function ProfilePage({ params }: {params: {username: string}}) {
   const session = await auth();
-  const resolvedParams = await params;
-  const { username } = resolvedParams;
+  const { username } = params;
   const token = session?.user?.login ? await getServerSideToken(session.user.login) : null;
   const isOwnProfile = session?.user?.login === username;
 

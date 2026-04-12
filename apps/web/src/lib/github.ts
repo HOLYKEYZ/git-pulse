@@ -101,6 +101,7 @@ export interface ContributionData {
 }
 
 export interface PinnedRepo {
+  visibility?: string;
   name: string;
   description: string | null;
   stargazerCount: number;

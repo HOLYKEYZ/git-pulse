@@ -60,14 +60,10 @@ export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDeta
   score += breakdown.language;
 
   // 2. stars (reduced max weight to prevent pure popularity dominance)
-  if (factors.stars >= 20 && factors.stars <= 1000) {
-    const normalizedStar = Math.min(factors.stars, 1000);
-    breakdown.stars = 10 + Math.min(normalizedStar * 0.02, 20); // max 30 pts
-  } else if (factors.stars > 1000) {
-    breakdown.stars = 15; // diminishing returns
-  } else if (factors.stars > 0) {
-    breakdown.stars = factors.stars * 0.3;
-  }
+if (factors.stars > 0) {
+  const normalizedStar = Math.min(factors.stars, 1000);
+  breakdown.stars = 10 + Math.min(normalizedStar * 0.02, 20); // max 30 pts
+}
   score += breakdown.stars;
 
   // 3. forks

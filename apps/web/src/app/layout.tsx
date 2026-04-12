@@ -65,7 +65,7 @@ export default async function RootLayout({
                     {session ? (
                         <>
                             <div className="mx-auto w-full max-w-[1300px] pb-20 lg:pb-0">
-                                <div className="flex justify-center">
+                                <div className="flex justify-center w-full">
                                     {/* left nav — async, wrapped in suspense */}
                                     <Suspense fallback={<div className="hidden w-[275px] shrink-0 xl:block"><SidebarSkeleton /></div>}>
                                         <Sidebar />

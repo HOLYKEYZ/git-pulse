@@ -27,6 +27,14 @@ const [mounted, setMounted] = useState(false);
     document.documentElement.setAttribute("data-theme", selectedTheme);
   };
 
+const getSystemTheme = () => {
+  if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    return "midnight";
+  } else {
+    return "github";
+  }
+};
+
 useEffect(() => {
   // read saved theme from localstorage on mount
   const saved = localStorage.getItem("gitpulse-theme") as Theme | null;
@@ -34,13 +42,6 @@ useEffect(() => {
     setThemeState(saved);
     applyThemeToDOM(saved);
   } else {
-    const getSystemTheme = () => {
-      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return "midnight";
-      } else {
-        return "github";
-      }
-    };
     const systemTheme = getSystemTheme();
     setThemeState(systemTheme);
     applyThemeToDOM(systemTheme);

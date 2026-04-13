@@ -25,7 +25,7 @@ if (emoji && typeof emoji === 'string' && [...emoji].length > 1) {
       }
     });
 
-    return NextResponse.json({ success: true, user });
+return NextResponse.json({ success: true, statusEmoji: user.statusEmoji, statusText: user.statusText });
   } catch (error) {
     console.error("[UserStatus] Update Error:", error);
     return NextResponse.json({ error: "Failed to update status" }, { status: 500 });

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function ShipItForm() {
+export default function ShipItForm({ onPostCreated }: { onPostCreated?: (post: any) => void }) {
   const router = useRouter();
 const [selectedRepoFullName, setSelectedRepoFullName] = useState('');
 const [selectedRepoDisplayName, setSelectedRepoDisplayName] = useState('');
@@ -48,6 +48,13 @@ const [selectedRepoDisplayName, setSelectedRepoDisplayName] = useState('');
         setSelectedRepoDisplayName('');
         setVersion('');
         setChangelog('');
+        
+        // optimistically update the UI if the callback is provided
+        const data = await res.json();
+        if (data.post && onPostCreated) {
+          onPostCreated(data.post);
+        }
+
         router.refresh();
       }
     } catch (error) {

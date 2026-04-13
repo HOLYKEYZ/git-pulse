@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-export default function ComposeFeed() {
+export default function ComposeFeed({ onPostCreated }: { onPostCreated?: (post: any) => void }) {
   const router = useRouter();
   const [content, setContent] = useState('');
   const [images, setImages] = useState<string[]>([]);
@@ -55,6 +55,11 @@ export default function ComposeFeed() {
         setContent('');
         setImages([]);
         setPreviewMode(false);
+        // optimistically update the UI if the callback is provided
+        const data = await res.json();
+        if (data.post && onPostCreated) {
+          onPostCreated(data.post);
+        }
         // scroll to top so user sees their new post
         window.scrollTo({ top: 0, behavior: 'smooth' });
         // refresh the server components to show new post without hard reload

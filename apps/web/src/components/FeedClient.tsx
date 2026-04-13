@@ -5,7 +5,7 @@ import SearchBar from '@/components/SearchBar';
 import ComposeFeed from '@/components/ComposeFeed';
 import ShipItForm from '@/components/ShipItForm';
 import PostCard, { PostProps } from '@/components/PostCard';
-import { getRelativeTime } from '@/lib/utils';
+import { getRelativeTime, hasPassedBadge } from '@/lib/utils';
 
 type TabType = 'discover' | 'following' | 'activity';
 
@@ -61,6 +61,37 @@ const formattedPost = { ...data.post, timestamp: getRelativeTime(data.post.times
       eventSource.close();
     };
   }, []);
+
+  // optimistic UI handler
+  const handlePostCreated = (rawPost: any) => {
+    setLiveDiscover((prev) => {
+      if (prev.find((p) => p.id === rawPost.id)) return prev;
+      
+      const newPost: PostProps = {
+        id: rawPost.id,
+        type: rawPost.type as "standard" | "ship",
+        author: {
+          username: rawPost.author.username,
+          avatar: rawPost.author.avatar ?? "",
+          statusEmoji: rawPost.author.statusEmoji,
+          statusText: rawPost.author.statusText
+        },
+        content: rawPost.content,
+        timestamp: "Just now",
+        likes: 0,
+        comments: 0,
+        repoEmbed: rawPost.repoEmbed,
+        shipDetails: rawPost.shipDetails,
+        images: rawPost.images,
+        hashtags: rawPost.hashtags,
+        repoUrl: rawPost.repoUrl,
+        score: rawPost.score ?? 0,
+        passedBadge: hasPassedBadge(rawPost.score ?? 0)
+      };
+
+      return [newPost, ...prev];
+    });
+  };
 
   const postsMap: Record<TabType, PostProps[]> = {
     discover: liveDiscover,
@@ -121,7 +152,7 @@ const formattedPost = { ...data.post, timestamp: getRelativeTime(data.post.times
                         </button>
                     </div>
 
-                    {composeMode === 'standard' ? <ComposeFeed /> : <ShipItForm />}
+                    {composeMode === 'standard' ? <ComposeFeed onPostCreated={handlePostCreated} /> : <ShipItForm onPostCreated={handlePostCreated} />}
                 </div>
       }
 

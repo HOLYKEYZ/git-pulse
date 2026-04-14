@@ -15,35 +15,40 @@ interface Notification {
 export default function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
 
-  useEffect(() => {
-    let eventSource: EventSource | null = null;
+useEffect(() => {
+  let eventSource: EventSource | null = null;
 
-    try {
-      eventSource = new EventSource("/api/notifications/stream");
+  try {
+    eventSource = new EventSource("/api/notifications/stream");
 
-      eventSource.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (typeof data.unreadCount === "number") {
-            setUnreadCount(data.unreadCount);
-          }
-        } catch {
-
-          // ignore parse errors
-        }};
-
-      eventSource.onerror = () => {
-        // close and rely on browser or logic to reconnect if needed, or just fail silently
-        eventSource?.close();
-      };
-    } catch {
-
-      // silently ignore if eventsource fails
-    }
-    return () => {
-      if (eventSource) {
-        eventSource.close();
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (typeof data.unreadCount === "number") {
+          setUnreadCount(data.unreadCount);
+        }
+      } catch (error) {
+        console.error('Error parsing event data:', error);
       }
+    };
+
+    eventSource.onerror = (error) => {
+      console.error('EventSource error:', error);
+      // close and rely on browser or logic to reconnect if needed, or just fail silently
+      eventSource?.close();
+    };
+    eventSource.onopen = () => {
+      console.log('EventSource connected');
+    };
+  } catch (error) {
+    console.error('Error initializing EventSource:', error);
+  }
+  return () => {
+    if (eventSource) {
+      eventSource.close();
+    }
+  };
+}, []);
     };
   }, []);
 

@@ -15,62 +15,66 @@ export default function ComposeFeed({ onPostCreated }: { onPostCreated?: (post: 
   const maxLength = 500;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const files = Array.from(e.target.files);
-      if (images.length + files.length > 4) {
-        alert("Maximum 4 images allowed per post");
-        return;
-      }
-
-      files.forEach((file) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setImages((prev) => [...prev, reader.result as string]);
-        };
-        reader.readAsDataURL(file);
-      });
+const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  if (e.target.files) {
+    const files = Array.from(e.target.files);
+    if (images.length + files.length > 4) {
+      alert("Maximum 4 images allowed per post");
+      return;
     }
-    // reset so same file can be selected again if removed
-    if (e.target) e.target.value = '';
+
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const sanitizedImage = DOMPurify.sanitize(reader.result as string);
+        setImages((prev) => [...prev, sanitizedImage]);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  // reset so same file can be selected again if removed
+  if (e.target) e.target.value = '';
   };
 
   const removeImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!content.trim() && images.length === 0 || content.length > maxLength || isSubmitting) return;
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!content.trim() && images.length === 0 || content.length > maxLength || isSubmitting) return;
 
-    setIsSubmitting(true);
-    try {
-      const res = await fetch('/api/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, type: 'standard', images })
-      });
+  const sanitizedContent = DOMPurify.sanitize(content);
+  const sanitizedImages = images.map((image) => DOMPurify.sanitize(image));
 
-      if (res.ok) {
-        setContent('');
-        setImages([]);
-        setPreviewMode(false);
-        // optimistically update the UI if the callback is provided
-        const data = await res.json();
-        if (data.post && onPostCreated) {
-          onPostCreated(data.post);
-        }
-        // scroll to top so user sees their new post
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        // refresh the server components to show new post without hard reload
-        router.refresh();
+  setIsSubmitting(true);
+  try {
+    const res = await fetch('/api/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: sanitizedContent, type: 'standard', images: sanitizedImages })
+    });
+
+    if (res.ok) {
+      setContent('');
+      setImages([]);
+      setPreviewMode(false);
+      // optimistically update the UI if the callback is provided
+      const data = await res.json();
+      if (data.post && onPostCreated) {
+        onPostCreated(data.post);
       }
-    } catch (error) {
-      console.error("Failed to create post", error);
-    } finally {
-      setIsSubmitting(false);
+      // scroll to top so user sees their new post
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // refresh the server components to show new post without hard reload
+      router.refresh();
     }
-  };
+  } catch (error) {
+    console.error("Failed to create post", error);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <div className="rounded-xl border border-git-border bg-git-card overflow-hidden">

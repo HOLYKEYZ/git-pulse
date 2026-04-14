@@ -68,7 +68,7 @@ function mapEventToPost(event: GitHubEvent): PostProps | null {
       username: event.actor.login,
       avatar: event.actor.avatar_url
     },
-    timestamp: getRelativeTime(new Date(event.created_at)),
+    timestamp: new Date(event.created_at).toISOString(),
     likes: 0,
     comments: 0
   };
@@ -197,7 +197,7 @@ function mapPrismaPostToProps(p: {
       statusText: p.author.statusText
     },
     content: p.content,
-    timestamp: getRelativeTime(p.createdAt),
+    timestamp: p.createdAt.toISOString(),
     likes: p._count.reactions,
     comments: p._count.comments,
     repoEmbed: p.repoEmbed as PostProps["repoEmbed"],

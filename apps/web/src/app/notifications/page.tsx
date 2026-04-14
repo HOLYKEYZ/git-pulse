@@ -1,8 +1,8 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { getRelativeTime, isValidHttpUrl } from "@/lib/utils";
+import TimeDisplay from "@/components/TimeDisplay";
 
 export const dynamic = "force-dynamic";
 
@@ -97,7 +97,7 @@ export default async function NotificationsPage() {
                                 <div className="flex flex-col min-w-0 flex-1">
                                     <span className="text-sm text-git-muted leading-snug">{n.message}</span>
                                     <span className="text-[11px] text-git-muted opacity-60 mt-1">
-                                        {getRelativeTime(n.createdAt)}
+                                        <TimeDisplay time={n.createdAt.toISOString()} />
                                     </span>
                                 </div>
                             </div>

@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { getServerSideToken } from "@/lib/serverToken";
 import { redirect } from "next/navigation";
 import { getRelativeTime } from "@/lib/utils";
+import TimeDisplay from "@/components/TimeDisplay";
 import { getGitHubReceivedEvents, type GitHubEvent } from "@/lib/github";
 import Image from "next/image";
 import Link from "next/link";
@@ -63,7 +64,7 @@ export default async function ActivityPage() {
 function GitHubActivityCard({ event }: { event: GitHubEvent }) {
     const actor = event.actor;
     const repo = event.repo.name;
-    const time = getRelativeTime(new Date(event.created_at));
+    const timeIso = new Date(event.created_at).toISOString();
 
     let icon = <RepoIcon size={16} className="text-git-muted" />;
     let actionText = "interacted with";
@@ -227,8 +228,8 @@ function GitHubActivityCard({ event }: { event: GitHubEvent }) {
                     <Link href={`https://github.com/${repo}`} target="_blank" className="font-semibold text-git-text hover:text-git-accent hover:underline">
                         {repo}
                     </Link>
-                    <span className="text-[12px] opacity-70 whitespace-nowrap ml-1">{time}</span>
-                </div>
+                        <span className="text-git-muted shrink-0 text-xs mt-0.5"><TimeDisplay time={timeIso} /></span>
+                    </div>
                 
                 {/* Embedded Card Content */}
                 {CardContent}

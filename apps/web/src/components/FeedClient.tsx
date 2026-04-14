@@ -50,7 +50,7 @@ export default function FeedClient({ discoverPosts, followingPosts, activityPost
           setLiveDiscover((prev) => {
             // deduplicate protection
             if (prev.find((p) => p.id === data.post.id)) return prev;
-const formattedPost = { ...data.post, timestamp: getRelativeTime(data.post.timestamp) };
+const formattedPost = { ...data.post };
             return [formattedPost, ...prev];
           });
         }
@@ -77,7 +77,7 @@ const formattedPost = { ...data.post, timestamp: getRelativeTime(data.post.times
           statusText: rawPost.author.statusText
         },
         content: rawPost.content,
-        timestamp: "Just now",
+        timestamp: new Date().toISOString(),
         likes: 0,
         comments: 0,
         repoEmbed: rawPost.repoEmbed,

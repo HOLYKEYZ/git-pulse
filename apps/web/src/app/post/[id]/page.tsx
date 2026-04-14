@@ -6,6 +6,7 @@ import Image from "next/image";
 import BackButton from "@/components/BackButton";
 import { getRelativeTime } from "@/lib/utils";
 import CommentSection from "@/components/CommentSection";
+import TimeDisplay from "@/components/TimeDisplay";
 import RepoCard from "@/components/RepoCard";
 import PostContentRenderer from "@/components/PostContentRenderer";
 import { notFound } from "next/navigation";
@@ -45,7 +46,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
     id: c.id,
     content: c.content,
     author: { username: c.author.username, avatar: c.author.avatar || '/icon.png' },
-    timestamp: getRelativeTime(c.createdAt)
+    timestamp: c.createdAt.toISOString()
   }));
 
   return (
@@ -109,7 +110,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
 
         {/* metadata */}
         <div className="flex items-center gap-4 text-[13px] text-git-muted pt-3 border-t border-git-border">
-          <time>{getRelativeTime(post.createdAt)}</time>
+          <time><TimeDisplay time={post.createdAt.toISOString()} /></time>
           <span>{post._count.reactions} reactions</span>
           <span>{post._count.comments} comments</span>
         </div>

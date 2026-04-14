@@ -11,6 +11,7 @@ import RepoCard from './RepoCard';
 import AiSummary from './AiSummary';
 import ReactionPicker from './ReactionPicker';
 import CommentSection from './CommentSection';
+import TimeDisplay from './TimeDisplay';
 
 export type PostType = 'standard' | 'ship';
 
@@ -193,7 +194,7 @@ export default function PostCard({ post }: {post: PostProps;}) {
               <path d="M10.5 7.75a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Zm1.43.75a4.002 4.002 0 0 1-7.86 0H.75a.75.75 0 0 1 0-1.5h3.32a4.002 4.002 0 0 1 7.86 0h3.32a.75.75 0 0 1 0 1.5Zm-1.43-.75a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z" />
             </svg>
           }
-          <span className="text-xs text-git-muted shrink-0 ml-auto">{post.timestamp}</span>
+          <span className="text-xs text-git-muted shrink-0 ml-auto"><TimeDisplay time={post.timestamp} /></span>
         </div>
 
         {/* text content (markdown rendered) */}

@@ -61,7 +61,7 @@ function mapPrismaPostToProps(p: any): PostProps {
       statusText: p.author.statusText
     },
     content: p.content,
-    timestamp: getRelativeTime(p.createdAt),
+    timestamp: p.createdAt.toISOString(),
     likes: p._count.reactions,
     comments: p._count.comments,
     repoEmbed: p.repoEmbed,

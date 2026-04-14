@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import TimeDisplay from './TimeDisplay';
 
 interface Comment {
     id: string;
@@ -49,7 +50,7 @@ export default function CommentSection({ postId, initialComments = [] }: Comment
                             username: data.comment.author.username,
                             avatar: data.comment.author.avatar || '/default-avatar.png',
                         },
-                        timestamp: 'Just now',
+                        timestamp: new Date().toISOString(),
                     }
                 ]);
                 setNewComment("");
@@ -84,7 +85,7 @@ export default function CommentSection({ postId, initialComments = [] }: Comment
                                     {comment.author.username}
                                 </span>
                             </Link>
-                            <span className="text-[10px] text-git-muted">{comment.timestamp}</span>
+                            <span className="text-[10px] text-git-muted"><TimeDisplay time={comment.timestamp} /></span>
                         </div>
 <div className="text-sm text-git-text leading-relaxed markdown-body">
                                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{comment.content}</ReactMarkdown>

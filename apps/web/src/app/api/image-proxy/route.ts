@@ -41,19 +41,19 @@ function isPrivateUrl(hostname: string): boolean {
 
 export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get("url");
-
+  
   if (!url) {
     return NextResponse.json({ error: "Missing url parameter" }, { status: 400 });
   }
-
+  
   try {
     const parsedUrl = new URL(url);
-
+    
     // block private/reserved ips
     if (isPrivateUrl(parsedUrl.hostname)) {
       return NextResponse.json({ error: "SSRF prevention" }, { status: 403 });
     }
-
+    
     // disable automatic redirects so we can validate each hop
     const response = await fetch(url, {
       headers: {
@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
       redirect: "manual",
       signal: AbortSignal.timeout(10000)
     });
-
+    
     // handle redirects manually — re-check destination against private ranges
     if (response.status >= 300 && response.status < 400) {
       const redirectTarget = response.headers.get("location");
@@ -85,9 +85,10 @@ export async function GET(req: NextRequest) {
       });
       return processImageResponse(redirectResponse);
     }
-
+    
     return processImageResponse(response);
   } catch (e) {
+    console.error('Error in image proxy route:', e);
     return NextResponse.json({ error: "Proxy error" }, { status: 500 });
   }
 }

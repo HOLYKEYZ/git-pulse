@@ -8,10 +8,19 @@ import FollowButton from "@/components/FollowButton";
 export default async function FollowersPage({ params }: { params: { username: string }; }) {
   const session = await auth();
   const { username } = params;
-  const token = session?.user?.login ? await getServerSideToken(session.user.login) : null;
+const token = session?.user?.login ? await getServerSideToken(session.user.login) : null;
+      if (!token) {
+        throw new Error('Invalid or missing token');
+      }
 
 const followers: GitHubFollowUser[] = token ? await getGitHubFollowers(username, token) : [];
+      if (followers.length === 0) {
+        throw new Error('No followers found');
+      }
 const currentUserFollowing = (token && session?.user?.login) ? await getGitHubFollowing(session.user.login, token) : [];
+      if (currentUserFollowing.length === 0) {
+        throw new Error('No following data found');
+      }
 
   return (
     <div className="flex-1 w-full lg:max-w-[600px] min-h-screen lg:border-r lg:border-git-border lg:pr-2 animate-slide-up">

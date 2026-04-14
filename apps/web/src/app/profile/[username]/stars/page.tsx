@@ -19,10 +19,23 @@ try {
     ghUser = await getGitHubUser(username, token);
     repos = await getGitHubStarredRepos(username, token, 1, 100) || [];
   }
-} catch (error) {
-    console.error('Error fetching starred repositories:', error); 
+} catch (error: any) {
+    console.error('Error fetching starred repositories:', error.message); 
+    if (error.response) {
+      console.error('GitHub API error:', error.response.status, error.response.statusText);
+    } else {
+      console.error('Unexpected error:', error);
+    }
     hasError = true; 
-  }
+    // Display user-friendly error message
+    if (error.response && error.response.status === 401) {
+      // Handle authentication error
+    } else if (error.response && error.response.status === 500) {
+      // Handle server error
+    } else {
+      // Handle other errors
+    }
+}
 
   // collect unique languages for the filter display
   const languages = [...new Set((repos || []).map((r) => r.language).filter(Boolean))] as string[];

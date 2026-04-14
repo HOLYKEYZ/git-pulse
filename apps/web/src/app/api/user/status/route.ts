@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import logger from '@/lib/logger';
 
 export async function PUT(req: Request) {
   const session = await auth();
@@ -11,10 +12,10 @@ export async function PUT(req: Request) {
   try {
     const { emoji, text } = await req.json();
 
-if (emoji && typeof emoji === 'string' && [...emoji].length > 1) {
+    if (typeof emoji !== 'string' || (emoji && [...emoji].length > 1)) {
       return NextResponse.json({ error: 'Status emoji must be a single character' }, { status: 400 });
     }
-    if (text && typeof text === 'string' && text.length > 80) {
+    if (typeof text !== 'string' || (text && text.length > 80)) {
       return NextResponse.json({ error: 'Status text cannot exceed 80 characters' }, { status: 400 });
     }
     const user = await prisma.user.update({
@@ -25,9 +26,9 @@ if (emoji && typeof emoji === 'string' && [...emoji].length > 1) {
       }
     });
 
-return NextResponse.json({ success: true, statusEmoji: user.statusEmoji, statusText: user.statusText });
+    return NextResponse.json({ success: true, statusEmoji: user.statusEmoji, statusText: user.statusText });
   } catch (error) {
-    console.error("[UserStatus] Update Error:", error);
+    logger.error("[UserStatus] Update Error:", error);
     return NextResponse.json({ error: "Failed to update status" }, { status: 500 });
   }
 }

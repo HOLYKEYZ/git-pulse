@@ -15,10 +15,10 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { username: session.user.login },
-    select: { apiKey: true }
-  });
+const user = await prisma.user.findUnique({
+  where: { username: session.user.login },
+  select: { apiKey: true }
+});
 
   return NextResponse.json({
     hasKey: !!user?.apiKey
@@ -34,10 +34,10 @@ export async function POST() {
   const rawKey = `gp_${crypto.randomBytes(32).toString('hex')}`;
   const hashedKey = await hashApiKey(rawKey);
 
-  await prisma.user.update({
-    where: { username: session.user.login },
-    data: { apiKey: hashedKey }
-  });
+await prisma.user.update({
+  where: { username: session.user.login },
+  data: { apiKey: hashedKey }
+});
 
   return NextResponse.json({
     key: rawKey,
@@ -51,10 +51,10 @@ export async function DELETE() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  await prisma.user.update({
-    where: { username: session.user.login },
-    data: { apiKey: null }
-  });
+await prisma.user.update({
+  where: { username: session.user.login },
+  data: { apiKey: null }
+});
 
   return NextResponse.json({ success: true, message: "API key revoked." });
 }

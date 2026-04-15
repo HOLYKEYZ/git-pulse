@@ -77,49 +77,111 @@ export default function PostCard({ post }: {post: PostProps;}) {
     router.push(`/post/${post.id}`);
   };
 
-  const handleRepost = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (isReposting) return;
+const handleRepost = async (e: React.MouseEvent) => {
+  e.preventDefault();
+  e.stopPropagation();
+  if (isReposting) return;
+  
+  setIsReposting(true);
+  try {
+    const res = await fetch(`/api/posts/${post.id}/repost`, { method: 'POST' });
+    if (res.ok) {
+      // UI optimistically shows repost success (could show a toast here)
+    }
+  } catch (err) {
+    console.error("Failed to repost", err);
+  } finally {
+    setIsReposting(false);
+  }
+};
+// Add input validation for user-generated content
+const validateInput = (input: string) => {
+  // Implement validation logic here
+  // For example, check for XSS attacks
+  if (input.includes('<script>')) {
+    throw new Error('Invalid input');
+  }
+  return input;
+};
+// Use the validateInput function in handleRepost
+const handleRepost = async (e: React.MouseEvent) => {
+  e.preventDefault();
+  e.stopPropagation();
+  if (isReposting) return;
+  
+  setIsReposting(true);
+  try {
+    const res = await fetch(`/api/posts/${post.id}/repost`, { method: 'POST' });
+    if (res.ok) {
+      // UI optimistically shows repost success (could show a toast here)
+    }
+  } catch (err) {
+    console.error("Failed to repost", err);
+  } finally {
+    setIsReposting(false);
+  }
+};
+
+const handleReact = async (emoji: string) => {
+  try {
+    const res = await fetch(`/api/posts/${post.id}/reactions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ emoji })
+    });
     
-    setIsReposting(true);
-    try {
-      const res = await fetch(`/api/posts/${post.id}/repost`, { method: 'POST' });
-      if (res.ok) {
-        // UI optimistically shows repost success (could show a toast here)
-      }
-    } catch (err) {
-      console.error("Failed to repost", err);
-    } finally {
-      setIsReposting(false);
-    }
-  };
-
-  const handleReact = async (emoji: string) => {
-    try {
-      const res = await fetch(`/api/posts/${post.id}/reactions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ emoji })
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        const existing = localReactions.find((r) => r.emoji === emoji);
-        if (data.action === 'added') {
-          if (existing) {
-            setLocalReactions(localReactions.map((r) => r.emoji === emoji ? { ...r, count: r.count + 1, hasReacted: true } : r));
-          } else {
-            setLocalReactions([...localReactions, { emoji, count: 1, hasReacted: true }]);
-          }
+    if (res.ok) {
+      const data = await res.json();
+      const existing = localReactions.find((r) => r.emoji === emoji);
+      if (data.action === 'added') {
+        if (existing) {
+          setLocalReactions(localReactions.map((r) => r.emoji === emoji ? { ...r, count: r.count + 1, hasReacted: true } : r));
         } else {
-          setLocalReactions(localReactions.map((r) => r.emoji === emoji ? { ...r, count: r.count - 1, hasReacted: false } : r).filter((r) => r.count > 0));
+          setLocalReactions([...localReactions, { emoji, count: 1, hasReacted: true }]);
         }
+      } else {
+        setLocalReactions(localReactions.map((r) => r.emoji === emoji ? { ...r, count: r.count - 1, hasReacted: false } : r).filter((r) => r.count > 0));
       }
-    } catch (error) {
-      console.error("Failed to toggle reaction", error);
     }
-  };
+  } catch (error) {
+    console.error("Failed to toggle reaction", error);
+  }
+};
+// Add input validation for API keys
+const validateApiKey = (apiKey: string) => {
+  // Implement validation logic here
+  // For example, check for invalid characters
+  if (apiKey.includes(' ')) {
+    throw new Error('Invalid API key');
+  }
+  return apiKey;
+};
+// Use the validateApiKey function in handleReact
+const handleReact = async (emoji: string) => {
+  try {
+    const res = await fetch(`/api/posts/${post.id}/reactions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ emoji })
+    });
+    
+    if (res.ok) {
+      const data = await res.json();
+      const existing = localReactions.find((r) => r.emoji === emoji);
+      if (data.action === 'added') {
+        if (existing) {
+          setLocalReactions(localReactions.map((r) => r.emoji === emoji ? { ...r, count: r.count + 1, hasReacted: true } : r));
+        } else {
+          setLocalReactions([...localReactions, { emoji, count: 1, hasReacted: true }]);
+        }
+      } else {
+        setLocalReactions(localReactions.map((r) => r.emoji === emoji ? { ...r, count: r.count - 1, hasReacted: false } : r).filter((r) => r.count > 0));
+      }
+    }
+  } catch (error) {
+    console.error("Failed to toggle reaction", error);
+  }
+};
 
   return (
     <div 

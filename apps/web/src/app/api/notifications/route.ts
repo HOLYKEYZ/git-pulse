@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { z } from 'zod';
 
 export const dynamic = "force-dynamic";
+
+const notificationSchema = z.object({
+  id: z.string().optional(),
+});
 
 export async function GET() {
   const session = await auth();
@@ -11,7 +16,7 @@ export async function GET() {
   }
 
   try {
-    const notifications = await prisma.notification.findMany({
+    const result = await prisma.notification.findMany({
       where: {
         user: { username: session.user.login }
       },
@@ -21,7 +26,7 @@ export async function GET() {
       take: 30 // get the latest 30 notifications
     });
 
-    return NextResponse.json(notifications);
+    return NextResponse.json(result);
   } catch (error) {
     console.error("Error fetching notifications:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -37,12 +42,13 @@ export async function PUT(req: Request) {
   try {
     const body = await req.json();
     const { notificationId } = body;
+    const parsedNotificationId = notificationSchema.parse({ id: notificationId });
 
-    if (notificationId) {
+    if (parsedNotificationId.id) {
       // mark specific notification as read
       await prisma.notification.updateMany({
         where: {
-          id: notificationId,
+          id: parsedNotificationId.id,
           user: { username: session.user.login } // ensure they own it
         },
         data: {

@@ -26,12 +26,7 @@ const starReaction = currentReactions.find((r) => r.emoji === '⭐');
   // add visual feedback
   const [isAnimating, setIsAnimating] = useState(false);
 
-const handleStar = () => {
-  try {
-    onReact('⭐');
-  } catch (error) {
-    console.error('Error handling star reaction:', error);
-  }
+  const handleStar = () => {
     setIsAnimating(true);
     onReact('⭐');
     setTimeout(() => setIsAnimating(false), 300);

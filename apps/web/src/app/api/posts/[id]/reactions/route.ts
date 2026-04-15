@@ -11,7 +11,8 @@ export async function POST(req: Request, { params }: {params: {id: string;}}) {
   }
 
   try {
-    const { id: postId } = params;
+const { id: postId } = params;
+const sanitizedPostId = parseInt(postId, 10);
     const body = await req.json();
     const { emoji } = body;
 
@@ -28,10 +29,10 @@ export async function POST(req: Request, { params }: {params: {id: string;}}) {
     }
 
     // check if reaction already exists
-    const existingReaction = await prisma.reaction.findUnique({
+const existingReaction = await prisma.reaction.findUnique({
       where: {
         postId_userId_emoji: {
-          postId,
+          postId: sanitizedPostId,
           userId: user.id,
           emoji
         }
@@ -47,11 +48,11 @@ export async function POST(req: Request, { params }: {params: {id: string;}}) {
     }
 
     // toggle on: create it
-    const reaction = await prisma.reaction.create({
+const reaction = await prisma.reaction.create({
       data: {
         emoji,
-        postId,
-userId: user.id
+        postId: sanitizedPostId,
+        userId: user.id
       }
     });
 

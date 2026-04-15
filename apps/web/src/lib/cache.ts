@@ -21,7 +21,12 @@ if (process.env.NODE_ENV !== 'production') globalForRedis.redis = redis;
 export async function withCache<T>(key: string, fn: () => Promise<T>, ttl?: number): Promise<T> {
   // If Redis is not configured, fall back to executing without caching
   if (!process.env.UPSTASH_REDIS_REST_URL) {
-    return fn();
+    try {
+      return await fn();
+    } catch (error) {
+      console.error(`[Cache] Error executing function for key: ${key}`, error);
+      throw error;
+    }
   }
 
   try {
@@ -31,6 +36,7 @@ export async function withCache<T>(key: string, fn: () => Promise<T>, ttl?: numb
     }
   } catch (error) {
     console.error(`[Redis] Error reading cache key: ${key}`, error);
+    // Consider retrying or falling back to executing the function
   }
 
   try {
@@ -38,7 +44,11 @@ export async function withCache<T>(key: string, fn: () => Promise<T>, ttl?: numb
     // Only cache actual datasets
     if (result !== null && result !== undefined && (!Array.isArray(result) || result.length !== 0)) {
       const expirationSeconds = ttl ? Math.floor(ttl / 1000) : 300;
-      await redis.set(key, result, { ex: expirationSeconds });
+      try {
+        await redis.set(key, result, { ex: expirationSeconds });
+      } catch (error) {
+        console.error(`[Redis] Error setting cache key: ${key}`, error);
+      }
     }
     return result;
   } catch (error) {

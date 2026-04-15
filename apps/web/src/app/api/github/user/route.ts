@@ -41,23 +41,7 @@ export async function GET() {
     return NextResponse.json({ error: 'failed to fetch profile' }, { status: 500 });
   }
 }
-    const session = await auth();
-    if (!session?.user?.login) {
-        return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-    }
-    const token = await getServerSideToken(session.user.login);
-    if (!token) {
-        return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-    }
 
-    try {
-        const res = await fetch("https://api.github.com/user", {
-            headers: getGitHubApiHeaders(token),
-        });
-
-        if (!res.ok) {
-            return NextResponse.json({ error: "failed to fetch profile" }, { status: res.status });
-        }
 
         const data = await res.json();
         return NextResponse.json({

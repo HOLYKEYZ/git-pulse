@@ -203,5 +203,3 @@ export async function findSimilarDevs(
     throw error;
   }
 }
-  return matches.sort((a, b) => b.similarity - a.similarity).slice(0, limit);
-}

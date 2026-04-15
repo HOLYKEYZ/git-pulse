@@ -15,14 +15,26 @@ const validateInput = (input: any) => {
 const PUBLIC_ROUTES = ['/', '/explore', '/login', '/signout'];
 
 export default auth((req) => {
-  try {
-    validateInput(req);
-  } catch (error) {
-    return NextResponse.redirect(new URL('/login', req.nextUrl));
-  }
+    const validateInput = (input: any) => {
+        // Implement input validation logic here
+        // For example:
+        if (!input || typeof input !== 'object') {
+            throw new Error('Invalid input');
+        }
+    };
+    try {
+        validateInput(req);
+    } catch (error) {
+        return NextResponse.redirect(new URL('/login', req.nextUrl));
+    }
     const isLoggedIn = !!req.auth;
     const pathname = req.nextUrl.pathname;
     const isAuthPage = pathname.startsWith('/login');
+    const isPublicRoute = PUBLIC_ROUTES.some(route =>
+        route === '/' ? pathname === '/' : pathname.startsWith(route)
+    );
+    const isAdminRoute = pathname.startsWith('/admin');
+    const isAlgoRoute = pathname.startsWith('/algo');
     const isPublicRoute = PUBLIC_ROUTES.some(route =>
         route === '/' ? pathname === '/' : pathname.startsWith(route)
     );

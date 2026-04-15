@@ -22,24 +22,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         // upsert user in db on every login - only runs on server
         try {
+          const userData: any = {
+              username: profile.login,
+              name: profile.name ?? null,
+              email: profile.email ?? null,
+              avatar: profile.avatar_url ?? profile.image ?? null,
+              bio: profile.bio ?? null,
+              accessToken: account.access_token ?? null
+          };
+          
           const user = await prisma.user.upsert({
             where: { githubId: account.providerAccountId },
-            update: {
-              username: profile.login,
-              name: profile.name ?? null,
-              email: profile.email ?? null,
-              avatar: profile.avatar_url ?? profile.image ?? null,
-              bio: profile.bio ?? null,
-              accessToken: account.access_token ?? null
-            },
+            update: userData,
             create: {
               githubId: account.providerAccountId,
-              username: profile.login,
-              name: profile.name ?? null,
-              email: profile.email ?? null,
-              avatar: profile.avatar_url ?? profile.image ?? null,
-              bio: profile.bio ?? null,
-              accessToken: account.access_token ?? null
+              ...userData
             }
           });
           token.dbId = user.id;

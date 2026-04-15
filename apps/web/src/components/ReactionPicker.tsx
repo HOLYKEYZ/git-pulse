@@ -10,14 +10,28 @@ interface ReactionPickerProps {
 }
 
 export default function ReactionPicker({ postId, onReact, currentReactions = [] }: ReactionPickerProps) {
-  const starReaction = currentReactions.find((r) => r.emoji === '⭐');
+  if (typeof onReact !== 'function') {
+    throw new Error('onReact must be a function');
+  }
+  if (!Array.isArray(currentReactions)) {
+    throw new Error('currentReactions must be an array');
+  }
+const starReaction = currentReactions.find((r) => r.emoji === '⭐');
+  if (!starReaction && currentReactions.length > 0) {
+    throw new Error('Star reaction not found in current reactions');
+  }
   const isStarred = starReaction?.hasReacted || false;
   const starCount = starReaction?.count || 0;
 
   // add visual feedback
   const [isAnimating, setIsAnimating] = useState(false);
 
-  const handleStar = () => {
+const handleStar = () => {
+  try {
+    onReact('⭐');
+  } catch (error) {
+    console.error('Error handling star reaction:', error);
+  }
     setIsAnimating(true);
     onReact('⭐');
     setTimeout(() => setIsAnimating(false), 300);

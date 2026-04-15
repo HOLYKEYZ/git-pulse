@@ -1,5 +1,4 @@
 import { redis } from './cache';
-import { validateInput } from './validateInput';
 
 export default function rateLimit() {
   const windowSecs = 60;
@@ -9,9 +8,7 @@ export default function rateLimit() {
       if (!process.env.UPSTASH_REDIS_REST_URL) {
         throw new Error('Rate limiting is not configured. Please set UPSTASH_REDIS_REST_URL environment variable.');
       }
-      if (!validateInput(token)) {
-        throw new Error('Invalid input');
-      }
+
       const key = `ratelimit:${token}`;
       try {
         const currentCount = await redis.incr(key);

@@ -10,54 +10,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   callbacks: {
     ...authConfig.callbacks,
-async jwt({ token, account, profile, user, isNewUser }: { token: JWT; account: Account | null | undefined; profile: GitHubProfile | undefined; user: AdapterUser | User | undefined; isNewUser: boolean | undefined }) {
-  // call the base config logic if any
-  if (authConfig.callbacks.jwt) {
-    token = await authConfig.callbacks.jwt({ token, account, profile, user, isNewUser });
-  }
-
-  if (account && profile) {
-    if (!account.access_token || typeof account.access_token !== 'string') {
-      throw new Error('Invalid access token');
-    }
-    if (!profile.login || typeof profile.login !== 'string') {
-      throw new Error('Invalid username');
-    }
-    token.accessToken = account.access_token;
-    token.githubId = account.providerAccountId;
-
-    // upsert user in db on every login - only runs on server
-    try {
-      const user = await prisma.user.upsert({
-        where: { githubId: account.providerAccountId },
-        update: {
-          username: profile.login,
-          name: profile.name ?? null,
-          email: profile.email ?? null,
-          avatar: profile.avatar_url ?? profile.image ?? null,
-          bio: profile.bio ?? null,
-          accessToken: account.access_token ?? null
-        },
-        create: {
-          githubId: account.providerAccountId,
-          username: profile.login,
-          name: profile.name ?? null,
-          email: profile.email ?? null,
-          avatar: profile.avatar_url ?? profile.image ?? null,
-          bio: profile.bio ?? null,
-          accessToken: account.access_token ?? null
-        }
-      });
-      token.dbId = user.id;
-    } catch (error) {
-      console.error("❌ [Auth] Failed to upsert user:", error);
-    }
-  }
-  return token;
-} {
+    async jwt({ token, account, profile, user, isNewUser }: { token: JWT; account: Account | null | undefined; profile: GitHubProfile | undefined; user: AdapterUser | User | undefined; isNewUser: boolean | undefined }) {
       // call the base config logic if any
       if (authConfig.callbacks.jwt) {
-token = await authConfig.callbacks.jwt({ token, account, profile, user, isNewUser });
+        token = await authConfig.callbacks.jwt({ token, account, profile, user, isNewUser });
       }
 
       if (account && profile) {
@@ -69,7 +25,7 @@ token = await authConfig.callbacks.jwt({ token, account, profile, user, isNewUse
           const user = await prisma.user.upsert({
             where: { githubId: account.providerAccountId },
             update: {
-username: profile.login,
+              username: profile.login,
               name: profile.name ?? null,
               email: profile.email ?? null,
               avatar: profile.avatar_url ?? profile.image ?? null,
@@ -78,12 +34,12 @@ username: profile.login,
             },
             create: {
               githubId: account.providerAccountId,
-username: profile.login,
+              username: profile.login,
               name: profile.name ?? null,
               email: profile.email ?? null,
-avatar: profile.avatar_url ?? profile.image ?? null,
-bio: profile.bio ?? null,
-accessToken: account.access_token ?? null
+              avatar: profile.avatar_url ?? profile.image ?? null,
+              bio: profile.bio ?? null,
+              accessToken: account.access_token ?? null
             }
           });
           token.dbId = user.id;

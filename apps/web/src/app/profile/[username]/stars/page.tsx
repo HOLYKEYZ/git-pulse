@@ -17,7 +17,7 @@ export default async function StarsPage({ params }: { params: { username: string
 try { 
   if (token) {
     ghUser = await getGitHubUser(username, token);
-    repos = await getGitHubStarredRepos(username, token, 1, 100) || [];
+repos = await getGitHubStarredRepos(username, token, 1, 100).catch((error) => { console.error('Error fetching starred repositories:', error); return []; }) || [];
   }
 } catch (error: any) {
     console.error('Error fetching starred repositories:', error.message); 

@@ -13,16 +13,16 @@ export async function POST(req: Request, { params }: {params: {id: string;}}) {
   try {
     const { id: postId } = params;
 
-    const user = await prisma.user.findUnique({
-      where: { username: session.user.login }
+const user = await prisma.user.findUnique({
+      where: { username: { equals: session.user.login } }
     });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const originalPost = await prisma.post.findUnique({
-      where: { id: postId }
+const originalPost = await prisma.post.findUnique({
+      where: { id: { equals: postId } }
     });
 
     if (!originalPost) {
@@ -30,10 +30,10 @@ export async function POST(req: Request, { params }: {params: {id: string;}}) {
     }
 
     // prevent double reposting the same post
-    const existingRepost = await prisma.post.findFirst({
+const existingRepost = await prisma.post.findFirst({
       where: {
-        authorId: user.id,
-        repostOfId: originalPost.id
+        authorId: { equals: user.id },
+        repostOfId: { equals: originalPost.id }
       }
     });
 

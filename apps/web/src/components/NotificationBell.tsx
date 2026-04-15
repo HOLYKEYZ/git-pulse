@@ -49,8 +49,6 @@ useEffect(() => {
     }
   };
 }, []);
-    };
-  }, []);
 
   return (
     <Link

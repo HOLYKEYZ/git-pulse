@@ -6,9 +6,10 @@ import Link from "next/link";
 
 export default function PostContentRenderer({ content }: { content: string }) {
   // pre-process #tags and @mentions into markdown links
-  const processed = content
+import DOMPurify from 'dompurify';
+const processed = DOMPurify.sanitize(content
     .replace(/(^|\s)(#[\w-]+)/g, '$1[$2]($2)')
-    .replace(/(^|\s)(@[\w-]+)/g, '$1[$2]($2)');
+    .replace(/(^|\s)(@[\w-]+)/g, '$1[$2]($2)'));
 
   return (
     <div className="text-git-text text-base leading-relaxed mb-4 break-words whitespace-pre-wrap markdown-body" style={{ background: 'transparent', padding: 0 }}>

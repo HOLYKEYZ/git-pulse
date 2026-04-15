@@ -13,7 +13,7 @@ const token = session?.user?.login ? await getServerSideToken(session.user.login
         throw new Error('Invalid or missing token');
       }
 
-const followers: GitHubFollowUser[] = token ? await getGitHubFollowers(username, token) : [];
+const followers: GitHubFollowUser[] = token ? await getGitHubFollowers(username, token).catch((error) => { console.error('Error fetching followers:', error); return []; }) : [];
       if (followers.length === 0) {
         throw new Error('No followers found');
       }

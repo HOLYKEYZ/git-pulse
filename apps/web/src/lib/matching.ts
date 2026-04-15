@@ -71,8 +71,6 @@ export async function getUserTechStack(
     throw error;
   }
 }
-}
-
 /**
  * cosine similarity between two tech stack vectors.
  */

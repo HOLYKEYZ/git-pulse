@@ -13,11 +13,11 @@ const token = session?.user?.login ? await getServerSideToken(session.user.login
         throw new Error('Invalid or missing token');
       }
 
-const followers: GitHubFollowUser[] = token ? await getGitHubFollowers(username, token) : [];
+let followers: GitHubFollowUser[] = []; try { followers = token ? await getGitHubFollowers(username, token) : []; } catch (error) { console.error('Error fetching followers:', error); throw new Error('Failed to fetch followers'); }
       if (followers.length === 0) {
         throw new Error('No followers found');
       }
-const currentUserFollowing = (token && session?.user?.login) ? await getGitHubFollowing(session.user.login, token) : [];
+let currentUserFollowing: GitHubFollowUser[] = []; try { currentUserFollowing = (token && session?.user?.login) ? await getGitHubFollowing(session.user.login, token) : []; } catch (error) { console.error('Error fetching current user following:', error); throw new Error('Failed to fetch current user following'); }
       if (currentUserFollowing.length === 0) {
         throw new Error('No following data found');
       }

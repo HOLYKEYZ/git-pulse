@@ -12,11 +12,18 @@ export async function POST(req: Request, { params }: {params: {id: string;}}) {
 
   try {
     const { id: postId } = params;
+    
+    // basic cuid validation (starts with c, alphanumeric, typical length 24-30)
+    const cuidRegex = /^c[a-z0-9]{20,32}$/i;
+    if (!postId || !cuidRegex.test(postId)) {
+      return NextResponse.json({ error: "Invalid post ID format" }, { status: 400 });
+    }
+
     const body = await req.json();
     const { emoji } = body;
 
-    if (!emoji) {
-      return NextResponse.json({ error: "Emoji is required" }, { status: 400 });
+    if (!emoji || typeof emoji !== 'string' || emoji.length > 10) {
+      return NextResponse.json({ error: "Valid emoji string is required" }, { status: 400 });
     }
 
     const user = await prisma.user.findUnique({

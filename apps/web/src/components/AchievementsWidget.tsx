@@ -3,11 +3,22 @@ import Image from "next/image";
 import { getUserAchievements } from "@/lib/github";
 
 export default async function AchievementsWidget({ username }: { username: string }) {
-    const achievements = await getUserAchievements(username);
-
-    if (!achievements || achievements.length === 0) {
-        return null;
-    }
+        if (typeof username !== 'string' || username.length === 0) {
+          throw new Error('Invalid username provided');
+        }
+        try {
+          const achievements = await getUserAchievements(username);
+          if (!achievements || achievements.length === 0) {
+            return null;
+          }
+          return (
+            // ... rest of the component remains the same ...
+          );
+        } catch (error) {
+          console.error('Error fetching achievements:', error);
+          return <div>Error loading achievements</div>;
+        }
+      }
 
 return (
         <div className="border-t border-git-border border-solid mt-4 pt-4 animate-fade-in">

@@ -1,5 +1,6 @@
 import React from "react";
 import * as cheerio from "cheerio";
+import DOMPurify from "isomorphic-dompurify";
 import "github-markdown-css/github-markdown-dark.css";
 
 interface ProfileReadmeProps {
@@ -80,13 +81,14 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
 
   // The parsed inner HTML
   const processedHtml = $('body').html() || content;
+  const sanitizedHtml = DOMPurify.sanitize(processedHtml);
 
   return (
     <div className="w-full animate-fade-in relative overflow-hidden">
       <div 
         className="markdown-body px-4 py-2 overflow-x-auto"
         style={{ backgroundColor: 'transparent', color: 'inherit' }}
-        dangerouslySetInnerHTML={{ __html: processedHtml }}
+        dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
       />
     </div>
   );

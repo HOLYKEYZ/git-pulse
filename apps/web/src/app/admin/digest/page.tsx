@@ -15,21 +15,28 @@ export default function DigestPage() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const generate = async () => {
-    setLoading(true);
-    setCopied(false);
-    try {
-const res = await fetch("/api/admin/digest");
-      if (res.ok) {
-        const json = await res.json();
-        setData(json);
-      }
-    } catch (error) {
-      console.error("Failed to generate digest:", error);
-    } finally {
-      setLoading(false);
+const generate = async () => {
+  setLoading(true);
+  setCopied(false);
+  try {
+    const res = await fetch("/api/admin/digest");
+    if (res.ok) {
+      const json = await res.json();
+      setData(json);
+    } else {
+      throw new Error(`Failed to generate digest: ${res.status} ${res.statusText}`);
     }
-  };
+  } catch (error) {
+    console.error("Failed to generate digest:", error);
+    // Provide a user-friendly error message
+    setData({
+      success: false,
+      error: error.message,
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const copyToClipboard = () => {
     if (data?.digest) {

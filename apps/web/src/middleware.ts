@@ -3,11 +3,16 @@ import { authConfig } from "@/lib/auth.config"
 import { NextResponse } from "next/server"
 
 const { auth } = NextAuth(authConfig);
+import * as Joi from 'joi';
 const validateInput = (input: any) => {
-  // Implement input validation logic here
-  // For example:
-  if (!input || typeof input !== 'object') {
-    throw new Error('Invalid input');
+  const schema = Joi.object().keys({
+    // Define the expected structure of the input
+    username: Joi.string().alphanum().min(3).max(30).required(),
+    password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
+  });
+  const result = schema.validate(input);
+  if (result.error) {
+    throw new Error(result.error.details[0].message);
   }
 };
 

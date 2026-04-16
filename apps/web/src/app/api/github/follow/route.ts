@@ -19,7 +19,11 @@ export async function PUT(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { username } = body;
+const { username } = body;
+const usernameRegex = /^[a-z0-9_-]{1,39}$/;
+if (!usernameRegex.test(username)) {
+  return NextResponse.json({ error: 'Invalid username' }, { status: 400 });
+}
 
     if (!username) {
       return NextResponse.json({ error: "Username is required" }, { status: 400 });

@@ -128,38 +128,6 @@ const BOT_PATTERNS = [
   /^[a-z]+-[a-z]+-[a-z0-9]+-[a-z0-9]+$/,
 ];
 const isBot = (login: string) => BOT_PATTERNS.some(p => p.test(login));
-
-// ─── core fetchers ───────────────────────────────────────────────────────────
-
-async function fetchWithAuth(endpoint: string, token: string) {
-  const cacheKey = `rest:${token.slice(-10)}:${endpoint}`;
-
-  return withCache(cacheKey, async () => {
-    try {
-      // the /search/commits endpoint requires the cloak-preview accept header
-      const acceptHeader = endpoint.startsWith('/search/commits')
-        ? 'application/vnd.github.cloak-preview+json'
-        : 'application/vnd.github.v3+json';
-
-      const res = await fetch(`${GITHUB_API_URL}${endpoint}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: acceptHeader
-        },
-        next: { revalidate: 60 }
-      });
-
-      if (!res.ok) {
-        if (res.status === 403 || res.status === 429) {
-          console.error(`GitHub API Rate Limited on ${endpoint}. Rate limit info:`, {
-            limit: res.headers.get('x-ratelimit-limit'),
-            remaining: res.headers.get('x-ratelimit-remaining'),
-            reset: res.headers.get('x-ratelimit-reset')
-          });
-        } else {
-          console.error(`GitHub REST error [${res.status}]: ${res.statusText} for ${endpoint}`);
-        }
-        return null;
       }
 
       return await res.json();

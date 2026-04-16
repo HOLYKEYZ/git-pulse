@@ -18,12 +18,18 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-const { owner, name } = params;
+  const { owner, name } = params;
+  if (typeof owner !== 'string' || typeof name !== 'string') {
+    return NextResponse.json({ error: 'Invalid repository owner or name' }, { status: 400 });
+  }
+  if (!owner.trim() || !name.trim()) {
+    return NextResponse.json({ error: 'Repository owner and name are required' }, { status: 400 });
+  }
 
   try {
     // fetch repo data from github to build context for the ai
     const repoRes = await fetch(
-      `https://api.github.com/repos/${owner}/${name}`,
+      `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}`,
       {
         headers: {
           Authorization: `Bearer ${serverToken}`,
@@ -33,10 +39,22 @@ const { owner, name } = params;
     );
 
     if (!repoRes.ok) {
-      return NextResponse.json(
-        { error: "Repository not found" },
-        { status: 404 }
-      );
+      if (repoRes.status === 404) {
+        return NextResponse.json(
+          { error: "Repository not found" },
+          { status: 404 }
+        );
+      } else if (repoRes.status === 401 || repoRes.status === 403) {
+        return NextResponse.json(
+          { error: "Unauthorized or forbidden" },
+          { status: 401 }
+        );
+      } else {
+        return NextResponse.json(
+          { error: "Failed to fetch repository data" },
+          { status: 500 }
+        );
+      }
     }
 
     const repo = await repoRes.json();
@@ -45,7 +63,7 @@ const { owner, name } = params;
     let readmeExcerpt: string | undefined;
     try {
       const readmeRes = await fetch(
-        `https://api.github.com/repos/${owner}/${name}/readme`,
+        `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}/readme`,
         {
           headers: {
           Authorization: `Bearer ${serverToken}`,
@@ -60,9 +78,8 @@ const { owner, name } = params;
           readmeExcerpt = decoded.slice(0, 500);
         }
       }
-    } catch {
-
-      // readme fetch is best-effort
+    } catch (error) {
+      console.error('Error fetching readme:', error);
     }
     const pitch = await generateRepoPitch({
       name: repo.name,

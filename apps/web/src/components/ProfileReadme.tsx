@@ -1,6 +1,7 @@
 import React from "react";
 import * as cheerio from "cheerio";
 import "github-markdown-css/github-markdown-dark.css";
+import DOMPurify from 'dompurify';
 
 interface ProfileReadmeProps {
   content: string;
@@ -17,7 +18,7 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
   // force dark mode sources to always apply
   $('source[media*="dark"]').attr('media', 'all');
 
-  // 1b. strip github's heading anchor links (the 🔗 chain icons on every heading)
+  // 1b. strip github's heading anchor links (the chain icons on every heading)
   $('a.anchor').remove();
   $('.octicon-link').remove();
   // also remove any remaining heading-link svgs
@@ -27,6 +28,7 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
       parent.remove();
     }
   });
+  const sanitizedContent = DOMPurify.sanitize($.html());
 
             const resolveAndProxyGithubImageUrl = (originalUrl: string, username: string) => {
                 if (originalUrl.startsWith('data:')) {
@@ -79,7 +81,7 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
   });
 
   // The parsed inner HTML
-  const processedHtml = $('body').html() || content;
+const processedHtml = sanitizedContent;
 
   return (
     <div className="w-full animate-fade-in relative overflow-hidden">

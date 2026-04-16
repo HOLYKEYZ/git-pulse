@@ -27,9 +27,20 @@ const [selectedRepoDisplayName, setSelectedRepoDisplayName] = useState('');
     fetchRepos();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedRepoFullName || !version || !changelog.trim() || isSubmitting) return;
+    if (!selectedRepoFullName || !version || !changelog.trim() || isSubmitting) {
+      alert('Please fill in all fields.');
+      return;
+    }
+    if (version.length > 20) {
+      alert('Version tag is too long.');
+      return;
+    }
+    if (changelog.length > 1000) {
+      alert('Changelog is too long.');
+      return;
+    }
     
     setIsSubmitting(true);
     try {

@@ -40,6 +40,39 @@ setErrorMessage(null);
   }, [isOpen]);
 
 const handleSave = async (overrides?: { emoji?: string; text?: string }) => {
+  const finalEmoji = overrides?.hasOwnProperty('emoji') ? overrides.emoji : emoji;
+  const finalText = overrides?.hasOwnProperty('text') ? overrides.text : text;
+  
+  // Input validation for emoji and text
+  if (finalEmoji && finalEmoji.length > 10) {
+    setErrorMessage('Emoji cannot be longer than 10 characters.');
+    return;
+  }
+  if (finalText && finalText.length > 80) {
+    setErrorMessage('Text cannot be longer than 80 characters.');
+    return;
+  }
+  
+  try {
+    const res = await fetch('/api/user/status', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ emoji: finalEmoji, text: finalText }),
+    });
+    
+    if (res.ok) {
+      setIsOpen(false);
+      router.refresh();
+    } else {
+      setErrorMessage('Failed to save status. Please try again.');
+    }
+  } catch (error) {
+    console.error('Failed to save status:', error);
+    setErrorMessage('An error occurred while saving your status.');
+  } finally {
+    setLoading(false);
+  }
+}
   setLoading(true);
   const finalEmoji = overrides?.hasOwnProperty("emoji") ? overrides.emoji : emoji;
   const finalText = overrides?.hasOwnProperty("text") ? overrides.text : text;

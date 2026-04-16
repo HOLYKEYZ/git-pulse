@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
+import DOMPurify from 'dompurify';
 import remarkGfm from 'remark-gfm';
 import { ShareAndroidIcon, SyncIcon } from '@primer/octicons-react';
 import RepoCard from './RepoCard';

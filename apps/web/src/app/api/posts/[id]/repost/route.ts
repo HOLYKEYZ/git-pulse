@@ -12,6 +12,12 @@ export async function POST(req: Request, { params }: {params: {id: string;}}) {
 
   try {
     const { id: postId } = params;
+    
+    // basic cuid validation 
+    const cuidRegex = /^c[a-z0-9]{20,32}$/i;
+    if (!postId || !cuidRegex.test(postId)) {
+      return NextResponse.json({ error: "Invalid post ID format" }, { status: 400 });
+    }
 
     const user = await prisma.user.findUnique({
       where: { username: session.user.login }

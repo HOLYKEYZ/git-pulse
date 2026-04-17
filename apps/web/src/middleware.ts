@@ -3,6 +3,8 @@ import { authConfig } from "@/lib/auth.config"
 import { NextResponse } from "next/server"
 
 const { auth } = NextAuth(authConfig);
+const PUBLIC_ROUTES = ['/', '/explore', '/login', '/signout'];
+
 export default auth((req) => {
   // basic security validation on the URI to prevent anomalous length injections or null bytes
   if (req.nextUrl.pathname.includes('\0') || req.nextUrl.pathname.length > 2000) {

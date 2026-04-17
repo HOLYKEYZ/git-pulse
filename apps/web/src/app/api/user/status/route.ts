@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import logger from '@/lib/logger';
 import { z } from "zod";
 
 const StatusSchema = z.object({
@@ -20,7 +19,7 @@ export async function PUT(req: Request) {
     const result = StatusSchema.safeParse(body);
     
     if (!result.success) {
-      return NextResponse.json({ error: "Invalid status payload", details: result.error.errors }, { status: 400 });
+      return NextResponse.json({ error: "Invalid status payload", details: result.error.format() }, { status: 400 });
     }
     const { emoji, text } = result.data;
     const user = await prisma.user.update({

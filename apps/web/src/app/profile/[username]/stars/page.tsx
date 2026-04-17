@@ -23,18 +23,22 @@ try {
     console.error('Error fetching starred repositories:', error.message); 
     if (error.response) {
       console.error('GitHub API error:', error.response.status, error.response.statusText);
-    } else {
-      console.error('Unexpected error:', error);
+      if (error.response.status === 401) {
+        // Handle authentication error, e.g., prompt user to sign in again
+        console.log('Authentication error. Please sign in again.');
+      } else if (error.response.status === 500) {
+        // Handle server error, e.g., display a generic server error message
+        console.log('Server error. Please try again later.');
+      } else {
+        // Handle other GitHub API errors, e.g., rate limit errors
+        console.log('GitHub API error. Please try again later.');
+      }
+    } else if (error instanceof Error) {
+      // Handle non-GitHub API errors, e.g., network errors
+      console.log('Unexpected error:', error.message);
     }
     hasError = true; 
     // Display user-friendly error message
-    if (error.response && error.response.status === 401) {
-      // Handle authentication error
-    } else if (error.response && error.response.status === 500) {
-      // Handle server error
-    } else {
-      // Handle other errors
-    }
 }
 
   // collect unique languages for the filter display

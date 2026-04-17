@@ -27,8 +27,7 @@ const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     files.forEach((file) => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const sanitizedImage = DOMPurify.sanitize(reader.result as string);
-        setImages((prev) => [...prev, sanitizedImage]);
+        setImages((prev) => [...prev, reader.result as string]);
       };
       reader.readAsDataURL(file);
     });
@@ -46,14 +45,13 @@ const handleSubmit = async (e: React.FormEvent) => {
   if (!content.trim() && images.length === 0 || content.length > maxLength || isSubmitting) return;
 
   const sanitizedContent = DOMPurify.sanitize(content);
-  const sanitizedImages = images.map((image) => DOMPurify.sanitize(image));
 
   setIsSubmitting(true);
   try {
     const res = await fetch('/api/posts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: sanitizedContent, type: 'standard', images: sanitizedImages })
+      body: JSON.stringify({ content: sanitizedContent, type: 'standard', images })
     });
 
     if (res.ok) {

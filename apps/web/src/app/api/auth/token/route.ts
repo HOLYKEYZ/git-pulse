@@ -10,10 +10,16 @@ export const dynamic = "force-dynamic";
  * get: check if user has an existing api key
  */
 export async function GET() {
-  const session = await auth();
-  if (!session?.user?.login) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const session = await auth();
+    if (!session?.user?.login) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+  } catch (error) {
+    console.error('Error in GET handler:', error)
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
+}
 
 const user = await prisma.user.findUnique({
   where: { username: session.user.login },
@@ -26,10 +32,16 @@ const user = await prisma.user.findUnique({
 }
 
 export async function POST() {
-  const session = await auth();
-  if (!session?.user?.login) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const session = await auth();
+    if (!session?.user?.login) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+  } catch (error) {
+    console.error('Error in POST handler:', error)
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
+}
 
   const rawKey = `gp_${crypto.randomBytes(32).toString('hex')}`;
   const hashedKey = await hashApiKey(rawKey);
@@ -46,10 +58,16 @@ await prisma.user.update({
 }
 
 export async function DELETE() {
-  const session = await auth();
-  if (!session?.user?.login) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const session = await auth();
+    if (!session?.user?.login) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+  } catch (error) {
+    console.error('Error in DELETE handler:', error)
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
+}
 
 await prisma.user.update({
   where: { username: session.user.login },

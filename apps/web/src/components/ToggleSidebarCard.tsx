@@ -42,14 +42,22 @@ export default function ToggleSidebarCard({
   const currentType = view === "tab1" ? type1 : type2;
   const currentEmpty = view === "tab1" ? emptyMessage1 : emptyMessage2;
 
-  const renderRepo = (repo: any) => (
-    <a
-      key={repo.id || repo.full_name}
-      href={repo.html_url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block px-4 py-3 hover:bg-white/[0.03] transition-colors"
-    >
+const renderRepo = (repo: any) => {
+  try {
+    return (
+      <a
+        key={repo.id || repo.full_name}
+        href={repo.html_url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block px-4 py-3 hover:bg-white/[0.03] transition-colors"
+      >
+    )
+  } catch (error) {
+    console.error('Error rendering repository:', error)
+    return <div>Error rendering repository</div>
+  }
+}
       <div className="text-[15px] font-bold text-git-accent mb-0.5 truncate">
         {repo.full_name}
       </div>

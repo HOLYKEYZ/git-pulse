@@ -2,7 +2,8 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import PostCard, { PostProps } from "@/components/PostCard";
 import { calculatePostScore } from "@/lib/algo";
-import { getRelativeTime, hasPassedBadge } from "@/lib/utils";
+import { getRelativeTime } from "@/lib/utils";
+import { hasPassedBadge } from "@/lib/badges";
 
 interface PageProps {
   params: Promise<{tag: string;}>

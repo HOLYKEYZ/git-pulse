@@ -9,7 +9,7 @@ import { prisma } from "./prisma";
  */
 import { z } from 'zod';
 
-const usernameSchema = z.string().min(1, 'Username is required');
+const usernameSchema = z.string().regex(/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i, 'Invalid GitHub username');
 
 export async function getServerSideToken(username: string): Promise<string | null> {
   try {

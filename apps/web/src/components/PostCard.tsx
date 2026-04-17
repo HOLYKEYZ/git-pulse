@@ -245,7 +245,13 @@ export default function PostCard({ post }: {post: PostProps;}) {
         <div className="relative z-10 mb-3 max-w-full">
             <RepoCard {...post.repoEmbed} />
             {post.repoEmbed.name &&
-          <AiSummary owner={post.author.username} repoName={post.repoEmbed.name} />
+              (() => {
+                // repoembed.name stores full_name format (e.g. "facebook/react")
+                const parts = post.repoEmbed.name.split('/');
+                const repoOwner = parts[0] || post.author.username;
+                const repoName = parts.slice(1).join('/') || post.repoEmbed.name;
+                return <AiSummary owner={repoOwner} repoName={repoName} />;
+              })()
           }
           </div>
         }

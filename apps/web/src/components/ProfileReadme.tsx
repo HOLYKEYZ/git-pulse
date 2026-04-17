@@ -81,7 +81,10 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
 
   // The parsed inner HTML
   const processedHtml = $('body').html() || content;
-  const sanitizedHtml = DOMPurify.sanitize(processedHtml);
+  const sanitizedHtml = DOMPurify.sanitize(processedHtml, {
+    FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'button'],
+    FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover']
+  });
 
   return (
     <div className="w-full animate-fade-in relative overflow-hidden">

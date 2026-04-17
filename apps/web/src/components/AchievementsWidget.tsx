@@ -3,6 +3,9 @@ import Image from "next/image";
 import { getUserAchievements } from "@/lib/github";
 
 export default async function AchievementsWidget({ username }: { username: string }) {
+    if (!username || typeof username !== 'string') {
+        return null;
+    }
     const achievements = await getUserAchievements(username);
 
     if (!achievements || achievements.length === 0) {

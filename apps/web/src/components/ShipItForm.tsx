@@ -31,6 +31,9 @@ const [selectedRepoDisplayName, setSelectedRepoDisplayName] = useState('');
     e.preventDefault();
     if (!selectedRepoFullName || !version || !changelog.trim() || isSubmitting) return;
     
+    if (version.length > 50) { alert("Version tag exceeds 50 limits"); return; }
+    if (changelog.length > 2000) { alert("Changelog exceeds 2000 character limits"); return; }
+
     setIsSubmitting(true);
     try {
       const res = await fetch('/api/posts', {

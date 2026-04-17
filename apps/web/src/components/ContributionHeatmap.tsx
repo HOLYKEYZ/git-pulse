@@ -55,16 +55,21 @@ export default function ContributionHeatmap({ weeks: initialWeeks, totalContribu
     }, [weeks]);
 
     // fetch year data when selected
-    const handleYearChange = async (year: number | null) => {
+const handleYearChange = async (year: number | null) => {
         setSelectedYear(year);
-
+        
         if (year === null) {
             // reset to default (initial data = last year)
             setWeeks(initialWeeks);
             setTotalContributions(initialTotal);
             return;
         }
-
+        
+        if (Number.isNaN(year) || year < joinYear || year > currentYear) {
+            console.error('Invalid year');
+            return;
+        }
+        
         setLoading(true);
         try {
             const res = await fetch(`/api/github/contributions?username=${username}&year=${year}`);
@@ -72,6 +77,8 @@ export default function ContributionHeatmap({ weeks: initialWeeks, totalContribu
                 const data = await res.json();
                 setWeeks(data.weeks || []);
                 setTotalContributions(data.totalContributions || 0);
+            } else {
+                console.error('Failed to fetch contribution data');
             }
         } catch (err) {
             console.error("Error fetching contribution data:", err);

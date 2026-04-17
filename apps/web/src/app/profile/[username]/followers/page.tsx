@@ -5,9 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import FollowButton from "@/components/FollowButton";
 
-export default async function FollowersPage({ params }: { params: { username: string }; }) {
+export default async function FollowersPage({ params }: { params: Promise<{ username: string }>; }) {
   const session = await auth();
-  const { username } = params;
+  const { username } = await params;
   const token = session?.user?.login ? await getServerSideToken(session.user.login) : null;
 
   // graceful fallback: if no token, show followers without follow buttons

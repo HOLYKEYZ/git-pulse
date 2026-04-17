@@ -26,7 +26,10 @@ const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     files.forEach((file) => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const sanitizedImage = DOMPurify.sanitize(reader.result as string);
+        const sanitizedImage = DOMPurify.sanitize(reader.result as string, {
+          ALLOWED_TAGS: ['img'],
+          ALLOWED_ATTR: ['src'],
+        });
         setImages((prev) => [...prev, sanitizedImage]);
       };
       reader.readAsDataURL(file);
@@ -44,8 +47,14 @@ const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   if (!content.trim() && images.length === 0 || content.length > maxLength || isSubmitting) return;
 
-  const sanitizedContent = DOMPurify.sanitize(content);
-  const sanitizedImages = images.map((image) => DOMPurify.sanitize(image));
+  const sanitizedContent = DOMPurify.sanitize(content, {
+    ALLOWED_TAGS: ['p', 'span', 'a', 'img', 'br'],
+    ALLOWED_ATTR: ['href', 'src'],
+  });
+  const sanitizedImages = images.map((image) => DOMPurify.sanitize(image, {
+    ALLOWED_TAGS: ['img'],
+    ALLOWED_ATTR: ['src'],
+  }));
 
   setIsSubmitting(true);
   try {

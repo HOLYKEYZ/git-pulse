@@ -101,6 +101,20 @@ body {
 .stagger-children > *:nth-child(4) { animation-delay: 150ms; }
 .stagger-children > *:nth-child(5) { animation-delay: 200ms; }
 .stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 300ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 350ms; }
+.stagger-children > *:nth-child(9) { animation-delay: 400ms; }
+.stagger-children > *:nth-child(10) { animation-delay: 450ms; }
+.stagger-children > *:nth-child(11) { animation-delay: 500ms; }
+.stagger-children > *:nth-child(12) { animation-delay: 550ms; }
+.stagger-children > *:nth-child(13) { animation-delay: 600ms; }
+.stagger-children > *:nth-child(14) { animation-delay: 650ms; }
+.stagger-children > *:nth-child(15) { animation-delay: 700ms; }
+.stagger-children > *:nth-child(16) { animation-delay: 750ms; }
+.stagger-children > *:nth-child(17) { animation-delay: 800ms; }
+.stagger-children > *:nth-child(18) { animation-delay: 850ms; }
+.stagger-children > *:nth-child(19) { animation-delay: 900ms; }
+.stagger-children > *:nth-child(20) { animation-delay: 950ms; }
 
 /* ─── GitHub-Style Markdown ─────────────────────────────────────────────── */
 .markdown-body {

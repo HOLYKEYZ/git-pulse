@@ -6,9 +6,9 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-theme: {
-  extend: {
-colors: {
+  theme: {
+    extend: {
+      colors: {
         contribution: {
             none: '#161b22',
             'first-quartile': '#0e4429',
@@ -16,20 +16,14 @@ colors: {
             'third-quartile': '#26a641',
             'fourth-quartile': '#39d353',
         },
-        git: {
-            'dark-bg-header': '#0d1117',
-            'error-text': '#f85149',
-            'dark-bg-primary': '#0d1117',
-            'dark-bg-secondary': '#010409',
-        },
-        // Existing colors start here
-      'gh-dark-bg-primary': '#0d1117',
-      'gh-dark-border': '#30363d',
-      'gh-dark-bg-secondary': '#161b22',
-    },
-  },
-    extend: {
-      colors: {
+        'gh-dark-bg-primary': '#0d1117',
+        'gh-dark-border': '#30363d',
+        'gh-dark-bg-secondary': '#161b22',
+        'achievements-background': '#161b22',
+        'custom-github-blue': '#2f81f7',
+        'custom-dark-bg': '#0d1117',
+        'custom-repo-card-hover-bg': '#161b22',
+        'git-link-blue': '#58a6ff',
         language: {
           TypeScript: '#3178c6',
           JavaScript: '#f1e05a',
@@ -75,6 +69,10 @@ colors: {
         'git-green-hover': '#2ea043',
         'git-error': '#f85149',
         git: {
+          'dark-bg-header': '#0d1117',
+          'error-text': '#f85149',
+          'dark-bg-primary': '#0d1117',
+          'dark-bg-secondary': '#010409',
           scoreGreen: '#2ea043',
           bg: "var(--bg)",
           card: "var(--card)",

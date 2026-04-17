@@ -7,7 +7,7 @@ import { z } from "zod";
 
 const QuerySchema = z.object({
   username: z.string().min(1).max(100),
-  year: z.string().regex(/^\d{4}$/).transform((val) => parseInt(val, 10)),
+  year: z.string().regex(/^\d{4}$/).transform((val: string) => parseInt(val, 10)),
 });
 
 export async function GET(req: Request) {

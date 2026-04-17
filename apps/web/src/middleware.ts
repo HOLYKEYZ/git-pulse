@@ -3,22 +3,10 @@ import { authConfig } from "@/lib/auth.config"
 import { NextResponse } from "next/server"
 
 const { auth } = NextAuth(authConfig);
-const validateInput = (input: any) => {
-  // Implement input validation logic here
-  // For example:
-  if (!input || typeof input !== 'object') {
-    throw new Error('Invalid input');
-  }
-};
-
-// routes that unauthenticated users can access
-const PUBLIC_ROUTES = ['/', '/explore', '/login', '/signout'];
-
 export default auth((req) => {
-  try {
-    validateInput(req);
-  } catch (error) {
-    return NextResponse.redirect(new URL('/login', req.nextUrl));
+  // basic security validation on the URI to prevent anomalous length injections or null bytes
+  if (req.nextUrl.pathname.includes('\0') || req.nextUrl.pathname.length > 2000) {
+    return new NextResponse('Invalid URI', { status: 400 });
   }
     const isLoggedIn = !!req.auth;
     const pathname = req.nextUrl.pathname;

@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getServerSideToken } from "@/lib/serverToken";
+import { z } from "zod";
+
+const ProfileUpdateSchema = z.object({
+  name: z.string().max(100).optional(),
+  email: z.string().email().optional(),
+  blog: z.string().url().or(z.literal("")).optional(),
+  twitter_username: z.string().max(50).optional(),
+  company: z.string().max(100).optional(),
+  location: z.string().max(100).optional(),
+  hireable: z.boolean().optional(),
+  bio: z.string().max(160).optional()
+}).passthrough();
 
 export async function PATCH(req: NextRequest) {
   try {
@@ -13,31 +25,12 @@ export async function PATCH(req: NextRequest) {
     
     const body = await req.json();
     
-    // Input validation
-    if (!body.name || typeof body.name !== 'string' || body.name.length > 100) {
-      return NextResponse.json({ error: 'Invalid name' }, { status: 400 });
+    // Input validation with Zod
+    const result = ProfileUpdateSchema.safeParse(body);
+    if (!result.success) {
+      return NextResponse.json({ error: 'Validation failed', details: result.error.errors }, { status: 400 });
     }
-    if (!body.email || typeof body.email !== 'string' || !body.email.includes('@')) {
-      return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
-    }
-    if (body.blog && typeof body.blog !== 'string') {
-      return NextResponse.json({ error: 'Invalid blog' }, { status: 400 });
-    }
-    if (body.twitter_username && typeof body.twitter_username !== 'string') {
-      return NextResponse.json({ error: 'Invalid twitter username' }, { status: 400 });
-    }
-    if (body.company && typeof body.company !== 'string') {
-      return NextResponse.json({ error: 'Invalid company' }, { status: 400 });
-    }
-    if (body.location && typeof body.location !== 'string') {
-      return NextResponse.json({ error: 'Invalid location' }, { status: 400 });
-    }
-    if (typeof body.hireable !== 'boolean') {
-      return NextResponse.json({ error: 'Invalid hireable' }, { status: 400 });
-    }
-    if (body.bio && typeof body.bio !== 'string') {
-      return NextResponse.json({ error: 'Invalid bio' }, { status: 400 });
-    }
+    const safeData = result.data;
     
     // https://docs.github.com/en/rest/users/users#update-the-authenticated-user
     const response = await fetch("https://api.github.com/user", {
@@ -48,14 +41,14 @@ export async function PATCH(req: NextRequest) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        name: body.name,
-        email: body.email,
-        blog: body.blog,
-        twitter_username: body.twitter_username,
-        company: body.company,
-        location: body.location,
-        hireable: body.hireable,
-        bio: body.bio
+        name: safeData.name,
+        email: safeData.email,
+        blog: safeData.blog,
+        twitter_username: safeData.twitter_username,
+        company: safeData.company,
+        location: safeData.location,
+        hireable: safeData.hireable,
+        bio: safeData.bio
       })
     });
     

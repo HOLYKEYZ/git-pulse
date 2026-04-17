@@ -4,6 +4,19 @@ import { getServerSideToken } from "@/lib/serverToken";
 import { prisma } from "@/lib/prisma";
 import rateLimit from "@/lib/rateLimit";
 import { getRepoCommitCount, getRepoConsistency } from "@/lib/github";
+import { z } from "zod";
+
+const PostPayloadSchema = z.object({
+  content: z.string().min(1).max(500),
+  type: z.enum(["standard", "ship"]),
+  images: z.array(z.string().url().or(z.string().startsWith("data:image/"))).max(4).optional(),
+  repoUrl: z.string().url().optional(),
+  shipDetails: z.object({
+    repoFullName: z.string().max(100),
+    version: z.string().max(50),
+    changelog: z.string().max(2000)
+  }).optional()
+});
 
 export const dynamic = "force-dynamic";
 
@@ -47,16 +60,13 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { content, type, shipDetails, images, repoUrl } = body;
-
-    if (!content) {
-      return NextResponse.json({ error: "Content is required" }, { status: 400 });
+    const result = PostPayloadSchema.safeParse(body);
+    
+    if (!result.success) {
+      return NextResponse.json({ error: "Validation Failed", details: result.error.errors }, { status: 400 });
     }
 
-    // server-side input validation — client can be bypassed
-    if (typeof content !== "string" || content.length > 500) {
-      return NextResponse.json({ error: "Content must be 500 characters or less" }, { status: 400 });
-    }
+    const { content, type, shipDetails, images, repoUrl } = result.data;
 
     if (images && (!Array.isArray(images) || images.length > 4)) {
       return NextResponse.json({ error: "Maximum 4 images allowed" }, { status: 400 });

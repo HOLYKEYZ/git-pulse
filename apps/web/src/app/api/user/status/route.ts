@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import logger from '@/lib/logger';
+import { z } from "zod";
+
+const StatusSchema = z.object({
+  emoji: z.string().max(10).optional().nullable(),
+  text: z.string().max(80).optional().nullable(),
+});
 
 export async function PUT(req: Request) {
   const session = await auth();
@@ -10,14 +16,13 @@ export async function PUT(req: Request) {
   }
 
   try {
-    const { emoji, text } = await req.json();
-
-    if (typeof emoji !== 'string' || (emoji && [...emoji].length > 1)) {
-      return NextResponse.json({ error: 'Status emoji must be a single character' }, { status: 400 });
+    const body = await req.json();
+    const result = StatusSchema.safeParse(body);
+    
+    if (!result.success) {
+      return NextResponse.json({ error: "Invalid status payload", details: result.error.errors }, { status: 400 });
     }
-    if (typeof text !== 'string' || (text && text.length > 80)) {
-      return NextResponse.json({ error: 'Status text cannot exceed 80 characters' }, { status: 400 });
-    }
+    const { emoji, text } = result.data;
     const user = await prisma.user.update({
       where: { username: session.user.login },
       data: {

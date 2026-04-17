@@ -3,6 +3,12 @@ import { auth } from "@/lib/auth";
 import { getServerSideToken } from "@/lib/serverToken";
 import { getContributionDataForYear } from "@/lib/github";
 import contributionCache from "@/lib/contributionCache";
+import { z } from "zod";
+
+const QuerySchema = z.object({
+  username: z.string().min(1).max(100),
+  year: z.string().regex(/^\d{4}$/).transform((val) => parseInt(val, 10)),
+});
 
 export async function GET(req: Request) {
   const session = await auth();
@@ -15,16 +21,20 @@ export async function GET(req: Request) {
   }
 
   const { searchParams } = new URL(req.url);
-  const username = searchParams.get("username");
-  const year = searchParams.get("year");
+  const rawQuery = {
+    username: searchParams.get("username"),
+    year: searchParams.get("year"),
+  };
 
-  if (!username || !year) {
-    return NextResponse.json({ error: "username and year are required" }, { status: 400 });
+  const result = QuerySchema.safeParse(rawQuery);
+  if (!result.success) {
+    return NextResponse.json({ error: "Invalid query parameters provided", details: result.error.errors }, { status: 400 });
   }
 
-  const yearNum = parseInt(year);
-  if (isNaN(yearNum) || yearNum < 2008 || yearNum > new Date().getFullYear()) {
-    return NextResponse.json({ error: "invalid year" }, { status: 400 });
+  const { username, year: yearNum } = result.data;
+
+  if (yearNum < 2008 || yearNum > new Date().getFullYear()) {
+    return NextResponse.json({ error: "Year is out of valid range" }, { status: 400 });
   }
 
   const cacheKey = `${username}-${yearNum}`;

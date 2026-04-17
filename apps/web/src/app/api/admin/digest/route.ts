@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { calculatePostScore } from "@/lib/algo";
 import { auth } from '@/lib/auth';
+import { z } from 'zod';
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,12 @@ export const dynamic = "force-dynamic";
  */
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const secret = searchParams.get("secret");
+  const QuerySchema = z.object({ secret: z.string().optional() });
+  const parseResult = QuerySchema.safeParse(Object.fromEntries(searchParams));
+  if (!parseResult.success) {
+    return NextResponse.json({ error: "Invalid parameters" }, { status: 400 });
+  }
+  const secret = parseResult.data.secret;
 
   // basic auth — either via cron secret or session
   const session = await auth();

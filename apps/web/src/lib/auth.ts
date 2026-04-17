@@ -5,6 +5,16 @@ import { GitHubProfile } from "next-auth/providers/github";
 import { AdapterUser } from "next-auth/adapters";
 import { authConfig } from "./auth.config";
 import { prisma } from "./prisma";
+import { z } from "zod";
+
+const ProfileSchema = z.object({
+  login: z.string(),
+  name: z.string().nullable().optional(),
+  email: z.string().email().nullable().optional(),
+  avatar_url: z.string().url().nullable().optional(),
+  image: z.string().url().nullable().optional(),
+  bio: z.string().nullable().optional(),
+}).passthrough();
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -22,12 +32,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         // upsert user in db on every login - only runs on server
         try {
+          const parsedProfileResult = ProfileSchema.safeParse(profile);
+          if (!parsedProfileResult.success) {
+            console.error("❌ [Auth] Invalid GitHub profile payload:", parsedProfileResult.error);
+            return token; // fail gracefully without creating malicious db entries
+          }
+          const validProfile = parsedProfileResult.data;
+
           const userData: any = {
-              username: profile.login,
-              name: profile.name ?? null,
-              email: profile.email ?? null,
-              avatar: profile.avatar_url ?? profile.image ?? null,
-              bio: profile.bio ?? null,
+              username: validProfile.login,
+              name: validProfile.name ?? null,
+              email: validProfile.email ?? null,
+              avatar: validProfile.avatar_url ?? validProfile.image ?? null,
+              bio: validProfile.bio ?? null,
               accessToken: account.access_token ?? null
           };
           

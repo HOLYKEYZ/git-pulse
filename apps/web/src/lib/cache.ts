@@ -19,6 +19,13 @@ if (process.env.NODE_ENV !== 'production') globalForRedis.redis = redis;
  * @param ttl time to live in milliseconds (optional, defaults to 5 min)
  */
 export async function withCache<T>(key: string, fn: () => Promise<T>, ttl?: number): Promise<T> {
+  if (typeof key !== "string" || !key.trim()) {
+    throw new Error("[Cache] Invalid key provided to withCache");
+  }
+  if (ttl !== undefined && (typeof ttl !== "number" || ttl < 0)) {
+    throw new Error("[Cache] Invalid ttl provided to withCache");
+  }
+
   // If Redis is not configured, fall back to executing without caching
   if (!process.env.UPSTASH_REDIS_REST_URL) {
     return fn();

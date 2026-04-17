@@ -8,5 +8,10 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@types/dompurify": "^3.2.0",
+    "isomorphic-dompurify": "^3.9.0",
+    "zod": "^4.3.6"
   }
 }

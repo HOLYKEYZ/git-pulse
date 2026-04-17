@@ -5,7 +5,8 @@ import SearchBar from '@/components/SearchBar';
 import ComposeFeed from '@/components/ComposeFeed';
 import ShipItForm from '@/components/ShipItForm';
 import PostCard, { PostProps } from '@/components/PostCard';
-import { getRelativeTime, hasPassedBadge } from '@/lib/utils';
+import { getRelativeTime } from '@/lib/utils';
+import { hasPassedBadge } from '@/lib/badges';
 
 type TabType = 'discover' | 'following' | 'activity';
 

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import DOMPurify from 'isomorphic-dompurify';
+import { z } from "zod";
 
 export default function ComposeFeed({ onPostCreated }: { onPostCreated?: (post: any) => void }) {
   const router = useRouter();

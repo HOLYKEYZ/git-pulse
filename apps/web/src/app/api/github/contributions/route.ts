@@ -31,10 +31,10 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Invalid query parameters provided", details: result.error.errors }, { status: 400 });
   }
 
-  const { username, year: yearNum } = result.data;
+const { username, year: yearNum } = result.data;
 
-  if (yearNum < 2008 || yearNum > new Date().getFullYear()) {
-    return NextResponse.json({ error: "Year is out of valid range" }, { status: 400 });
+  if (typeof yearNum !== 'number' || yearNum < 2008 || yearNum > new Date().getFullYear() || !Number.isInteger(yearNum)) {
+    return NextResponse.json({ error: `Invalid year: ${yearNum}. Year must be an integer between 2008 and ${new Date().getFullYear()}.` }, { status: 400 });
   }
 
   const cacheKey = `${username}-${yearNum}`;

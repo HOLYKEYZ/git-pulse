@@ -140,9 +140,6 @@ importers:
       '@prisma/engines':
         specifier: 6.1.0
         version: 6.1.0
-      '@types/dompurify':
-        specifier: ^3.2.0
-        version: 3.2.0
       '@types/node':
         specifier: ^20
         version: 20.19.37

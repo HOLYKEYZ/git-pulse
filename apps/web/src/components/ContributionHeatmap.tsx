@@ -65,7 +65,7 @@ const handleYearChange = async (year: number | null) => {
             return;
         }
         
-        if (typeof year !== 'number' || year <= 0 || year > new Date().getFullYear()) {
+        if (Number.isNaN(year) || year < joinYear || year > currentYear) {
             console.error('Invalid year');
             return;
         }

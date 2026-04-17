@@ -216,7 +216,9 @@ export default function PostCard({ post }: {post: PostProps;}) {
             }}>
             
             {/* simple pre-processor for #tags and @mentions to turn them into markdown links if not already */}
-            {post.content.replace(/(^|\s)(#[\w-]+)/g, '$1[$2]($2)').replace(/(^|\s)(@[\w-]+)/g, '$1[$2]($2)')}
+            {DOMPurify.sanitize(post.content.replace(/(^|\s)(#[\w-]+)/g, '$1[$2]($2)').replace(/(^|\s)(@[\w-]+)/g, '$1[$2]($2)'), {
+              FORBID_TAGS: ['script', 'style', 'iframe', 'form', 'button', 'input']
+            })}
           </ReactMarkdown>
         </div>
 

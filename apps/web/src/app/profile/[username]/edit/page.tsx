@@ -61,78 +61,80 @@ const { username } = params;
         load();
     }, []);
 
+const validateInput = (name: string, bio: string, blog: string, twitterUsername: string, location: string, company: string) => {
+    const errors: { [key: string]: string } = {};
+    if (!name || typeof name !== 'string' || name.length > 50) {
+        errors.name = 'Name must be a string and not exceed 50 characters';
+    }
+    if (!bio || typeof bio !== 'string' || bio.length > 160) {
+        errors.bio = 'Bio must be a string and not exceed 160 characters';
+    }
+    if (!blog || typeof blog !== 'string' || blog.length > 100) {
+        errors.blog = 'Blog must be a string and not exceed 100 characters';
+    }
+    if (!twitterUsername || typeof twitterUsername !== 'string' || twitterUsername.length > 15) {
+        errors.twitterUsername = 'Twitter username must be a string and not exceed 15 characters';
+    }
+    if (!location || typeof location !== 'string' || location.length > 50) {
+        errors.location = 'Location must be a string and not exceed 50 characters';
+    }
+    if (!company || typeof company !== 'string' || company.length > 50) {
+        errors.company = 'Company must be a string and not exceed 50 characters';
+    }
+    return errors;
+};
+
 const handleSave = async () => {
-        // confirmation before modifying live github profile
-        if (!window.confirm("this will update your live GitHub profile. are you sure?")) {
-            return;
-        }
-        setSaving(true);
-        setError(null);
-        setSuccess(false);
+    // confirmation before modifying live github profile
+    if (!window.confirm("this will update your live GitHub profile. are you sure?")) {
+        return;
+    }
+    setSaving(true);
+    setError(null);
+    setSuccess(false);
 
-        // Input validation
-        if (!name || typeof name !== 'string' || name.length > 50) {
-            setError('Name must be a string and not exceed 50 characters');
-            setSaving(false);
-            return;
-        }
-        if (!bio || typeof bio !== 'string' || bio.length > 160) {
-            setError('Bio must be a string and not exceed 160 characters');
-            setSaving(false);
-            return;
-        }
-        if (!blog || typeof blog !== 'string' || blog.length > 100) {
-            setError('Blog must be a string and not exceed 100 characters');
-            setSaving(false);
-            return;
-        }
-        if (!twitterUsername || typeof twitterUsername !== 'string' || twitterUsername.length > 15) {
-            setError('Twitter username must be a string and not exceed 15 characters');
-            setSaving(false);
-            return;
-        }
-        if (!location || typeof location !== 'string' || location.length > 50) {
-            setError('Location must be a string and not exceed 50 characters');
-            setSaving(false);
-            return;
-        }
-        if (!company || typeof company !== 'string' || company.length > 50) {
-            setError('Company must be a string and not exceed 50 characters');
-            setSaving(false);
-            return;
+    const errors = validateInput(name, bio, blog, twitterUsername, location, company);
+    if (Object.keys(errors).length > 0) {
+        setError('Validation failed:');
+        // Display specific error messages next to each form field
+        Object.keys(errors).forEach(key => {
+            console.log(`${key}: ${errors[key]}`);
+        });
+        setSaving(false);
+        return;
+    }
+
+    try {
+        const res = await fetch("/api/github/profile", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                name: name || undefined,
+                bio: bio || undefined,
+                blog: blog || undefined,
+                twitter_username: twitterUsername || undefined,
+                location: location || undefined,
+                company: company || undefined,
+            }),
+        });
+
+        if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.error || "failed to update profile");
         }
 
-        try {
-            const res = await fetch("/api/github/profile", {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    name: name || undefined,
-                    bio: bio || undefined,
-                    blog: blog || undefined,
-                    twitter_username: twitterUsername || undefined,
-                    location: location || undefined,
-                    company: company || undefined,
-                }),
-            });
-
-            if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data.error || "failed to update profile");
+        setSuccess(true);
+        setTimeout(() => {
+            if (profile) {
+                router.push(`/profile/${profile.login}`);
             }
-
-            setSuccess(true);
-            setTimeout(() => {
-                if (profile) {
-                    router.push(`/profile/${profile.login}`);
-                }
-            }, 1500);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : "failed to update profile");
-        } finally {
-            setSaving(false);
-        }
-    };
+        }, 1500);
+    } catch (err) {
+        setError(err instanceof Error ? err.message : "failed to update profile");
+    } finally {
+        setSaving(false);
+    }
+};
 
     if (loading) {
         return (

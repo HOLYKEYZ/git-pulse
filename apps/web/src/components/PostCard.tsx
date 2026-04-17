@@ -60,7 +60,7 @@ export default function PostCard({ post }: {post: PostProps;}) {
   const [localReactions, setLocalReactions] = useState(post.reactions || []);
   const [isReposting, setIsReposting] = useState(false);
 
-  const handleNavigate = (e: React.MouseEvent) => {
+const handleNavigate = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
     // Prevent routing if clicking interactive elements (links, buttons, icons, or images inside content)
     if (target.closest('a') || target.closest('button') || target.closest('svg') || target.tagName.toLowerCase() === 'img') {
@@ -71,14 +71,22 @@ export default function PostCard({ post }: {post: PostProps;}) {
     if (selection && selection.toString().length > 0) return;
     
     if (post.isExternalEvent && post.externalUrl) {
-      window.open(post.externalUrl, '_blank', 'noopener,noreferrer');
+      try {
+        window.open(post.externalUrl, '_blank', 'noopener,noreferrer');
+      } catch (error) {
+        console.error('Error opening external link:', error);
+      }
       return;
     }
     
-    router.push(`/post/${post.id}`);
+    try {
+      router.push(`/post/${post.id}`);
+    } catch (error) {
+      console.error('Error navigating to post:', error);
+    }
   };
 
-  const handleRepost = async (e: React.MouseEvent) => {
+const handleRepost = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (isReposting) return;
@@ -88,15 +96,18 @@ export default function PostCard({ post }: {post: PostProps;}) {
       const res = await fetch(`/api/posts/${post.id}/repost`, { method: 'POST' });
       if (res.ok) {
         // UI optimistically shows repost success (could show a toast here)
+      } else {
+        throw new Error(`Repost failed with status ${res.status}`);
       }
-    } catch (err) {
-      console.error("Failed to repost", err);
+    } catch (error) {
+      console.error('Error reposting:', error);
+      // Display error message to user
     } finally {
       setIsReposting(false);
     }
   };
 
-  const handleReact = async (emoji: string) => {
+const handleReact = async (emoji: string) => {
     try {
       const res = await fetch(`/api/posts/${post.id}/reactions`, {
         method: 'POST',
@@ -116,9 +127,12 @@ export default function PostCard({ post }: {post: PostProps;}) {
         } else {
           setLocalReactions(localReactions.map((r) => r.emoji === emoji ? { ...r, count: r.count - 1, hasReacted: false } : r).filter((r) => r.count > 0));
         }
+      } else {
+        throw new Error(`Reaction failed with status ${res.status}`);
       }
     } catch (error) {
-      console.error("Failed to toggle reaction", error);
+      console.error('Error toggling reaction:', error);
+      // Display error message to user
     }
   };
 

@@ -35,7 +35,7 @@ const fadeUp = {
 /*                            robot head (three.js)                           */
 /* -------------------------------------------------------------------------- */
 
-// Custom materials
+// module-level materials (shared, never re-created)
 const darkMaterial = new THREE.MeshStandardMaterial({
   color: 0x161B22,
   roughness: 0.8,
@@ -46,14 +46,23 @@ const borderMaterial = new THREE.MeshStandardMaterial({
   roughness: 0.5,
   metalness: 0.5,
 });
-
-// create a glowing emissive material for eyes (using inline or cloned to avoid sharing bugs)
+const visorMaterial = new THREE.MeshBasicMaterial({ color: '#010409' });
 const eyeMaterialProps = {
   color: 0xffffff,
-  emissive: 0x238636, // github active green
+  emissive: 0x238636,
   emissiveIntensity: 3,
   toneMapped: false,
 };
+
+// module-level geometries (shared, never re-created — prevents memory leak at 60fps)
+const headGeometry = new THREE.BoxGeometry(2, 2, 2);
+const headFrameGeometry = new THREE.BoxGeometry(2.05, 2.05, 1.95);
+const antennaBaseGeometry = new THREE.CylinderGeometry(0.2, 0.3, 0.2, 16);
+const antennaStickGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.6, 8);
+const antennaBulbGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+const visorGeometry = new THREE.PlaneGeometry(1.5, 0.8);
+const eyeGeometry = new THREE.CircleGeometry(0.15, 32);
+const earGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.2, 16);
 
 function RobotHead() {
   const groupRef = useRef<THREE.Group>(null);
@@ -105,42 +114,37 @@ function RobotHead() {
 
   return (
     <group ref={groupRef} dispose={null}>
-      {/* Main Head Box */}
-      <mesh castShadow receiveShadow geometry={new THREE.BoxGeometry(2, 2, 2)} material={darkMaterial} />
+      {/* main head box */}
+      <mesh castShadow receiveShadow geometry={headGeometry} material={darkMaterial} />
       
-      {/* Head Border Outline/Frame (slightly larger box, no depth writing trick or just wireframe-like trims) */}
-      <mesh geometry={new THREE.BoxGeometry(2.05, 2.05, 1.95)} material={borderMaterial} />
+      {/* head border outline/frame */}
+      <mesh geometry={headFrameGeometry} material={borderMaterial} />
       
-      {/* Antenna base */}
-      <mesh position={[0, 1.1, 0]} geometry={new THREE.CylinderGeometry(0.2, 0.3, 0.2, 16)} material={borderMaterial} />
-      {/* Antenna stick */}
-      <mesh position={[0, 1.4, 0]} geometry={new THREE.CylinderGeometry(0.05, 0.05, 0.6, 8)} material={darkMaterial} />
-      {/* Antenna bulb (glowing) */}
-      <mesh position={[0, 1.75, 0]} geometry={new THREE.SphereGeometry(0.15, 16, 16)}>
+      {/* antenna base */}
+      <mesh position={[0, 1.1, 0]} geometry={antennaBaseGeometry} material={borderMaterial} />
+      {/* antenna stick */}
+      <mesh position={[0, 1.4, 0]} geometry={antennaStickGeometry} material={darkMaterial} />
+      {/* antenna bulb (glowing) */}
+      <mesh position={[0, 1.75, 0]} geometry={antennaBulbGeometry}>
         <meshStandardMaterial {...eyeMaterialProps} />
       </mesh>
 
-      {/* Visor Area (deeper dark) */}
-      <mesh position={[0, 0.2, 1.01]}>
-        <planeGeometry args={[1.5, 0.8]} />
-        <meshBasicMaterial color="#010409" />
-      </mesh>
+      {/* visor area (deeper dark) */}
+      <mesh position={[0, 0.2, 1.01]} geometry={visorGeometry} material={visorMaterial} />
 
-      {/* Left Eye */}
-      <mesh ref={leftEyeRef} position={[-0.4, 0.2, 1.02]}>
-        <circleGeometry args={[0.15, 32]} />
+      {/* left eye */}
+      <mesh ref={leftEyeRef} position={[-0.4, 0.2, 1.02]} geometry={eyeGeometry}>
         <meshStandardMaterial {...eyeMaterialProps} />
       </mesh>
 
-      {/* Right Eye */}
-      <mesh ref={rightEyeRef} position={[0.4, 0.2, 1.02]}>
-        <circleGeometry args={[0.15, 32]} />
+      {/* right eye */}
+      <mesh ref={rightEyeRef} position={[0.4, 0.2, 1.02]} geometry={eyeGeometry}>
         <meshStandardMaterial {...eyeMaterialProps} />
       </mesh>
       
-      {/* Ear pieces */}
-      <mesh position={[-1.05, 0, 0]} geometry={new THREE.CylinderGeometry(0.4, 0.4, 0.2, 16)} rotation={[0, 0, Math.PI/2]} material={borderMaterial} />
-      <mesh position={[1.05, 0, 0]} geometry={new THREE.CylinderGeometry(0.4, 0.4, 0.2, 16)} rotation={[0, 0, Math.PI/2]} material={borderMaterial} />
+      {/* ear pieces */}
+      <mesh position={[-1.05, 0, 0]} geometry={earGeometry} rotation={[0, 0, Math.PI/2]} material={borderMaterial} />
+      <mesh position={[1.05, 0, 0]} geometry={earGeometry} rotation={[0, 0, Math.PI/2]} material={borderMaterial} />
     </group>
   );
 }

@@ -16,9 +16,9 @@ export async function GET() {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    try {
+try {
         const cacheKey = `collab:${session.user.login}`;
-
+        
         const matches = await withCache(
             cacheKey,
             async () => {
@@ -26,22 +26,29 @@ export async function GET() {
                     session.user!.login!,
                     serverToken
                 );
-
+                
                 if (stack.length === 0) {
                     return [];
                 }
-
+                
                 return findSimilarDevs(session.user!.login!, stack);
             },
             1000 * 60 * 60 // 1 hour cache
         );
-
+        
         return NextResponse.json({ matches });
     } catch (error) {
         console.error("Error finding collab matches:", error);
-        return NextResponse.json(
-            { error: "Internal Server Error" },
-            { status: 500 }
-        );
+        if (error instanceof Error) {
+            return NextResponse.json(
+                { error: error.message },
+                { status: 500 }
+            );
+        } else {
+            return NextResponse.json(
+                { error: "An unknown error occurred" },
+                { status: 500 }
+            );
+        }
     }
 }

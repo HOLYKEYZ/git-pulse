@@ -62,6 +62,11 @@ export async function DELETE() {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
+  const usernameToDelete = await prisma.user.findUnique({ where: { id: session.user.id }, select: { username: true } });
+  if (usernameToDelete.username !== session.user.login) {
+    return NextResponse.json({ error: "unauthorized to delete this account" }, { status: 403 });
+  }
+
   try {
     // Explicitly delete associated data before removing the user account
     await prisma.$transaction([

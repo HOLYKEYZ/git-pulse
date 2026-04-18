@@ -61,10 +61,30 @@ export async function PATCH(request: Request) {
 
         // only allow safe fields
         const allowed = ["name", "bio", "blog", "twitter_username", "location", "company"];
-        const payload: Record<string, string> = {};
+const payload: Record<string, string> = {};
         for (const key of allowed) {
             if (key in body) {
-                payload[key] = body[key] ?? "";
+                 const value = body[key] ?? "";
+                // Basic validation for each field
+                if (key === 'name' && value.length > 50) {
+                    return NextResponse.json({ error: 'Name is too long' }, { status: 400 });
+                }
+                if (key === 'bio' && value.length > 200) {
+                    return NextResponse.json({ error: 'Bio is too long' }, { status: 400 });
+                }
+                if (key === 'blog' && !isValidHttpUrl(value)) {
+                    return NextResponse.json({ error: 'Invalid blog URL' }, { status: 400 });
+                }
+                if (key === 'twitter_username' && value.length > 15) {
+                    return NextResponse.json({ error: 'Twitter username is too long' }, { status: 400 });
+                }
+                if (key === 'location' && value.length > 50) {
+                    return NextResponse.json({ error: 'Location is too long' }, { status: 400 });
+                }
+                if (key === 'company' && value.length > 50) {
+                    return NextResponse.json({ error: 'Company is too long' }, { status: 400 });
+                }
+                payload[key] = value;
             }
         }
 

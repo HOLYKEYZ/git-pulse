@@ -10,7 +10,7 @@ const PostPayloadSchema = z.object({
   content: z.string().min(1).max(500),
   type: z.enum(["standard", "ship"]),
   images: z.array(z.string().url().or(z.string().startsWith("data:image/"))).max(4).optional(),
-  repoUrl: z.string().url().optional(),
+  repoUrl: z.string().url().startsWith("https://github.com/").optional(),
   shipDetails: z.object({
     repoFullName: z.string().max(100),
     version: z.string().max(50),
@@ -65,8 +65,12 @@ export async function POST(req: Request) {
     if (!result.success) {
       return NextResponse.json({ error: "Validation Failed", details: result.error.errors }, { status: 400 });
     }
-
+    
     const { content, type, shipDetails, images, repoUrl } = result.data;
+    
+    if (shipDetails && !shipDetails.repoFullName) {
+      return NextResponse.json({ error: 'Repository full name is required' }, { status: 400 });
+    }
 
     if (images && (!Array.isArray(images) || images.length > 4)) {
       return NextResponse.json({ error: "Maximum 4 images allowed" }, { status: 400 });

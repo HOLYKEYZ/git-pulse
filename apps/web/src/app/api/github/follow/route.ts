@@ -21,8 +21,8 @@ export async function PUT(req: NextRequest) {
     const body = await req.json();
     const { username } = body;
 
-    if (!username) {
-      return NextResponse.json({ error: "Username is required" }, { status: 400 });
+    if (!username || typeof username !== 'string' || username.length === 0 || !/^[a-zA-Z0-9-]+$/.test(username)) {
+      return NextResponse.json({ error: "Invalid username" }, { status: 400 });
     }
 
     // Call GitHub API to follow user
@@ -39,7 +39,11 @@ export async function PUT(req: NextRequest) {
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`[GitHub Follow API] Error following ${username}:`, response.status, errorText);
-      return NextResponse.json({ error: `GitHub API responded with ${response.status}` }, { status: response.status });
+      if (response.status === 404) {
+        return NextResponse.json({ error: `User ${username} not found` }, { status: 404 });
+      } else {
+        return NextResponse.json({ error: `GitHub API responded with ${response.status}` }, { status: response.status });
+      }
     }
 
     // GitHub returns 204 No Content on success
@@ -62,8 +66,8 @@ export async function DELETE(req: NextRequest) {
     const url = new URL(req.url);
     const username = url.searchParams.get("username");
 
-    if (!username) {
-      return NextResponse.json({ error: "Username query param is required" }, { status: 400 });
+    if (!username || typeof username !== 'string' || username.length === 0 || !/^[a-zA-Z0-9-]+$/.test(username)) {
+      return NextResponse.json({ error: "Invalid username" }, { status: 400 });
     }
 
     // https://docs.github.com/en/rest/users/followers#unfollow-a-user-for-the-authenticated-user
@@ -78,7 +82,11 @@ export async function DELETE(req: NextRequest) {
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`[GitHub Unfollow API] Error unfollowing ${username}:`, response.status, errorText);
-      return NextResponse.json({ error: `GitHub API responded with ${response.status}` }, { status: response.status });
+      if (response.status === 404) {
+        return NextResponse.json({ error: `User ${username} not found` }, { status: 404 });
+      } else {
+        return NextResponse.json({ error: `GitHub API responded with ${response.status}` }, { status: response.status });
+      }
     }
 
     return NextResponse.json({ success: true, message: `Successfully unfollowed ${username}` });

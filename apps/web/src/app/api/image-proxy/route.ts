@@ -32,6 +32,21 @@ const BLOCKED_PREFIXES = [
   "fd", // ipv6 unique local addresses
 ];
 
+function validateURL(url: string): boolean {
+  try {
+    const parsedUrl = new URL(url);
+    if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+      return false;
+    }
+    if (isPrivateUrl(parsedUrl.hostname)) {
+      return false;
+    }
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 function isPrivateUrl(hostname: string): boolean {
   const lower = hostname.toLowerCase();
   if (BLOCKED_HOSTNAMES.includes(lower)) return true;
@@ -50,9 +65,9 @@ export async function GET(req: NextRequest) {
     const parsedUrl = new URL(url);
     
     // block private/reserved ips
-    if (isPrivateUrl(parsedUrl.hostname)) {
-      return NextResponse.json({ error: "SSRF prevention" }, { status: 403 });
-    }
+if (!validateURL(url)) {
+  return NextResponse.json({ error: "SSRF prevention" }, { status: 403 });
+}
     
     // disable automatic redirects so we can validate each hop
     const response = await fetch(url, {
@@ -71,9 +86,9 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: "Invalid redirect" }, { status: 403 });
       }
       const redirectUrl = new URL(redirectTarget, url);
-      if (isPrivateUrl(redirectUrl.hostname)) {
-        return NextResponse.json({ error: "SSRF prevention: redirect to private IP" }, { status: 403 });
-      }
+if (!validateURL(redirectUrl.toString())) {
+  return NextResponse.json({ error: "SSRF prevention: redirect to private IP" }, { status: 403 });
+}
       // follow the redirect once (no infinite chaining)
       const redirectResponse = await fetch(redirectUrl.toString(), {
         headers: {
@@ -121,19 +136,5 @@ async function processImageResponse(response: Response) {
     if (buffer.byteLength > MAX_IMAGE_SIZE) {
       return NextResponse.json({ error: "Image too large (max 5MB)" }, { status: 413 });
     }
-
-    return new NextResponse(buffer, {
-      status: 200,
-      headers: {
-        "Content-Type": contentType || "image/png",
-        "Cache-Control": "public, max-age=86400, s-maxage=86400",
-        "Access-Control-Allow-Origin": "*",
-        "Content-Security-Policy": "default-src 'none'; img-src 'self'; style-src 'unsafe-inline';",
-        "X-Content-Type-Options": "nosniff"
-      }
-    });
-  } catch (error) {
-    console.error('Error processing image response:', error);
-    return NextResponse.json({ error: "Error processing image" }, { status: 500 });
-  }
+  });
 }

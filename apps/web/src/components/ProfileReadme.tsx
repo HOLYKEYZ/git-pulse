@@ -83,7 +83,7 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
   const processedHtml = $('body').html() || content;
   const sanitizedHtml = DOMPurify.sanitize(processedHtml, {
     FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'button'],
-    FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover']
+    FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onblur', 'onfocus']
   });
 
   return (

@@ -101,7 +101,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                             <span className="text-[10px] text-git-muted"><TimeDisplay time={comment.timestamp} /></span>
                         </div>
 <div className="text-sm text-git-text leading-relaxed markdown-body">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{DOMPurify.sanitize(comment.content)}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{comment.content}</ReactMarkdown>
                             </div>
                     </div>
                 </div>

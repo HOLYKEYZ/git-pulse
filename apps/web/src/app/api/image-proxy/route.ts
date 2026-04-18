@@ -102,7 +102,7 @@ async function processImageResponse(response: Response) {
     const contentType = response.headers.get("content-type") || "";
 
     // strictly only proxy things that are images or vectors
-    if (!contentType.startsWith("image/") && !contentType.includes("xml")) {
+    if (!contentType.startsWith("image/")) {
       return NextResponse.json({ error: "Invalid content type" }, { status: 403 });
     }
 

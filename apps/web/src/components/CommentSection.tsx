@@ -27,10 +27,10 @@ export default function CommentSection({ postId, initialComments = [] }: Comment
     const [newComment, setNewComment] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newComment.trim() || isSubmitting) return;
-
+        
         setIsSubmitting(true);
         try {
             const res = await fetch(`/api/posts/${postId}/comments`, {
@@ -38,7 +38,7 @@ export default function CommentSection({ postId, initialComments = [] }: Comment
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content: newComment }),
             });
-
+            
             if (res.ok) {
                 const data = await res.json();
                 setComments([
@@ -53,10 +53,23 @@ export default function CommentSection({ postId, initialComments = [] }: Comment
                         timestamp: new Date().toISOString(),
                     }
                 ]);
-                setNewComment("");
+                setNewComment(");
+            } else {
+                const errorMessage = await res.text();
+                console.error(`Failed to post comment: ${errorMessage}`);
+                // Display error message to the user
+                alert(`Failed to post comment: ${errorMessage}`);
             }
         } catch (error) {
-            console.error("Failed to post comment", error);
+            if (error instanceof Error) {
+                console.error(`Failed to post comment: ${error.message}`);
+                // Display error message to the user
+                alert(`Failed to post comment: ${error.message}`);
+            } else {
+                console.error('Failed to post comment: Unknown error');
+                // Display error message to the user
+                alert('Failed to post comment: Unknown error');
+            }
         } finally {
             setIsSubmitting(false);
         }

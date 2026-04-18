@@ -108,8 +108,11 @@ async function processImageResponse(response: Response) {
 
     // check content-length header before buffering
     const contentLength = response.headers.get("content-length");
-    if (contentLength && parseInt(contentLength) > MAX_IMAGE_SIZE) {
-      return NextResponse.json({ error: "Image too large (max 5MB)" }, { status: 413 });
+    if (!contentLength || parseInt(contentLength, 10) > MAX_IMAGE_SIZE) {
+      return NextResponse.json(
+        { error: !contentLength ? "Content-length required" : "Image too large (max 5MB)" },
+        { status: !contentLength ? 400 : 413 }
+      );
     }
 
     const buffer = await response.arrayBuffer();

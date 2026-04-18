@@ -58,7 +58,7 @@ function isWorthShowing(event: GitHubEvent): boolean {
 }
 
 function mapEventToPost(event: GitHubEvent): PostProps | null {
-  if (!event || !event.repo || !event.actor) return null;
+  if (!event || !event.repo || !event.actor || !event.created_at) return null;
   const repoUrl = `https://github.com/${event.repo.name}`;
   
   const basePost = {

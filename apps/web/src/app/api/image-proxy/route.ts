@@ -109,36 +109,32 @@ if (!validateURL(redirectUrl.toString())) {
 }
 
 async function processImageResponse(response: Response) {
-  if (!response.ok) {
-    return NextResponse.json({ error: "Failed to fetch image" }, { status: response.status });
-  }
+  try {
+    if (!response.ok) {
+      return NextResponse.json({ error: "Failed to fetch image" }, { status: response.status });
+    }
 
-  const contentType = response.headers.get("content-type") || "";
+    const contentType = response.headers.get("content-type") || "";
 
-  // strictly only proxy things that are images or vectors
-  if (!contentType.startsWith("image/") && !contentType.includes("xml")) {
-    return NextResponse.json({ error: "Invalid content type" }, { status: 403 });
-  }
+    // strictly only proxy things that are images or vectors
+    if (!contentType.startsWith("image/")) {
+      return NextResponse.json({ error: "Invalid content type" }, { status: 403 });
+    }
 
-  // check content-length header before buffering
-  const contentLength = response.headers.get("content-length");
-  if (contentLength && parseInt(contentLength) > MAX_IMAGE_SIZE) {
-    return NextResponse.json({ error: "Image too large (max 5MB)" }, { status: 413 });
-  }
+    // check content-length header before buffering
+    const contentLength = response.headers.get("content-length");
+    if (!contentLength || parseInt(contentLength, 10) > MAX_IMAGE_SIZE) {
+      return NextResponse.json(
+        { error: !contentLength ? "Content-length required" : "Image too large (max 5MB)" },
+        { status: !contentLength ? 400 : 413 }
+      );
+    }
 
-  const buffer = await response.arrayBuffer();
+    const buffer = await response.arrayBuffer();
 
-  // double-check actual size after download
-  if (buffer.byteLength > MAX_IMAGE_SIZE) {
-    return NextResponse.json({ error: "Image too large (max 5MB)" }, { status: 413 });
-  }
-
-  return new NextResponse(buffer, {
-    status: 200,
-    headers: {
-      "Content-Type": contentType || "image/png",
-      "Cache-Control": "public, max-age=86400, s-maxage=86400",
-      "Access-Control-Allow-Origin": "*"
+    // double-check actual size after download
+    if (buffer.byteLength > MAX_IMAGE_SIZE) {
+      return NextResponse.json({ error: "Image too large (max 5MB)" }, { status: 413 });
     }
   });
 }

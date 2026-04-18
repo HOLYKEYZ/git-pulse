@@ -58,23 +58,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Rate limit exceeded. Please try again later." }, { status: 429 });
   }
 
-try {
-  const body = await req.json();
-  const result = PostPayloadSchema.safeParse(body);
-  
-  if (!result.success) {
-    return NextResponse.json({ error: "Validation Failed", details: result.error.errors }, { status: 400 });
-  }
-  
-  const { content, type, shipDetails, images, repoUrl } = result.data;
-  
-  if (repoUrl && !repoUrl.startsWith('https://github.com/')) {
-    return NextResponse.json({ error: 'Invalid repository URL' }, { status: 400 });
-  }
-  
-  if (shipDetails && !shipDetails.repoFullName) {
-    return NextResponse.json({ error: 'Repository full name is required' }, { status: 400 });
-  }
+  try {
+    const body = await req.json();
+    const result = PostPayloadSchema.safeParse(body);
+    
+    if (!result.success) {
+      return NextResponse.json({ error: "Validation Failed", details: result.error.errors }, { status: 400 });
+    }
+    
+    const { content, type, shipDetails, images, repoUrl } = result.data;
+    
+    if (shipDetails && !shipDetails.repoFullName) {
+      return NextResponse.json({ error: 'Repository full name is required' }, { status: 400 });
+    }
 
     if (images && (!Array.isArray(images) || images.length > 4)) {
       return NextResponse.json({ error: "Maximum 4 images allowed" }, { status: 400 });

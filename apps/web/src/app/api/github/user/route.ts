@@ -64,7 +64,7 @@ export async function PATCH(request: Request) {
 const payload: Record<string, string> = {};
         for (const key of allowed) {
             if (key in body) {
-                const value = body[key] ?? "";
+                 const value = body[key] ?? "";
                 // Basic validation for each field
                 if (key === 'name' && value.length > 50) {
                     return NextResponse.json({ error: 'Name is too long' }, { status: 400 });

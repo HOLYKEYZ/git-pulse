@@ -23,21 +23,29 @@ interface RepoContext {
  * results are cached for 24 hours per repo.
  */
 export async function generateRepoPitch(repo: RepoContext): Promise<string> {
+  if (!repo || !repo.name || !repo.owner) {
+    throw new Error('Invalid repository context');
+  }
   const cacheKey = `ai-pitch:${repo.owner}/${repo.name}`;
 
   return withCache(
     cacheKey,
     async () => {
-      // try llm first, fall back to heuristic
-      if (GEMINI_API_KEY) {
-        try {
-          return await geminiPitch(repo);
-        } catch (error) {
-          console.error("[AI] Gemini failed, no pitch generated:", error);
-          return "";
+      try {
+        // try llm first, fall back to heuristic
+        if (GEMINI_API_KEY) {
+          try {
+            return await geminiPitch(repo);
+          } catch (error) {
+            console.error("[AI] Gemini failed, no pitch generated:", error);
+            throw new Error('Failed to generate pitch');
+          }
         }
+        throw new Error('No API key provided');
+      } catch (error) {
+        console.error("[AI] Error generating pitch:", error);
+        throw error;
       }
-      return "";
     },
     1000 * 60 * 60 * 24 // 24-hour cache ttl
   );

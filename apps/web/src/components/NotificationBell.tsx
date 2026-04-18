@@ -17,32 +17,47 @@ export default function NotificationBell() {
 
 useEffect(() => {
   let eventSource: EventSource | null = null;
+  let retryCount = 0;
+  const maxRetries = 3;
+  const retryDelay = 1000; // 1 second
 
-  try {
-    eventSource = new EventSource("/api/notifications/stream");
+  const initializeEventSource = () => {
+    try {
+      eventSource = new EventSource("/api/notifications/stream");
 
-    eventSource.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (typeof data.unreadCount === "number") {
-          setUnreadCount(data.unreadCount);
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (typeof data.unreadCount === "number") {
+            setUnreadCount(data.unreadCount);
+          }
+        } catch (error) {
+          console.error('Error parsing event data:', error);
         }
-      } catch (error) {
-        console.error('Error parsing event data:', error);
-      }
-    };
+      };
 
-    eventSource.onerror = (error) => {
-      console.error('EventSource error:', error);
-      // close and rely on browser or logic to reconnect if needed, or just fail silently
-      eventSource?.close();
-    };
-    eventSource.onopen = () => {
-      console.log('EventSource connected');
-    };
-  } catch (error) {
-    console.error('Error initializing EventSource:', error);
-  }
+      eventSource.onerror = (error) => {
+        console.error('EventSource error:', error);
+        retryCount++;
+        if (retryCount < maxRetries) {
+          setTimeout(initializeEventSource, retryDelay);
+        } else {
+          // Handle maximum retry limit reached
+          console.error('Maximum retries exceeded for EventSource connection.');
+          eventSource?.close();
+        }
+      };
+      eventSource.onopen = () => {
+        console.log('EventSource connected');
+        retryCount = 0; // Reset retry count on successful connection
+      };
+    } catch (error) {
+      console.error('Error initializing EventSource:', error);
+    }
+  };
+
+  initializeEventSource();
+
   return () => {
     if (eventSource) {
       eventSource.close();

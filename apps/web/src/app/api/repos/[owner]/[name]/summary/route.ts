@@ -19,6 +19,11 @@ export async function GET(
   }
 
 const { owner, name } = params;
+const ownerRegex = /^[a-zA-Z0-9-]+$/;
+const nameRegex = /^[a-zA-Z0-9-]+$/;
+if (!ownerRegex.test(owner) || !nameRegex.test(name)) {
+  return NextResponse.json({ error: 'Invalid repository owner or name' }, { status: 400 });
+}
 
   try {
     // fetch repo data from github to build context for the ai

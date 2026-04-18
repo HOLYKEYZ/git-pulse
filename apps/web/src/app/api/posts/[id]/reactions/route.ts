@@ -22,7 +22,8 @@ export async function POST(req: Request, { params }: {params: {id: string;}}) {
     const body = await req.json();
     const { emoji } = body;
 
-    if (!emoji || typeof emoji !== 'string' || emoji.length > 10) {
+    const allowedEmojis = /^[\p{Emoji}\w:]+$/u;
+    if (!emoji || typeof emoji !== 'string' || !allowedEmojis.test(emoji) || emoji.length > 10) {
       return NextResponse.json({ error: "Valid emoji string is required" }, { status: 400 });
     }
 

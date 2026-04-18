@@ -58,6 +58,7 @@ function isWorthShowing(event: GitHubEvent): boolean {
 }
 
 function mapEventToPost(event: GitHubEvent): PostProps | null {
+  if (!event || !event.repo || !event.actor || !event.created_at) return null;
   const repoUrl = `https://github.com/${event.repo.name}`;
   
   const basePost = {
@@ -80,12 +81,13 @@ function mapEventToPost(event: GitHubEvent): PostProps | null {
 
   const trendingTag = isTrending ? "\n\n#trending" : "";
 
-  switch (event.type) {
+switch (event.type) {
     case "PushEvent":
+      if (!event.payload || !event.payload.commits) return null;
       return {
         ...basePost,
         type: "standard",
-        content: `Pushed ${event.payload.commits?.length ?? 0} commits to [${event.repo.name}](${repoUrl})`
+        content: `Pushed ${event.payload.commits.length} commits to [${event.repo.name}](${repoUrl})`
       };
     case "CreateEvent":
       return {
@@ -93,40 +95,44 @@ function mapEventToPost(event: GitHubEvent): PostProps | null {
         type: "standard",
         content: `🚀 Created new repository [${event.repo.name}](${repoUrl})`
       };
-    case "PullRequestEvent":
+case "PullRequestEvent":
+      if (!event.payload || !event.payload.pull_request) return null;
       const action = event.payload.action === "opened" ? "Opened" : "Updated";
-      const prUrl = (event.payload.pull_request as any)?.html_url ?? repoUrl;
+      const prUrl = event.payload.pull_request.html_url ?? repoUrl;
       return {
         ...basePost,
         externalUrl: prUrl,
         type: "standard",
-        content: `${action} PR #${event.payload.pull_request?.number}: [${event.payload.pull_request?.title ?? "Untitled"}](${prUrl}) in ${event.repo.name}${trendingTag}`
+        content: `${action} PR #${event.payload.pull_request.number}: [${event.payload.pull_request.title ?? "Untitled"}](${prUrl}) in ${event.repo.name}${trendingTag}`
       };
-    case "IssuesEvent":
+case "IssuesEvent":
+      if (!event.payload || !event.payload.issue) return null;
       const issueAction = event.payload.action === "opened" ? "Opened" : "Updated";
-      const issueUrl = event.payload.issue?.html_url ?? repoUrl;
+      const issueUrl = event.payload.issue.html_url ?? repoUrl;
       return {
         ...basePost,
         externalUrl: issueUrl,
         type: "standard",
-        content: `${issueAction} issue #${event.payload.issue?.number}: [${event.payload.issue?.title ?? "Untitled"}](${issueUrl}) in ${event.repo.name}${trendingTag}`
+        content: `${issueAction} issue #${event.payload.issue.number}: [${event.payload.issue.title ?? "Untitled"}](${issueUrl}) in ${event.repo.name}${trendingTag}`
       };
-    case "DiscussionEvent":
+case "DiscussionEvent":
+      if (!event.payload || !(event.payload as any).discussion) return null;
       return {
         ...basePost,
         type: "standard",
-        content: `Active discussion: ${(event.payload as any).discussion?.title ?? "Untitled"} in ${event.repo.name}${trendingTag}`
+        content: `Active discussion: ${(event.payload as any).discussion.title ?? "Untitled"} in ${event.repo.name}${trendingTag}`
       };
-    case "ReleaseEvent":
-      const releaseUrl = event.payload.release?.html_url ?? repoUrl;
+case "ReleaseEvent":
+      if (!event.payload || !event.payload.release) return null;
+      const releaseUrl = event.payload.release.html_url ?? repoUrl;
       return {
         ...basePost,
         externalUrl: releaseUrl,
         type: "ship",
-        content: `Released [${event.payload.release?.tag_name ?? "new version"}](${releaseUrl}) of ${event.repo.name}`,
+        content: `Released [${event.payload.release.tag_name ?? "new version"}](${releaseUrl}) of ${event.repo.name}`,
         shipDetails: {
-          version: event.payload.release?.tag_name ?? "v0.0.0",
-          changelog: event.payload.release?.body ?? "No changelog provided."
+          version: event.payload.release.tag_name ?? "v0.0.0",
+          changelog: event.payload.release.body ?? "No changelog provided."
         }
       };
     default:

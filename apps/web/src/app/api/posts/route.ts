@@ -10,7 +10,7 @@ const PostPayloadSchema = z.object({
   content: z.string().min(1).max(500),
   type: z.enum(["standard", "ship"]),
   images: z.array(z.string().url().or(z.string().startsWith("data:image/"))).max(4).optional(),
-  repoUrl: z.string().url().regex(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/).optional(),
+  repoUrl: z.string().url().startsWith("https://github.com/").optional(),
   shipDetails: z.object({
     repoFullName: z.string().max(100),
     version: z.string().max(50),

@@ -127,7 +127,9 @@ async function processImageResponse(response: Response) {
       headers: {
         "Content-Type": contentType || "image/png",
         "Cache-Control": "public, max-age=86400, s-maxage=86400",
-        "Access-Control-Allow-Origin": "*"
+        "Access-Control-Allow-Origin": "*",
+        "Content-Security-Policy": "default-src 'none'; img-src 'self'; style-src 'unsafe-inline';",
+        "X-Content-Type-Options": "nosniff"
       }
     });
   } catch (error) {

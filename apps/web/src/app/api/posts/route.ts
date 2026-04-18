@@ -10,7 +10,7 @@ const PostPayloadSchema = z.object({
   content: z.string().min(1).max(500),
   type: z.enum(["standard", "ship"]),
   images: z.array(z.string().url().or(z.string().startsWith("data:image/"))).max(4).optional(),
-  repoUrl: z.string().url().optional(),
+  repoUrl: z.string().url().regex(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/).optional(),
   shipDetails: z.object({
     repoFullName: z.string().max(100),
     version: z.string().max(50),
@@ -58,15 +58,23 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Rate limit exceeded. Please try again later." }, { status: 429 });
   }
 
-  try {
-    const body = await req.json();
-    const result = PostPayloadSchema.safeParse(body);
-    
-    if (!result.success) {
-      return NextResponse.json({ error: "Validation Failed", details: result.error.errors }, { status: 400 });
-    }
-
-    const { content, type, shipDetails, images, repoUrl } = result.data;
+try {
+  const body = await req.json();
+  const result = PostPayloadSchema.safeParse(body);
+  
+  if (!result.success) {
+    return NextResponse.json({ error: "Validation Failed", details: result.error.errors }, { status: 400 });
+  }
+  
+  const { content, type, shipDetails, images, repoUrl } = result.data;
+  
+  if (repoUrl && !repoUrl.startsWith('https://github.com/')) {
+    return NextResponse.json({ error: 'Invalid repository URL' }, { status: 400 });
+  }
+  
+  if (shipDetails && !shipDetails.repoFullName) {
+    return NextResponse.json({ error: 'Repository full name is required' }, { status: 400 });
+  }
 
     if (images && (!Array.isArray(images) || images.length > 4)) {
       return NextResponse.json({ error: "Maximum 4 images allowed" }, { status: 400 });

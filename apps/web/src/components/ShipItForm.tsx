@@ -27,10 +27,15 @@ const [selectedRepoDisplayName, setSelectedRepoDisplayName] = useState('');
     fetchRepos();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedRepoFullName || !version || !changelog.trim() || isSubmitting) return;
     
+    const versionRegex = /^v(\d+\.\d+\.\d+)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$/;
+    if (!versionRegex.test(version)) {
+      alert("Invalid version format. Please use semantic versioning (e.g., v1.0.0).");
+      return;
+    }
     if (version.length > 50) { alert("Version tag exceeds 50 limits"); return; }
     if (changelog.length > 2000) { alert("Changelog exceeds 2000 character limits"); return; }
 

@@ -8,5 +8,10 @@ import { createHash } from "crypto";
  * @returns The hex-encoded SHA-256 hash
  */
 export async function hashApiKey(key: string): Promise<string> {
-  return createHash("sha256").update(key).digest("hex");
+  try {
+    return createHash("sha256").update(key).digest("hex");
+  } catch (error) {
+    // Wrap the original error to provide context while preserving the cause
+    throw new Error(`Failed to hash API key: ${error instanceof Error ? error.message : String(error)}`);
+  }
 }

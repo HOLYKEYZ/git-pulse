@@ -41,7 +41,7 @@ export default async function NotificationsPage() {
     let dbNotifs: any[] = [];
     let hasError = false;
 
-    try {
+try {
         dbNotifs = await prisma.notification.findMany({
             where: { user: { username: session.user.login } },
             orderBy: { createdAt: "desc" },
@@ -53,9 +53,17 @@ export default async function NotificationsPage() {
             where: { user: { username: session.user.login }, read: false },
             data: { read: true },
         });
-    } catch (err) {
-        console.error("[Notifications] DB Error:", err);
-        hasError = true;
+    } catch (err: any) {
+        if (err.code === 'P2025') {
+            console.error("[Notifications] DB Error: Prisma client error", err);
+            hasError = true;
+        } else if (err instanceof Error) {
+            console.error("[Notifications] Unknown Error:", err);
+            hasError = true;
+        } else {
+            console.error("[Notifications] Unexpected Error:", err);
+            hasError = true;
+        }
     }
 
     const unified: UnifiedActivity[] = dbNotifs.map((n: any) => ({

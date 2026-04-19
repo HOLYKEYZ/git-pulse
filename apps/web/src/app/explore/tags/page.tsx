@@ -16,17 +16,29 @@ export const metadata: Metadata = {
 export default async function TagsPage() {
   // aggregate trending hashtags using database-level query
   const now = Date.now();
-  let trending = cachedTags;
+let trending = cachedTags;
+if (trending) {
+  // Basic validation for trending tags
+  trending = trending.filter((tag: any) => typeof tag[0] === 'string' && typeof tag[1] === 'number');
+}
   if (!trending || now - cacheTime > CACHE_TTL) {
     // database-level aggregation using postgresql unnest to avoid fetching all posts into memory
-    const result: { tag: string; count: bigint }[] = await prisma.$queryRaw`
-      SELECT LOWER(unnest("hashtags")) AS tag, COUNT(*) AS count
-      FROM "Post"
-      WHERE array_length("hashtags", 1) > 0
-      GROUP BY tag
-      ORDER BY count DESC
-      LIMIT 50
-    `;
+let result: { tag: string; count: bigint }[] = [];
+    try {
+      result = await prisma.$queryRaw`
+        SELECT LOWER(unnest("hashtags")) AS tag, COUNT(*) AS count
+        FROM "Post"
+        WHERE array_length("hashtags", 1) > 0
+        GROUP BY tag
+        ORDER BY count DESC
+        LIMIT 50
+      `;
+    } catch (error) {
+      console.error('Error fetching trending hashtags:', error);
+    }
+  // Consider implementing a retry mechanism or a fallback
+  const result = [];
+}
     trending = result.map(r => [r.tag, Number(r.count)]);
     cachedTags = trending;
     cacheTime = now;

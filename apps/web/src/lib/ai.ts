@@ -30,6 +30,9 @@ export async function generateRepoPitch(repo: RepoContext): Promise<string> {
   repo.name = repo.name.trim();
   repo.owner = repo.owner.trim();
   repo.description = repo.description ? repo.description.trim() : '';
+  if (repo.name.length === 0 || repo.owner.length === 0) {
+    throw new Error('Repository name or owner cannot be empty');
+  }
   const cacheKey = `ai-pitch:${repo.owner}/${repo.name}`;
 
   return withCache(

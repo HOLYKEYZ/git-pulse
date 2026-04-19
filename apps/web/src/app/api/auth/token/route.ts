@@ -15,20 +15,25 @@ export async function GET() {
     if (!session?.user?.login) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const user = await prisma.user.findUnique({
+      where: { username: session.user.login },
+      select: { apiKey: true }
+    });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return NextResponse.json({
+      hasKey: !!user?.apiKey
+    });
   } catch (error) {
     console.error('Error in GET handler:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    } else {
+      return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    }
   }
 }
-
-const user = await prisma.user.findUnique({
-  where: { username: session.user.login },
-  select: { apiKey: true }
-});
-
-  return NextResponse.json({
-    hasKey: !!user?.apiKey
-  });
 }
 
 export async function POST() {
@@ -37,24 +42,25 @@ export async function POST() {
     if (!session?.user?.login) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const rawKey = `gp_${crypto.randomBytes(32).toString('hex')}`;
+    const hashedKey = await hashApiKey(rawKey);
+    await prisma.user.update({
+      where: { username: session.user.login },
+      data: { apiKey: hashedKey }
+    });
+    return NextResponse.json({
+      key: rawKey,
+      message: "Save this key — it won't be shown again in full."
+    });
   } catch (error) {
     console.error('Error in POST handler:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    } else {
+      return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    }
   }
 }
-
-  const rawKey = `gp_${crypto.randomBytes(32).toString('hex')}`;
-  const hashedKey = await hashApiKey(rawKey);
-
-await prisma.user.update({
-  where: { username: session.user.login },
-  data: { apiKey: hashedKey }
-});
-
-  return NextResponse.json({
-    key: rawKey,
-    message: "Save this key — it won't be shown again in full."
-  });
 }
 
 export async function DELETE() {
@@ -63,16 +69,18 @@ export async function DELETE() {
     if (!session?.user?.login) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    await prisma.user.update({
+      where: { username: session.user.login },
+      data: { apiKey: null }
+    });
+    return NextResponse.json({ success: true, message: "API key revoked." });
   } catch (error) {
     console.error('Error in DELETE handler:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    } else {
+      return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    }
   }
 }
-
-await prisma.user.update({
-  where: { username: session.user.login },
-  data: { apiKey: null }
-});
-
-  return NextResponse.json({ success: true, message: "API key revoked." });
 }

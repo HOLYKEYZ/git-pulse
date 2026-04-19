@@ -51,13 +51,18 @@ export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDeta
   if (factors.language && typeof factors.language !== 'string') {
     throw new Error('Language must be a string');
   }
-  if (factors.stars && typeof factors.stars !== 'number' || factors.stars < 0) {
+  if (typeof factors.stars !== 'number' || Number.isNaN(factors.stars) || factors.stars < 0) {
     throw new Error('Stars must be a non-negative number');
   }
-  if (factors.forks && typeof factors.forks !== 'number' || factors.forks < 0) {
+  if (typeof factors.forks !== 'number' || Number.isNaN(factors.forks) || factors.forks < 0) {
     throw new Error('Forks must be a non-negative number');
   }
-  // Additional validation for other factors can be added here
+  if (typeof factors.daysSincePush !== 'number' || Number.isNaN(factors.daysSincePush) || factors.daysSincePush < 0) {
+    throw new Error('daysSincePush must be a non-negative number');
+  }
+  if (typeof factors.daysSincePost !== 'number' || Number.isNaN(factors.daysSincePost) || factors.daysSincePost < 0) {
+    throw new Error('daysSincePost must be a non-negative number');
+  }
 
   // 1. tech stack novelty
   const noveltyLanguages = ["Rust", "Zig", "Elixir", "Go", "Gleam", "Ocaml", "Haskell", "F#", "HolyC",];

@@ -23,7 +23,7 @@ interface RepoContext {
  * results are cached for 24 hours per repo.
  */
 export async function generateRepoPitch(repo: RepoContext): Promise<string> {
-  if (!repo || !repo.name || !repo.owner || !repo.description || !repo.language || !repo.stars || !repo.forks || !repo.topics) {
+  if (!repo || !repo.name || !repo.owner || repo.stars == null || repo.forks == null || !repo.topics) {
     throw new Error('Invalid repository context');
   }
   // Sanitize user-input data

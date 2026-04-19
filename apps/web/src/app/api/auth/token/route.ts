@@ -22,8 +22,15 @@ export async function GET() {
     if (!user) {
       throw new Error('User not found');
     }
+    if (!user.apiKey) {
+      return NextResponse.json({
+        hasKey: false,
+        message: "No API key found for this user."
+      });
+    }
     return NextResponse.json({
-      hasKey: !!user?.apiKey
+      hasKey: true,
+      message: "API key exists for this user."
     });
   } catch (error) {
     console.error('Error in GET handler:', error)
@@ -43,6 +50,9 @@ export async function POST() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const rawKey = `gp_${crypto.randomBytes(32).toString('hex')}`;
+    if (rawKey.length < 32) {
+      throw new Error('Generated API key is too short');
+    }
     const hashedKey = await hashApiKey(rawKey);
     await prisma.user.update({
       where: { username: session.user.login },
@@ -68,6 +78,13 @@ export async function DELETE() {
     const session = await auth();
     if (!session?.user?.login) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const user = await prisma.user.findUnique({
+      where: { username: session.user.login },
+      select: { apiKey: true }
+    });
+    if (!user || !user.apiKey) {
+      return NextResponse.json({ error: "No API key to revoke" }, { status: 400 });
     }
     await prisma.user.update({
       where: { username: session.user.login },

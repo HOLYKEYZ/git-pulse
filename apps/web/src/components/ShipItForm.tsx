@@ -31,7 +31,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedRepoFullName || !version || !changelog.trim() || isSubmitting) return;
     
-    const versionRegex = /^v(\d+\.\d+\.\d+)$/;
+    const versionRegex = /^v(\d+\.\d+\.\d+)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$/;
     if (!versionRegex.test(version)) {
       alert("Invalid version format. Please use semantic versioning (e.g., v1.0.0).");
       return;

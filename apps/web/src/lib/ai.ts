@@ -23,9 +23,13 @@ interface RepoContext {
  * results are cached for 24 hours per repo.
  */
 export async function generateRepoPitch(repo: RepoContext): Promise<string> {
-  if (!repo || !repo.name || !repo.owner) {
+  if (!repo || !repo.name || !repo.owner || repo.stars == null || repo.forks == null || !repo.topics) {
     throw new Error('Invalid repository context');
   }
+  // Sanitize user-input data
+  repo.name = repo.name.trim();
+  repo.owner = repo.owner.trim();
+  repo.description = repo.description ? repo.description.trim() : '';
   const cacheKey = `ai-pitch:${repo.owner}/${repo.name}`;
 
   return withCache(

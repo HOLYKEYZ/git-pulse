@@ -11,7 +11,7 @@ export async function hashApiKey(key: string): Promise<string> {
   try {
     return createHash("sha256").update(key).digest("hex");
   } catch (error) {
-    console.error('Error hashing API key:', error);
-    throw new Error('Failed to hash API key');
+    // Wrap the original error to provide context while preserving the cause
+    throw new Error(`Failed to hash API key: ${error instanceof Error ? error.message : String(error)}`);
   }
 }

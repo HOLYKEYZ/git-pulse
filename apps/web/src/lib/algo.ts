@@ -32,6 +32,9 @@ export interface PostScoreDetail {
  * v3: heavily penalizes 0 commits, heavily weighs commit count and consistency, mitigates follower clout.
  */
 export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDetail {
+  if (!factors) {
+    throw new Error('Input factors cannot be null or undefined');
+  }
   let score = 0;
   const breakdown = {
     language: 0,
@@ -45,6 +48,16 @@ export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDeta
     penalty: 0,
     decayMultiplier: 1,
   };
+  if (factors.language && typeof factors.language !== 'string') {
+    throw new Error('Language must be a string');
+  }
+  if (factors.stars && typeof factors.stars !== 'number' || factors.stars < 0) {
+    throw new Error('Stars must be a non-negative number');
+  }
+  if (factors.forks && typeof factors.forks !== 'number' || factors.forks < 0) {
+    throw new Error('Forks must be a non-negative number');
+  }
+  // Additional validation for other factors can be added here
 
   // 1. tech stack novelty
   const noveltyLanguages = ["Rust", "Zig", "Elixir", "Go", "Gleam", "Ocaml", "Haskell", "F#", "HolyC",];

@@ -55,8 +55,8 @@ const eyeMaterialProps = {
 };
 
 // module-level geometries (shared, never re-created — prevents memory leak at 60fps)
-const headGeometry = new THREE.BoxGeometry(2, 2, 2);
-const headFrameGeometry = new THREE.BoxGeometry(2.05, 2.05, 1.95);
+const headGeometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+const headFrameGeometry = new THREE.BoxGeometry(1.55, 1.55, 1.45);
 const antennaBaseGeometry = new THREE.CylinderGeometry(0.2, 0.3, 0.2, 16);
 const antennaStickGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.6, 8);
 const antennaBulbGeometry = new THREE.SphereGeometry(0.15, 16, 16);
@@ -71,7 +71,10 @@ function RobotHead() {
 
   const { mouse, viewport } = useThree();
 
-  useFrame((state) => {
+useFrame((state) => {
+  if (!groupRef.current) return;
+  // Limit frame rate to 30 FPS for better performance
+  if (state.clock.getElapsedTime() % (1 / 30) < (1 / 60)) return;
     if (!groupRef.current) return;
 
     // 1. Mouse tracking: map normalized mouse coordinate over head rotation

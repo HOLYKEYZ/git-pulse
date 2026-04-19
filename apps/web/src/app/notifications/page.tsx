@@ -53,18 +53,16 @@ try {
             where: { user: { username: session.user.login }, read: false },
             data: { read: true },
         });
-    } catch (err: any) {
-        if (err.code === 'P2025') {
-            console.error("[Notifications] DB Error: Prisma client error", err);
-            hasError = true;
-        } else if (err instanceof Error) {
-            console.error("[Notifications] Unknown Error:", err);
-            hasError = true;
-        } else {
-            console.error("[Notifications] Unexpected Error:", err);
-            hasError = true;
-        }
+    } catch (err: unknown) {
+    if (err instanceof Error && 'code' in err && err.code === 'P2025') {
+        console.error("[Notifications] DB Error: Prisma client error", err);
+    } else if (err instanceof Error) {
+        console.error("[Notifications] Unknown Error:", err);
+    } else {
+        console.error("[Notifications] Unexpected Error:", err);
     }
+    hasError = true;
+}
 
     const unified: UnifiedActivity[] = dbNotifs.map((n: any) => ({
         id: n.id,

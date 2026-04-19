@@ -29,13 +29,19 @@ try {
       } else if (error.response.status === 500) {
         // Handle server error, e.g., display a generic server error message
         console.log('Server error. Please try again later.');
+      } else if (error.response.status === 403) {
+        // Handle rate limit error
+        console.log('Rate limit exceeded. Please try again later.');
       } else {
-        // Handle other GitHub API errors, e.g., rate limit errors
+        // Handle other GitHub API errors
         console.log('GitHub API error. Please try again later.');
       }
     } else if (error instanceof Error) {
       // Handle non-GitHub API errors, e.g., network errors
       console.log('Unexpected error:', error.message);
+    } else {
+      // Handle unknown errors
+      console.log('Unknown error:', error);
     }
     hasError = true; 
     // Display user-friendly error message

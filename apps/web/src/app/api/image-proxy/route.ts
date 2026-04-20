@@ -125,7 +125,7 @@ async function processImageResponse(response: Response) {
     const contentLength = response.headers.get("content-length");
     if (!contentLength || parseInt(contentLength, 10) > MAX_IMAGE_SIZE) {
       return NextResponse.json(
-        { error: !contentLength ? "Content-length required" : "Image too large (max 5MB)" },
+        { error: !contentLength ? "Content-length required" : `Image exceeds the maximum allowed size of ${MAX_IMAGE_SIZE / (1024 * 1024)}MB.` },
         { status: !contentLength ? 400 : 413 }
       );
     }
@@ -134,7 +134,12 @@ async function processImageResponse(response: Response) {
 
     // double-check actual size after download
     if (buffer.byteLength > MAX_IMAGE_SIZE) {
-      return NextResponse.json({ error: "Image too large (max 5MB)" }, { status: 413 });
+      return NextResponse.json({ error: `Image exceeds the maximum allowed size of ${MAX_IMAGE_SIZE / (1024 * 1024)}MB.` }, { status: 413 });
     }
-  });
+    return NextResponse.next(response);
+  } catch (error) {
+    console.error('Error processing image response:', error);
+    return NextResponse.json({ error: 'Error processing image response' }, { status: 500 });
+  }
+}
 }

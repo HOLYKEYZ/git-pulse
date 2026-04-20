@@ -81,8 +81,8 @@ const handleSave = async () => {
             setSaving(false);
             return;
         }
-        if (typeof blog !== 'string' || blog.length < 1 || blog.length > 100) {
-            setError('Blog must be a non-empty string and not exceed 100 characters');
+        if (blog.length > 100) {
+            setError('Blog URL must not exceed 100 characters');
             setSaving(false);
             return;
         }

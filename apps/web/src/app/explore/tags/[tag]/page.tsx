@@ -19,7 +19,13 @@ export async function generateMetadata({ params }: PageProps) {
 
 // reuse the mapper from page.tsx
 function mapPrismaPostToProps(p: any): PostProps {
+  if (!p || typeof p !== 'object') {
+    throw new Error('Invalid input: p must be an object');
+  }
   if (p.repostOf) {
+    if (!p.repostOf || typeof p.repostOf !== 'object') {
+      throw new Error('Invalid input: p.repostOf must be an object');
+    }
     return {
       ...mapPrismaPostToProps(p.repostOf),
       isRepost: true,
@@ -32,6 +38,9 @@ function mapPrismaPostToProps(p: any): PostProps {
 
   // calculate algorithmic score for the post
   if (p.repoEmbed) {
+    if (!p.repoEmbed || typeof p.repoEmbed !== 'object') {
+      throw new Error('Invalid input: p.repoEmbed must be an object');
+    }
     const r = p.repoEmbed as Record<string, any>;
     const daysSincePost = Math.max((Date.now() - p.createdAt.getTime()) / (1000 * 60 * 60 * 24), 1);
     const pushDate = r.lastPush ? new Date(r.lastPush) : p.createdAt;
@@ -48,8 +57,8 @@ function mapPrismaPostToProps(p: any): PostProps {
   } else {
     const daysSincePost = Math.max((Date.now() - p.createdAt.getTime()) / (1000 * 60 * 60 * 24), 1);
     score = 15 / Math.pow(daysSincePost, 1.2);
-    if (p.images && p.images.length > 0) score += 5;
-    if (p.hashtags && p.hashtags.length > 0) score += 2;
+    if (p.images && Array.isArray(p.images) && p.images.length > 0) score += 5;
+    if (p.hashtags && Array.isArray(p.hashtags) && p.hashtags.length > 0) score += 2;
   }
 
   return {

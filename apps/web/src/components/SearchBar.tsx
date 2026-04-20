@@ -54,21 +54,27 @@ export default function SearchBar() {
       return;
     }
 
-    const timer = setTimeout(async () => {
-      setIsLoading(true);
-      try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-        if (res.ok) {
-          const data = await res.json();
-          setResults(data);
-          setIsOpen(true);
+const timer = setTimeout(async () => {
+        setIsLoading(true);
+        try {
+          // Validate search query
+          if (query.length < 2 || query.length > 100) {
+            console.error('Invalid search query length');
+            return;
+          }
+          const sanitizedQuery = query.replace(/[^a-zA-Z0-9\s]/g, '');
+          const res = await fetch(`/api/search?q=${encodeURIComponent(sanitizedQuery)}`);
+          if (res.ok) {
+            const data = await res.json();
+            setResults(data);
+            setIsOpen(true);
+          }
+        } catch (err) {
+          console.error("Search failed:", err);
+        } finally {
+          setIsLoading(false);
         }
-      } catch (err) {
-        console.error("Search failed:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    }, 300);
+      }, 300);
 
     return () => clearTimeout(timer);
   }, [query]);

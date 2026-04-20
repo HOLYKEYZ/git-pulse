@@ -71,33 +71,33 @@ const handleSave = async () => {
         setSuccess(false);
 
         // Input validation
-        if (!name || typeof name !== 'string' || name.length > 50) {
-            setError('Name must be a string and not exceed 50 characters');
+        if (name.length > 50) {
+            setError('Name must not exceed 50 characters');
             setSaving(false);
             return;
         }
-        if (!bio || typeof bio !== 'string' || bio.length > 160) {
-            setError('Bio must be a string and not exceed 160 characters');
+        if (bio.length > 160) {
+            setError('Bio must not exceed 160 characters');
             setSaving(false);
             return;
         }
-        if (!blog || typeof blog !== 'string' || blog.length > 100) {
-            setError('Blog must be a string and not exceed 100 characters');
+        if (blog.length > 100) {
+            setError('Blog URL must not exceed 100 characters');
             setSaving(false);
             return;
         }
-        if (!twitterUsername || typeof twitterUsername !== 'string' || twitterUsername.length > 15) {
-            setError('Twitter username must be a string and not exceed 15 characters');
+        if (twitterUsername.length > 15) {
+            setError('Twitter username must not exceed 15 characters');
             setSaving(false);
             return;
         }
-        if (!location || typeof location !== 'string' || location.length > 50) {
-            setError('Location must be a string and not exceed 50 characters');
+        if (typeof location !== 'string' || location.length < 1 || location.length > 50) {
+            setError('Location must be a non-empty string and not exceed 50 characters');
             setSaving(false);
             return;
         }
-        if (!company || typeof company !== 'string' || company.length > 50) {
-            setError('Company must be a string and not exceed 50 characters');
+        if (typeof company !== 'string' || company.length < 1 || company.length > 50) {
+            setError('Company must be a non-empty string and not exceed 50 characters');
             setSaving(false);
             return;
         }

@@ -14,27 +14,37 @@ export default function AiSummary({ owner, repoName }: AiSummaryProps) {
     const [loading, setLoading] = useState(false);
     const [visible, setVisible] = useState(false);
 
+const validateInput = (owner: string, repoName: string) => {
+  const ownerRegex = /^[a-zA-Z0-9-]+$/;
+  const repoNameRegex = /^[a-zA-Z0-9-]+$/;
+  return ownerRegex.test(owner) && repoNameRegex.test(repoName);
+};
+
 const fetchPitch = async () => {
-        if (pitch) {
-            setVisible(!visible);
-            return;
-        }
-        setLoading(true);
-        setVisible(true);
-        try {
-            const res = await fetch(`/api/repos/${owner}/${repoName}/summary`);
-            if (res.ok) {
-                const data = await res.json();
-                setPitch(data.pitch);
-            } else {
-                setPitch(SUMMARY_ERROR_MESSAGE);
-            }
-        } catch {
-            setPitch(SUMMARY_ERROR_MESSAGE);
-        } finally {
-            setLoading(false);
-        }
-    };
+  if (pitch) {
+    setVisible(!visible);
+    return;
+  }
+  if (!validateInput(owner, repoName)) {
+    setPitch('Invalid owner or repository name');
+    return;
+  }
+  setLoading(true);
+  setVisible(true);
+  try {
+    const res = await fetch(`/api/repos/${owner}/${repoName}/summary`);
+    if (res.ok) {
+      const data = await res.json();
+      setPitch(data.pitch);
+    } else {
+      setPitch(SUMMARY_ERROR_MESSAGE);
+    }
+  } catch {
+    setPitch(SUMMARY_ERROR_MESSAGE);
+  } finally {
+    setLoading(false);
+  }
+};
 
     return (
         <div className="mt-2">

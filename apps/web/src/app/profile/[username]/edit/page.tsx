@@ -71,8 +71,8 @@ const handleSave = async () => {
         setSuccess(false);
 
         // Input validation
-        if (typeof name !== 'string' || name.length < 1 || name.length > 50) {
-            setError('Name must be a non-empty string and not exceed 50 characters');
+        if (name.length > 50) {
+            setError('Name must not exceed 50 characters');
             setSaving(false);
             return;
         }

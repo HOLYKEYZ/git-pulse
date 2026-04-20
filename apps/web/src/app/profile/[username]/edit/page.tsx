@@ -86,8 +86,8 @@ const handleSave = async () => {
             setSaving(false);
             return;
         }
-        if (typeof twitterUsername !== 'string' || twitterUsername.length < 1 || twitterUsername.length > 15) {
-            setError('Twitter username must be a non-empty string and not exceed 15 characters');
+        if (twitterUsername.length > 15) {
+            setError('Twitter username must not exceed 15 characters');
             setSaving(false);
             return;
         }

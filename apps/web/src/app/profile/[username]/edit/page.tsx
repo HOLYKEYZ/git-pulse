@@ -76,8 +76,8 @@ const handleSave = async () => {
             setSaving(false);
             return;
         }
-        if (typeof bio !== 'string' || bio.length < 1 || bio.length > 160) {
-            setError('Bio must be a non-empty string and not exceed 160 characters');
+        if (bio.length > 160) {
+            setError('Bio must not exceed 160 characters');
             setSaving(false);
             return;
         }

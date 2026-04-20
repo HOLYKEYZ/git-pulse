@@ -26,37 +26,42 @@ async function fetchUserReposFromGitHub(accessToken: string) {
   let nextPageUrl: string | null = "https://api.github.com/user/repos?sort=updated&per_page=100&affiliation=owner,collaborator";
   let allRepos: any[] = [];
 
-  while (nextPageUrl) {
-    const res: Response = await fetch(nextPageUrl as string, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        Accept: "application/vnd.github+json",
+  try {
+    while (nextPageUrl) {
+      const res: Response = await fetch(nextPageUrl as string, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: "application/vnd.github+json",
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to fetch repos: ${res.status}`);
       }
-    });
 
-    if (!res.ok) {
-      throw new Error(`Failed to fetch repos: ${res.status}`);
-    }
+      const data = await res.json();
+      const repos = data.map((r: any) => ({
+        name: r.name,
+        full_name: r.full_name
+      }));
 
-    const data = await res.json();
-    const repos = data.map((r: any) => ({
-      name: r.name,
-      full_name: r.full_name
-    }));
+      allRepos = allRepos.concat(repos);
 
-    allRepos = allRepos.concat(repos);
-
-    const linkHeader = res.headers.get('Link');
-    if (linkHeader) {
-      const nextPage = linkHeader.match(/<([^>]+)>;\s*rel="next"/);
-      if (nextPage) {
-        nextPageUrl = nextPage[1];
+      const linkHeader = res.headers.get('Link');
+      if (linkHeader) {
+        const nextPage = linkHeader.match(/<([^>]+)>;\s*rel="next"/);
+        if (nextPage) {
+          nextPageUrl = nextPage[1];
+        } else {
+          nextPageUrl = null;
+        }
       } else {
         nextPageUrl = null;
       }
-    } else {
-      nextPageUrl = null;
     }
+    return allRepos;
+  } catch (error: unknown) {
+    console.error("Error fetching GitHub repositories:", error);
+    throw error;
   }
-  return allRepos;
 }

@@ -48,11 +48,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               accessToken: account.access_token ?? null
           };
           
-          const user = await prisma.user.upsert({
-            where: { githubId: account.providerAccountId },
+const githubIdSchema = z.string().min(1);
+        const parsedGithubIdResult = githubIdSchema.safeParse(account.providerAccountId);
+        if (!parsedGithubIdResult.success) {
+          throw new Error('Invalid githubId');
+        }
+        const user = await prisma.user.upsert({
+            where: { githubId: parsedGithubIdResult.data },
             update: userData,
             create: {
-              githubId: account.providerAccountId,
+              githubId: parsedGithubIdResult.data,
               ...userData
             }
           });

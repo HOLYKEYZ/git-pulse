@@ -26,7 +26,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     try {
         const { id: postId } = params;
         const body = await req.json();
-        const { content, parentId } = body;
+const { content, parentId } = body;
+const sanitizedContent = content.replace(/<script>.*?</script>/g, '').replace(/</?[^>]+(>|$)/g, '');
 
         if (!content || content.length > 1000) {
             return NextResponse.json({ error: "Content is required" }, { status: 400 });
@@ -47,9 +48,9 @@ export async function POST(req: Request, { params }: { params: { id: string } })
             }
         }
 
-        const comment = await prisma.comment.create({
+const comment = await prisma.comment.create({
             data: {
-                content,
+                content: sanitizedContent,
                 postId,
                 authorId: user.id,
                 parentId: parentId || null,

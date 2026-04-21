@@ -29,20 +29,25 @@ export default function ProfileReadme({ content, username }: ProfileReadmeProps)
     }
   });
 
-            const resolveAndProxyGithubImageUrl = (originalUrl: string, username: string) => {
-                if (originalUrl.startsWith('data:')) {
+const resolveAndProxyGithubImageUrl = (originalUrl: string, username: string) => {
+                try {
+                    if (originalUrl.startsWith('data:')) {
+                        return originalUrl;
+                    }
+                    if (originalUrl.startsWith('http')) {
+                        return "/api/image-proxy?url=" + encodeURIComponent(originalUrl);
+                    }
+                    if (originalUrl.startsWith('/')) {
+                        return "/api/image-proxy?url=" + encodeURIComponent("https://github.com" + originalUrl);
+                    }
+                    if (username && username.length > 0) {
+                        return "/api/image-proxy?url=" + encodeURIComponent("https://raw.githubusercontent.com/" + username + "/" + username + "/main/" + originalUrl);
+                    }
                     return originalUrl;
+                } catch (error) {
+                    console.error('Error resolving and proxying GitHub image URL:', error);
+                    return "";
                 }
-                if (originalUrl.startsWith('http')) {
-                    return `/api/image-proxy?url=${encodeURIComponent(originalUrl)}`;
-                }
-                if (originalUrl.startsWith('/')) {
-                    return `/api/image-proxy?url=${encodeURIComponent(`https://github.com${originalUrl}`)}`;
-                }
-                if (username && username.length > 0) {
-                    return `/api/image-proxy?url=${encodeURIComponent(`https://raw.githubusercontent.com/${username}/${username}/main/${originalUrl}`)}`;
-                }
-                return originalUrl;
             };
 
             // 2. Proxy image URLs to handle CORS and relative path resolution

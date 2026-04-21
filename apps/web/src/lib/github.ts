@@ -130,6 +130,12 @@ const BOT_PATTERNS = [
 const isBot = (login: string) => BOT_PATTERNS.some(p => p.test(login));
 
 async function fetchWithAuth(endpoint: string, token: string) {
+  if (typeof endpoint !== 'string' || typeof token !== 'string') {
+    throw new Error('Invalid input type');
+  }
+  if (endpoint.length === 0 || token.length === 0) {
+    throw new Error('Input cannot be empty');
+  }
   const cacheKey = `rest:${token.slice(-10)}:${endpoint}`;
 
   return withCache(cacheKey, async () => {

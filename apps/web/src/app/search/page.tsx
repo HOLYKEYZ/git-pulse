@@ -45,25 +45,27 @@ useEffect(() => {
 useEffect(() => {
   if (!debouncedQuery) return;
 
-  const fetchResults = async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(debouncedQuery)}`);
-      if (res.ok) {
-        const data = await res.json();
-        setResults(data);
+const fetchResults = async () => {
+        setIsLoading(true);
+        try {
+          // Implement whitelist validation for search queries
+          const validQuery = debouncedQuery.replace(/[^a-zA-Z0-9\s]/g, '');
+          const res = await fetch(`/api/search?q=${encodeURIComponent(validQuery)}`);
+          if (res.ok) {
+            const data = await res.json();
+            setResults(data);
 
-        // auto-select tab based on results
-        if (data.repos?.length > 0) setActiveTab("repos");else
-        if (data.users?.length > 0) setActiveTab("users");else
-        if (data.posts?.length > 0) setActiveTab("posts");
-      }
-    } catch (err) {
-      console.error("Search failed:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+            // auto-select tab based on results
+            if (data.repos?.length > 0) setActiveTab("repos");else
+            if (data.users?.length > 0) setActiveTab("users");else
+            if (data.posts?.length > 0) setActiveTab("posts");
+          }
+        } catch (err) {
+          console.error("Search failed:", err);
+        } finally {
+          setIsLoading(false);
+        }
+      };
 
   fetchResults();
 }, [debouncedQuery]);

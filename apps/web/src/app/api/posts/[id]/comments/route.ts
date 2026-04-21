@@ -27,7 +27,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
         const { id: postId } = params;
         const body = await req.json();
 const { content, parentId } = body;
-const sanitizedContent = content.replace(/<script>.*?</script>/g, '').replace(/</?[^>]+(>|$)/g, '');
+import DOMPurify from 'isomorphic-dompurify';
+const sanitizedContent = DOMPurify.sanitize(content);
 
         if (!content || content.length > 1000) {
             return NextResponse.json({ error: "Content is required" }, { status: 400 });

@@ -32,12 +32,13 @@ export async function PATCH(req: Request) {
   }
 
   const body = await req.json();
-  const { showActivity, showContributions } = body;
-
-  // only update fields that are explicitly provided
+  const expectedFields = ['showActivity', 'showContributions'];
   const data: Record<string, boolean> = {};
-  if (typeof showActivity === "boolean") data.showActivity = showActivity;
-  if (typeof showContributions === "boolean") data.showContributions = showContributions;
+  for (const field of expectedFields) {
+    if (field in body && typeof body[field] === 'boolean') {
+      data[field] = body[field];
+    }
+  }
 
   if (Object.keys(data).length === 0) {
     return NextResponse.json({ error: "no valid fields to update" }, { status: 400 });

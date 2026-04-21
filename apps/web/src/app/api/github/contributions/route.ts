@@ -6,7 +6,7 @@ import contributionCache from "@/lib/contributionCache";
 import { z } from "zod";
 
 const QuerySchema = z.object({
-  username: z.string().min(1).max(100),
+  username: z.string().min(1).max(100).regex(/^[a-zA-Z0-9_-]+$/),
   year: z.string().regex(/^\d{4}$/).transform((val: string) => parseInt(val, 10)),
 });
 
@@ -33,9 +33,11 @@ export async function GET(req: Request) {
 
 const { username, year: yearNum } = result.data;
 
-  if (typeof yearNum !== 'number' || yearNum < 2008 || yearNum > new Date().getFullYear() || !Number.isInteger(yearNum)) {
-    return NextResponse.json({ error: `Invalid year: ${yearNum}. Year must be an integer between 2008 and ${new Date().getFullYear()}.` }, { status: 400 });
-  }
+if (typeof yearNum !== 'number' || yearNum < 2008 || yearNum > new Date().getFullYear() || !Number.isInteger(yearNum)) {
+  return NextResponse.json({ error: `Invalid year: ${yearNum}. Year must be an integer between 2008 and ${new Date().getFullYear()}.` }, { status: 400 });
+} else if (username.length < 1 || username.length > 100) {
+  return NextResponse.json({ error: 'Invalid username. Username must be between 1 and 100 characters.' }, { status: 400 });
+}
 
   const cacheKey = `${username}-${yearNum}`;
   const cachedData = contributionCache.get(cacheKey);

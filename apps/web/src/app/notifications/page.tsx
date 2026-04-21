@@ -63,6 +63,13 @@ try {
         } else {
             console.error("[Notifications] Unexpected Error:", err);
             throw new Error(`Unexpected error: ${err.message}`);
+            throw new Error('Database error');
+        } else if (err instanceof Error) {
+            console.error("[Notifications] Unknown Error:", err);
+            throw new Error('Unknown error');
+        } else {
+            console.error("[Notifications] Unexpected Error:", err);
+            throw new Error('Unexpected error');
         }
         hasError = true;
     }

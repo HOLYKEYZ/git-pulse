@@ -31,14 +31,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.githubId = account.providerAccountId;
 
         // upsert user in db on every login - only runs on server
-        try {
+try {
           const parsedProfileResult = ProfileSchema.safeParse(profile);
           if (!parsedProfileResult.success) {
             console.error("❌ [Auth] Invalid GitHub profile payload:", parsedProfileResult.error);
             return token; // fail gracefully without creating malicious db entries
           }
           const validProfile = parsedProfileResult.data;
-
+          
           const userData: any = {
               username: validProfile.login,
               name: validProfile.name ?? null,
@@ -48,17 +48,39 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               accessToken: account.access_token ?? null
           };
           
-          const user = await prisma.user.upsert({
-            where: { githubId: account.providerAccountId },
+          try {
+            const user = await prisma.user.upsert({
+              where: { githubId: account.providerAccountId },
+              update: userData,
+              create: {
+                githubId: account.providerAccountId,
+                ...userData
+              }
+            });
+            token.dbId = user.id;
+          } catch (error) {
+            console.error("❌ [Auth] Failed to upsert user:", error);
+            // Additional error handling logic can be added here, such as notifying the user or retrying the operation
+            throw error;
+          }
+const githubIdSchema = z.string().min(1);
+        const parsedGithubIdResult = githubIdSchema.safeParse(account.providerAccountId);
+        if (!parsedGithubIdResult.success) {
+          throw new Error('Invalid githubId');
+        }
+        const user = await prisma.user.upsert({
+            where: { githubId: parsedGithubIdResult.data },
             update: userData,
             create: {
-              githubId: account.providerAccountId,
+              githubId: parsedGithubIdResult.data,
               ...userData
             }
           });
           token.dbId = user.id;
         } catch (error) {
-          console.error("❌ [Auth] Failed to upsert user:", error);
+          console.error("❌ [Auth] Failed to parse profile:", error);
+          // Additional error handling logic can be added here, such as notifying the user or retrying the operation
+          throw error;
         }
       }
       return token;

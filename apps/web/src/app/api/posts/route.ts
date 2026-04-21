@@ -15,7 +15,7 @@ const PostPayloadSchema = z.object({
     repoFullName: z.string().max(100),
     version: z.string().max(50),
     changelog: z.string().max(2000)
-  }).optional()
+  }).refine((data) => data.repoFullName !== '', { message: 'Repository full name is required' }).optional()
 });
 
 export const dynamic = "force-dynamic";

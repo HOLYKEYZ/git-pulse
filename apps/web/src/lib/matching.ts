@@ -78,6 +78,7 @@ function cosineSimilarity(a: TechWeight[], b: TechWeight[]): number {
   if (!a || !b) {
     throw new Error('Input arrays are null or empty');
   }
+  if (a.length === 0 || b.length === 0) return 0;
   const allLangs = new Set([
   ...a.map((x) => x.language),
   ...b.map((x) => x.language)]
@@ -99,9 +100,6 @@ function cosineSimilarity(a: TechWeight[], b: TechWeight[]): number {
   }
 
   if (normA === 0 || normB === 0) return 0;
-  if (Math.sqrt(normA) * Math.sqrt(normB) === 0) {
-    throw new Error('Division by zero');
-  }
   return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
 }
 

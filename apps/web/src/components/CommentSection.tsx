@@ -33,10 +33,12 @@ const handleSubmit = async (e: React.FormEvent) => {
         
         setIsSubmitting(true);
         try {
+            // Input validation and sanitization for user comments
+            const sanitizedComment = newComment.replace(/</g, '&lt;').replace(/>/g, '&gt;');
             const res = await fetch(`/api/posts/${postId}/comments`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: newComment }),
+                body: JSON.stringify({ content: sanitizedComment }),
             });
             
             if (res.ok) {

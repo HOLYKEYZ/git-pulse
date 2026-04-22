@@ -37,6 +37,8 @@ export async function PATCH(req: Request) {
   for (const field of expectedFields) {
     if (field in body && typeof body[field] === 'boolean') {
       data[field] = body[field];
+    } else if (field in body) {
+      return NextResponse.json({ error: `Invalid type for ${field}` }, { status: 400 });
     }
   }
 

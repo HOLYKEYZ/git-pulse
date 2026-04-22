@@ -8,9 +8,15 @@ interface PinnedReposProps {
 }
 
 export default function PinnedRepos({ repos }: PinnedReposProps) {
-  if (!Array.isArray(repos) || repos.some((repo) => !repo.name || !repo.url)) {
-    return null;
-  }
+if (!Array.isArray(repos)) {
+  console.error('Invalid repos prop: expected an array');
+  return null;
+}
+
+if (repos.some((repo) => !repo.name || !repo.url || typeof repo.name !== 'string' || typeof repo.url !== 'string')) {
+  console.error('Invalid repo object in repos prop');
+  return null;
+}
     if (repos.length === 0) return null;
 
     return (

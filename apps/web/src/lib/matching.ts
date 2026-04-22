@@ -33,7 +33,7 @@ export async function getUserTechStack(
     const cacheKey = `techstack:${username}`;
 
     return withCache(cacheKey, async () => {
-      const res = await fetch(
+const res = await fetch(
         `https://api.github.com/users/${username}/repos?per_page=100&type=owner&sort=pushed`,
         {
           headers: {
@@ -42,6 +42,15 @@ export async function getUserTechStack(
           }
         }
       );
+      if (!res.ok) {
+        if (res.status === 401) {
+          throw new Error('Invalid or expired access token');
+        } else if (res.status === 403) {
+          throw new Error('Access token does not have the required scope');
+        } else {
+          throw new Error(`Failed to fetch user repositories: ${res.status}`);
+        }
+      }
 
       if (!res.ok) {
         throw new Error(`Failed to fetch user repositories: ${res.status}`);

@@ -4,9 +4,16 @@ import { useRouter } from "next/navigation";
 
 export default function BackButton() {
   const router = useRouter();
+  const handleClick = () => {
+    try {
+      router.back();
+    } catch (error) {
+      console.error('Error navigating back:', error);
+    }
+  };
   return (
     <button
-      onClick={() => router.back()}
+      onClick={handleClick}
       className="text-git-muted hover:text-git-text transition-colors"
       aria-label="go back"
     >

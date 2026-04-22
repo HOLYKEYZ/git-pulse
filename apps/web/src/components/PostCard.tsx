@@ -352,6 +352,7 @@ const handleReact = async (emoji: string) => {
         )}
       </div>
     </div>
-    </>
+  </div>
+  </>
   );
 }

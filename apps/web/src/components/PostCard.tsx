@@ -342,13 +342,12 @@ const handleReact = async (emoji: string) => {
             </button>
           </div>
         </div>
+        )}
 
         {/* expandable comments */}
-        {showComments &&
+        {!isNested && showComments && (
         <div className="relative z-10 mt-3 border-t border-git-border pt-4">
           <CommentSection postId={post.id} />
-        </div>
-        }
         </div>
         )}
       </div>

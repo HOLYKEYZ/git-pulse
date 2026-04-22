@@ -3,8 +3,7 @@ import { inngest } from './client';
 // import database/cache updates here as needed
 
 export const syncDeveloperProfile = inngest.createFunction(
-  { id: 'sync-developer-profile' },
-  { event: 'github/profile.sync' },
+  { id: 'sync-developer-profile', event: 'github/profile.sync' },
   async ({ event, step }: any) => {
     // Phase 3 implementation hook: 
     // This is where massive GraphQL scraping logic that used to 504 timeout via local pages will run completely offline.

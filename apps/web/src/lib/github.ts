@@ -798,6 +798,16 @@ export async function getUpcomingGitHubDevs(token: string, limit = 5): Promise<a
 }
 
 /**
+ * fetch starred repos for a user
+ */
+export async function getGitHubStarredRepos(username: string, token: string, page = 1, perPage = 30): Promise<any[]> {
+  const repos = await fetchWithAuth(
+    `/users/${username}/starred?sort=created&direction=desc&per_page=${perPage}&page=${page}`,
+    token
+  );
+  return repos || [];
+}
+
  * developers like you — multi-dimensional profile matching.
  * builds a profile vector from top 3 languages, commit velocity, repo count, avg stars.
  * searches across all 3 languages in parallel, deduplicates, and uses cosine similarity

@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import DOMPurify from "isomorphic-dompurify";
 import { prisma } from "@/lib/prisma";
 import rateLimit from "@/lib/rateLimit";
 
@@ -28,9 +27,8 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
     try {
         const { id: postId } = params;
         const body = await req.json();
-const { content, parentId } = body;
-const sanitizedContent = DOMPurify.sanitize(content);
-
+        const { content, parentId } = body;
+        
         if (!content || content.length > 1000) {
             return NextResponse.json({ error: "Content is required" }, { status: 400 });
         }
@@ -52,7 +50,7 @@ const sanitizedContent = DOMPurify.sanitize(content);
 
 const comment = await prisma.comment.create({
             data: {
-                content: sanitizedContent,
+                content,
                 postId,
                 authorId: user.id,
                 parentId: parentId || null,

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import DOMPurify from "isomorphic-dompurify";
 import { prisma } from "@/lib/prisma";
 import rateLimit from "@/lib/rateLimit";
 
@@ -27,7 +28,6 @@ export async function POST(req: Request, { params }: { params: { id: string } })
         const { id: postId } = params;
         const body = await req.json();
 const { content, parentId } = body;
-import DOMPurify from 'isomorphic-dompurify';
 const sanitizedContent = DOMPurify.sanitize(content);
 
         if (!content || content.length > 1000) {

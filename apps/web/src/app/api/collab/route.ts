@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { getServerSideToken } from "@/lib/serverToken";
 import { getUserTechStack, findSimilarDevs } from "@/lib/matching";
 import { withCache } from "@/lib/cache";
+import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 

@@ -808,6 +808,7 @@ export async function getGitHubStarredRepos(username: string, token: string, pag
   return repos || [];
 }
 
+/**
  * developers like you — multi-dimensional profile matching.
  * builds a profile vector from top 3 languages, commit velocity, repo count, avg stars.
  * searches across all 3 languages in parallel, deduplicates, and uses cosine similarity

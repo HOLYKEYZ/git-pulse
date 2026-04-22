@@ -64,7 +64,7 @@ export async function POST(req: Request) {
     const result = PostPayloadSchema.safeParse(body);
 
     if (!result.success) {
-      return NextResponse.json({ error: "Validation Failed", details: result.error.errors }, { status: 400 });
+      return NextResponse.json({ error: "Validation Failed", details: result.error.format() }, { status: 400 });
     }
 
     const { content, type, shipDetails, images, repoUrl, repostOfId } = result.data;
@@ -151,7 +151,7 @@ export async function POST(req: Request) {
         content,
         type: type || "standard",
         authorId: user.id,
-        shipDetails: shipDetails || null,
+        shipDetails: shipDetails || undefined,
         images: images || [],
         repoUrl: finalRepoUrl || null,
         repoEmbed,

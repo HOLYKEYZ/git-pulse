@@ -14,14 +14,15 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+try {
+  const body = await req.json();
+  const result = StatusSchema.safeParse(body);
+  
+  if (!result.success) {
+    return NextResponse.json({ error: "Invalid status payload", details: result.error.format() }, { status: 400 });
+  }
+  const { emoji, text } = result.data;
   try {
-    const body = await req.json();
-    const result = StatusSchema.safeParse(body);
-    
-    if (!result.success) {
-      return NextResponse.json({ error: "Invalid status payload", details: result.error.format() }, { status: 400 });
-    }
-    const { emoji, text } = result.data;
     const user = await prisma.user.update({
       where: { username: session.user.login },
       data: {
@@ -29,10 +30,14 @@ export async function PUT(req: Request) {
         statusText: text || null
       }
     });
-
+    
     return NextResponse.json({ success: true, statusEmoji: user.statusEmoji, statusText: user.statusText });
   } catch (error) {
     logger.error("[UserStatus] Update Error:", error);
-    return NextResponse.json({ error: "Failed to update status" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to update status", details: error.message }, { status: 500 });
   }
+} catch (error) {
+  logger.error("[UserStatus] Parse Error:", error);
+  return NextResponse.json({ error: "Failed to parse request", details: error.message }, { status: 400 });
+}
 }

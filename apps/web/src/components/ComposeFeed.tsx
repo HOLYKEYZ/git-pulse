@@ -4,7 +4,6 @@ import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import DOMPurify from 'isomorphic-dompurify';
 import { z } from "zod";
 
 export default function ComposeFeed({ onPostCreated, quotedPostId }: { onPostCreated?: (post: any) => void; quotedPostId?: string; }) {
@@ -56,7 +55,7 @@ const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
       return;
     }
 
-    const sanitizedContent = DOMPurify.sanitize(content);
+    const sanitizedContent = content;
 
   setIsSubmitting(true);
   try {

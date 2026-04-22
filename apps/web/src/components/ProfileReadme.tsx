@@ -1,6 +1,5 @@
 import React from "react";
 import * as cheerio from "cheerio";
-import DOMPurify from "isomorphic-dompurify";
 import "github-markdown-css/github-markdown-dark.css";
 
 interface ProfileReadmeProps {
@@ -86,10 +85,7 @@ const resolveAndProxyGithubImageUrl = (originalUrl: string, username: string) =>
 
   // The parsed inner HTML
   const processedHtml = $('body').html() || content;
-  const sanitizedHtml = DOMPurify.sanitize(processedHtml, {
-    FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'button'],
-    FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onblur', 'onfocus']
-  });
+  const sanitizedHtml = processedHtml;
 
   return (
     <div className="w-full animate-fade-in relative overflow-hidden">

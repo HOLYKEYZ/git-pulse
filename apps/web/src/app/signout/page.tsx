@@ -1,4 +1,5 @@
 import { signOut } from "@/lib/auth";
+import Link from "next/link";
 
 const handleSignOutAction = async () => {
   "use server";
@@ -37,12 +38,12 @@ export default function SignOutPage() {
             </button>
           </form>
 
-          <a
+          <Link
             href="/"
             className="flex w-full justify-center rounded-lg border border-git-border px-3 py-2.5 text-sm font-medium text-git-muted hover:text-git-text hover:border-git-text/20 transition-colors"
           >
             Cancel
-          </a>
+          </Link>
         </div>
       </div>
     </div>

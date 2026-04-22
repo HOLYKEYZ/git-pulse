@@ -33,11 +33,11 @@ try {
     
     return NextResponse.json({ success: true, statusEmoji: user.statusEmoji, statusText: user.statusText });
   } catch (error) {
-    logger.error("[UserStatus] Update Error:", error);
-    return NextResponse.json({ error: "Failed to update status", details: error.message }, { status: 500 });
+    console.error("[UserStatus] Update Error:", error);
+    return NextResponse.json({ error: "Failed to update status", details: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
   }
 } catch (error) {
-  logger.error("[UserStatus] Parse Error:", error);
-  return NextResponse.json({ error: "Failed to parse request", details: error.message }, { status: 400 });
+  console.error("[UserStatus] Parse Error:", error);
+  return NextResponse.json({ error: "Failed to parse request", details: error instanceof Error ? error.message : "Unknown error" }, { status: 400 });
 }
 }

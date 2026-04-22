@@ -14,7 +14,6 @@ import ReactionPicker from './ReactionPicker';
 import CommentSection from './CommentSection';
 import TimeDisplay from './TimeDisplay';
 import QuoteModal from './QuoteModal';
-import TimeDisplay from './TimeDisplay';
 
 export type PostType = 'standard' | 'ship';
 

@@ -6,8 +6,9 @@ export default async function AchievementsWidget({ username }: { username: strin
     if (!username || typeof username !== 'string') {
         return null;
     }
+let achievements: any[] = [];
 try {
-  const achievements = await getUserAchievements(username);
+  achievements = await getUserAchievements(username);
 } catch (error) {
   console.error('Error fetching achievements:', error);
   return (

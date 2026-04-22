@@ -42,7 +42,7 @@ export default async function ProfilePage({ params }: {params: {username: string
 
   if (ghUser) {
     // Validate user profile data
-    if (!ghUser.login || !ghUser.id || !ghUser.node_id) {
+    if (!ghUser.login) {
       throw new Error('Invalid user profile data');
     }
   }

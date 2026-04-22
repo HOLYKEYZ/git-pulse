@@ -154,14 +154,20 @@ function mapPrismaPostToProps(p: {
   _count: {comments: number;reactions: number;};
   repostOf?: any;
 }): PostProps {
-  // if this is a repost, recursively map the original post and attach repost metadata
+  // if this is a repost, explicitly distinguish between Quote Repost and standard Reposts
   if (p.repostOf) {
-    return {
-      ...mapPrismaPostToProps(p.repostOf),
-      isRepost: true,
-      repostedBy: p.author.username,
-      id: p.id // keep the new post ID for uniqueness in React keys
-    };
+    const isQuoteRepost = p.content !== `Reposted by @${p.author.username}`;
+    
+    // For standard unedited reposts, map purely the target passing along metadata
+    if (!isQuoteRepost) {
+      return {
+        ...mapPrismaPostToProps(p.repostOf),
+        isRepost: true,
+        repostedBy: p.author.username,
+        id: p.id // keep the new post ID for uniqueness in React keys
+      };
+    }
+    // For Quote Reposts, continue execution but attach `quotedPost` recursively
   }
 
   let score = 0;
@@ -212,7 +218,8 @@ function mapPrismaPostToProps(p: {
     hashtags: p.hashtags,
     repoUrl: p.repoUrl,
     score,
-    passedBadge: hasPassedBadge(score)
+    passedBadge: hasPassedBadge(score),
+    quotedPost: p.repostOf && p.content !== `Reposted by @${p.author.username}` ? mapPrismaPostToProps(p.repostOf) : undefined
   };
 }
 

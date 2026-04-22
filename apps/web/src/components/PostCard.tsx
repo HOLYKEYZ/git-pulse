@@ -13,6 +13,8 @@ import AiSummary from './AiSummary';
 import ReactionPicker from './ReactionPicker';
 import CommentSection from './CommentSection';
 import TimeDisplay from './TimeDisplay';
+import QuoteModal from './QuoteModal';
+import TimeDisplay from './TimeDisplay';
 
 export type PostType = 'standard' | 'ship';
 
@@ -48,17 +50,21 @@ export interface PostProps {
     version: string;
     changelog: string;
   };
+  quotedPost?: PostProps;
+  isNested?: boolean;
   isRepost?: boolean;
   repostedBy?: string;
   isExternalEvent?: boolean;
   externalUrl?: string;
 }
 
-export default function PostCard({ post }: {post: PostProps;}) {
+export default function PostCard({ post, isNested }: {post: PostProps; isNested?: boolean;}) {
   const router = useRouter();
   const [showComments, setShowComments] = useState(false);
   const [localReactions, setLocalReactions] = useState(post.reactions || []);
   const [isReposting, setIsReposting] = useState(false);
+  const [showRepostMenu, setShowRepostMenu] = useState(false);
+  const [showQuoteModal, setShowQuoteModal] = useState(false);
 
 const handleNavigate = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -137,9 +143,11 @@ const handleReact = async (emoji: string) => {
   };
 
   return (
+    <>
+    {showQuoteModal && <QuoteModal post={post} onClose={() => setShowQuoteModal(false)} />}
     <div 
       onClick={handleNavigate} 
-      className="relative flex flex-col px-4 py-4 border-b border-git-border hover:bg-git-hover transition-colors cursor-pointer"
+      className={`relative flex flex-col ${isNested ? 'px-3 py-3 border-none hover:bg-transparent' : 'px-4 py-4 border-b border-git-border hover:bg-git-hover'} transition-colors cursor-pointer`}
     >
       
       {/* repost header */}
@@ -273,7 +281,15 @@ const handleReact = async (emoji: string) => {
           </div>
         }
 
+        {/* quoted post */}
+        {post.quotedPost && (
+          <div className="relative z-10 mb-3 border border-git-border rounded-xl overflow-hidden mt-1 bg-git-bg opacity-90 transition-opacity hover:opacity-100">
+            <PostCard post={post.quotedPost} isNested={true} />
+          </div>
+        )}
+
         {/* action bar */}
+        {!isNested && (
         <div className="relative z-10 flex items-center gap-6 mt-1 w-full">
           <button
             onClick={() => setShowComments(!showComments)}
@@ -291,14 +307,29 @@ const handleReact = async (emoji: string) => {
             onReact={handleReact}
             currentReactions={localReactions} />
           
-          <div className="flex-1 flex justify-end gap-5">
-            <button
-              onClick={handleRepost}
-              disabled={isReposting}
-              className={`flex items-center gap-1.5 text-git-muted transition-colors group ${isReposting ? 'opacity-50' : 'hover:text-git-success'}`}
-              title="Repost">
-              <SyncIcon size={16} className="group-hover:bg-git-success/10 rounded" />
-            </button>
+          <div className="flex-1 flex justify-end gap-5 relative">
+            
+            <div className="relative flex items-center">
+              <button
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowRepostMenu(!showRepostMenu); }}
+                disabled={isReposting}
+                className={`flex items-center gap-1.5 text-git-muted transition-colors group ${isReposting ? 'opacity-50' : 'hover:text-git-success'}`}
+                title="Repost menu">
+                <SyncIcon size={16} className="group-hover:bg-git-success/10 rounded" />
+              </button>
+              
+              {showRepostMenu && (
+                <div className="absolute bottom-full right-0 mb-2 w-32 bg-git-bg border border-git-border rounded-xl shadow-xl overflow-hidden animate-fade-in z-50">
+                  <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowRepostMenu(false); handleRepost(e); }} className="w-full text-left px-4 py-2.5 text-sm text-git-text hover:bg-white/5 transition-colors font-semibold flex items-center gap-2">
+                    <SyncIcon size={14} /> Repost
+                  </button>
+                  <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowRepostMenu(false); setShowQuoteModal(true); }} className="w-full text-left px-4 py-2.5 text-sm text-git-text hover:bg-white/5 transition-colors font-semibold flex items-center gap-2 border-t border-git-border">
+                    <svg viewBox="0 0 16 16" width="14" height="14" className="fill-current"><path d="M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm5.677-.177L9.573.677A.25.25 0 0 1 10 .854V2.5h1A2.5 2.5 0 0 1 13.5 5v5.628a2.251 2.251 0 1 1-1.5 0V5a1 1 0 0 0-1-1h-1v1.646a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354ZM3.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm0 9.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm8.25.75a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Z"></path></svg> Quote
+                  </button>
+                </div>
+              )}
+            </div>
+
             <button
               onClick={(e) => {
                 e.preventDefault();
@@ -318,8 +349,10 @@ const handleReact = async (emoji: string) => {
           <CommentSection postId={post.id} />
         </div>
         }
+        </div>
+        )}
       </div>
     </div>
-  </div>);
-
+    </>
+  );
 }

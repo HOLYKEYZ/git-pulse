@@ -15,7 +15,8 @@ const PostPayloadSchema = z.object({
     repoFullName: z.string().max(100),
     version: z.string().max(50),
     changelog: z.string().max(2000)
-  }).refine((data) => data.repoFullName !== '', { message: 'Repository full name is required' }).optional()
+  }).refine((data) => data.repoFullName !== '', { message: 'Repository full name is required' }).optional(),
+  repostOfId: z.string().cuid().optional().nullable()
 });
 
 export const dynamic = "force-dynamic";
@@ -61,16 +62,12 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const result = PostPayloadSchema.safeParse(body);
-    
+
     if (!result.success) {
       return NextResponse.json({ error: "Validation Failed", details: result.error.errors }, { status: 400 });
     }
-    
-    const { content, type, shipDetails, images, repoUrl } = result.data;
-    
-    if (shipDetails && !shipDetails.repoFullName) {
-      return NextResponse.json({ error: 'Repository full name is required' }, { status: 400 });
-    }
+
+    const { content, type, shipDetails, images, repoUrl, repostOfId } = result.data;
 
     if (images && (!Array.isArray(images) || images.length > 4)) {
       return NextResponse.json({ error: "Maximum 4 images allowed" }, { status: 400 });
@@ -158,7 +155,8 @@ export async function POST(req: Request) {
         images: images || [],
         repoUrl: finalRepoUrl || null,
         repoEmbed,
-        hashtags
+        hashtags,
+        repostOfId: repostOfId || null
       },
       include: {
         author: true,

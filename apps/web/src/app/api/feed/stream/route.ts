@@ -55,7 +55,8 @@ export async function GET(req: NextRequest) {
         where: whereClause,
         include: {
           author: { select: { username: true, githubId: true } },
-          reactions: true
+          reactions: true,
+          repostOf: { include: { author: { select: { username: true, githubId: true } }, reactions: true } }
         },
         orderBy: { createdAt: "desc" }
       });
@@ -64,6 +65,30 @@ export async function GET(req: NextRequest) {
 
       if (newPosts.length > 0) {
         for (const post of newPosts) {
+          const isQuote = post.content !== `Reposted by @${post.author.username}`;
+          
+          let quotedPost = undefined;
+          if (post.repostOf && isQuote) {
+            quotedPost = {
+              id: post.repostOf.id,
+              type: post.repostOf.type,
+              author: {
+                username: post.repostOf.author.username,
+                avatar: `https://avatars.githubusercontent.com/u/${post.repostOf.author.githubId}?v=4`
+              },
+              content: post.repostOf.content,
+              timestamp: post.repostOf.createdAt.toISOString(),
+              likes: post.repostOf.reactions.length,
+              comments: 0,
+              reactions: post.repostOf.reactions,
+              images: post.repostOf.images,
+              repoUrl: post.repostOf.repoUrl,
+              repoEmbed: post.repostOf.repoEmbed,
+              score: 0,
+              passedBadge: false
+            };
+          }
+
           writeEvent({
             type: "NEW_POST",
             post: {
@@ -82,7 +107,10 @@ export async function GET(req: NextRequest) {
               repoUrl: post.repoUrl,
               repoEmbed: post.repoEmbed,
               score: 0,
-              passedBadge: false
+              passedBadge: false,
+              quotedPost,
+              isRepost: post.repostOf && !isQuote ? true : undefined,
+              repostedBy: post.repostOf && !isQuote ? post.author.username : undefined
             }
           });
         }

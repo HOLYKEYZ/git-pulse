@@ -7,7 +7,7 @@ import remarkGfm from 'remark-gfm';
 import DOMPurify from 'isomorphic-dompurify';
 import { z } from "zod";
 
-export default function ComposeFeed({ onPostCreated }: { onPostCreated?: (post: any) => void }) {
+export default function ComposeFeed({ onPostCreated, quotedPostId }: { onPostCreated?: (post: any) => void; quotedPostId?: string; }) {
   const router = useRouter();
   const [content, setContent] = useState('');
   const [images, setImages] = useState<string[]>([]);
@@ -63,7 +63,7 @@ const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const res = await fetch('/api/posts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: sanitizedContent, type: 'standard', images })
+      body: JSON.stringify({ content: sanitizedContent, type: 'standard', images, repostOfId: quotedPostId })
     });
 
     if (res.ok) {

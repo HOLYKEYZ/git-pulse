@@ -23,7 +23,18 @@ interface RepoContext {
  * results are cached for 24 hours per repo.
  */
 export async function generateRepoPitch(repo: RepoContext): Promise<string> {
-  if (!repo || !repo.name || !repo.owner || repo.stars == null || repo.forks == null || !repo.topics) {
+  if (!repo ||
+    !repo.name ||
+    !repo.owner ||
+    repo.stars == null ||
+    repo.forks == null ||
+    !repo.topics ||
+    typeof repo.name !== 'string' ||
+    typeof repo.owner !== 'string' ||
+    typeof repo.stars !== 'number' ||
+    typeof repo.forks !== 'number' ||
+    !Array.isArray(repo.topics)
+  ) {
     throw new Error('Invalid repository context');
   }
   // Sanitize user-input data
@@ -32,6 +43,13 @@ export async function generateRepoPitch(repo: RepoContext): Promise<string> {
   repo.description = repo.description ? repo.description.trim() : '';
   if (repo.name.length === 0 || repo.owner.length === 0) {
     throw new Error('Repository name or owner cannot be empty');
+  }
+  // Additional validation for repo properties
+  if (repo.stars < 0 || repo.forks < 0) {
+    throw new Error('Stars and forks cannot be negative');
+  }
+  if (repo.topics.length === 0) {
+    throw new Error('At least one topic is required');
   }
   const cacheKey = `ai-pitch:${repo.owner}/${repo.name}`;
 

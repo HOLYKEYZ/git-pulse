@@ -5,7 +5,8 @@ import RepoCard from "@/components/RepoCard";
 import ProfileTabs from "@/components/ProfileTabs";
 
 import { getLanguageColor } from "@/lib/colors";
-export default async function StarsPage({ params }: { params: { username: string }; }) {
+export default async function StarsPage(props: { params: Promise<{ username: string }>; }) {
+  const params = await props.params;
   const session = await auth();
   const { username } = params;
   const token = session?.user?.login ? await getServerSideToken(session.user.login) : null;

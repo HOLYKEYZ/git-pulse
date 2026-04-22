@@ -11,7 +11,8 @@ import RepoCard from "@/components/RepoCard";
 import PostContentRenderer from "@/components/PostContentRenderer";
 import { notFound } from "next/navigation";
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const post = await prisma.post.findUnique({
     where: { id: params.id },
     select: { content: true, author: { select: { username: true } } }
@@ -23,7 +24,8 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   };
 }
 
-export default async function PostPage({ params }: { params: { id: string } }) {
+export default async function PostPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await auth();
 
   const post = await prisma.post.findUnique({

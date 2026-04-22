@@ -6,7 +6,17 @@ export default async function AchievementsWidget({ username }: { username: strin
     if (!username || typeof username !== 'string') {
         return null;
     }
-    const achievements = await getUserAchievements(username);
+try {
+  const achievements = await getUserAchievements(username);
+} catch (error) {
+  console.error('Error fetching achievements:', error);
+  return (
+    <div className="border-t border-git-border border-solid mt-4 pt-4 animate-fade-in">
+      <h2 className="text-xs font-semibold text-git-text mb-3">Achievements</h2>
+      <p>Error fetching achievements. Please try again later.</p>
+    </div>
+  );
+}
 
     if (!achievements || achievements.length === 0) {
         return null;

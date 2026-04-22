@@ -30,7 +30,7 @@ export default async function ProfilePage({ params }: {params: {username: string
   const isOwnProfile = session?.user?.login === username;
 
   // parallel data fetching — all at once for speed
-const [ghUser, ghRepos, readme, contributions, pinnedRepos, activity, userStats] = await Promise.all([        token ? getGitHubUser(username, token as string) : null,        token ? getGitHubRepos(username, token as string, 6) : [],        token ? getGitHubReadme(username, token as string) : null,        token ? getContributionData(username, token as string) : null,        token ? getGitHubPinnedRepos(username, token as string) : [],        token ? getContributionActivity(username, token as string) : [],        token ? getUserStats(username, token as string) : null      ]);            if (ghUser) {        // Validate user profile data        if (!ghUser.login || !ghUser.id || !ghUser.node_id) {          throw new Error('Invalid user profile data');        }      }
+  const [ghUser, ghRepos, readme, contributions, pinnedRepos, activity, userStats] = await Promise.all([
     token ? getGitHubUser(username, token as string) : null,
     token ? getGitHubRepos(username, token as string, 6) : [],
     token ? getGitHubReadme(username, token as string) : null,
@@ -39,6 +39,13 @@ const [ghUser, ghRepos, readme, contributions, pinnedRepos, activity, userStats]
     token ? getContributionActivity(username, token as string) : [],
     token ? getUserStats(username, token as string) : null
   ]);
+
+  if (ghUser) {
+    // Validate user profile data
+    if (!ghUser.login || !ghUser.id || !ghUser.node_id) {
+      throw new Error('Invalid user profile data');
+    }
+  }
 
   if (!ghUser) {
     return (

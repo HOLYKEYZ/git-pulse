@@ -36,9 +36,7 @@ let result: { tag: string; count: bigint }[] = [];
     } catch (error) {
       console.error('Error fetching trending hashtags:', error);
     }
-  // Consider implementing a retry mechanism or a fallback
-  const result = [];
-}
+    
     trending = result.map(r => [r.tag, Number(r.count)]);
     cachedTags = trending;
     cacheTime = now;

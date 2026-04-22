@@ -55,7 +55,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                         timestamp: new Date().toISOString(),
                     }
                 ]);
-                setNewComment(");
+                setNewComment("");
             } else {
                 const errorMessage = await res.text();
                 console.error(`Failed to post comment: ${errorMessage}`);

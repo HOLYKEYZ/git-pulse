@@ -52,12 +52,6 @@ const renderRepo = (repo: any) => {
         rel="noopener noreferrer"
         className="block px-4 py-3 hover:bg-white/[0.03] transition-colors"
       >
-    )
-  } catch (error) {
-    console.error('Error rendering repository:', error)
-    return <div>Error rendering repository</div>
-  }
-}
       <div className="text-[15px] font-bold text-git-accent mb-0.5 truncate">
         {repo.full_name}
       </div>
@@ -95,7 +89,12 @@ const renderRepo = (repo: any) => {
         </div>
       </div>
     </a>
-  );
+    );
+  } catch (error) {
+    console.error('Error rendering repository:', error);
+    return <div>Error rendering repository</div>;
+  }
+};
 
   const renderDev = (dev: any) => (
     <div

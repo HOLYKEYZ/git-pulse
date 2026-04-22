@@ -142,4 +142,4 @@ async function processImageResponse(response: Response) {
     return NextResponse.json({ error: 'Error processing image response' }, { status: 500 });
   }
 }
-}
+

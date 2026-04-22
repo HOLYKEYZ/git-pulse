@@ -56,20 +56,8 @@ try {
     } catch (err: unknown) {
         if (err instanceof Error && 'code' in err && err.code === 'P2025') {
             console.error("[Notifications] DB Error: Prisma client error", err);
-            throw new Error(`Database error: ${err.message}`);
         } else if (err instanceof Error) {
-            console.error("[Notifications] Unknown Error:", err);
-            throw new Error(`Unknown error: ${err.message}`);
-        } else {
-            console.error("[Notifications] Unexpected Error:", err);
-            throw new Error(`Unexpected error: ${err.message}`);
-            throw new Error('Database error');
-        } else if (err instanceof Error) {
-            console.error("[Notifications] Unknown Error:", err);
-            throw new Error('Unknown error');
-        } else {
-            console.error("[Notifications] Unexpected Error:", err);
-            throw new Error('Unexpected error');
+            console.error("[Notifications] Error:", err);
         }
         hasError = true;
     }

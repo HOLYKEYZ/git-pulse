@@ -41,7 +41,6 @@ export async function GET() {
     }
   }
 }
-}
 
 export async function POST() {
   try {
@@ -71,7 +70,6 @@ export async function POST() {
     }
   }
 }
-}
 
 export async function DELETE() {
   try {
@@ -99,5 +97,4 @@ export async function DELETE() {
       return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
     }
   }
-}
 }

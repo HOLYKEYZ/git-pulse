@@ -37,9 +37,8 @@ callbacks: {
     } catch (error) {
       console.error('Error in session callback:', error);
       throw error;
-    }
   }
-}
+},
   pages: {
     signIn: '/login',
     signOut: '/signout',

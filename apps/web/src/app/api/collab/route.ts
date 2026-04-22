@@ -19,19 +19,24 @@ export async function GET() {
 try {
         const cacheKey = `collab:${session.user.login}`;
         
-        const matches = await withCache(
+const matches = await withCache(
             cacheKey,
             async () => {
-                const stack = await getUserTechStack(
-                    session.user!.login!,
-                    serverToken
-                );
-                
-                if (stack.length === 0) {
+                try {
+                    const stack = await getUserTechStack(
+                        session.user!.login!,
+                        serverToken
+                    );
+                    
+                    if (stack.length === 0) {
+                        return [];
+                    }
+                    
+                    return findSimilarDevs(session.user!.login!, stack);
+                } catch (error) {
+                    console.error('Error finding similar devs:', error);
                     return [];
                 }
-                
-                return findSimilarDevs(session.user!.login!, stack);
             },
             1000 * 60 * 60 // 1 hour cache
         );

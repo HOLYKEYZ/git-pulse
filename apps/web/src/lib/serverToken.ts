@@ -20,7 +20,13 @@ export async function getServerSideToken(username: string): Promise<string | nul
     });
     return user?.accessToken ?? null;
   } catch (error) {
-    console.error('Error fetching server-side token:', error);
+    if (error instanceof z.ZodError) {
+      console.error(`Invalid username schema: ${error.issues[0].message}`);
+    } else if (error instanceof Error) {
+      console.error(`Error fetching server-side token for user ${username}: ${error.message}`);
+    } else {
+      console.error(`Unknown error fetching server-side token: ${String(error)}`);
+    }
     return null;
   }
 }

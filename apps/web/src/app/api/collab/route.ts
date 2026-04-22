@@ -7,9 +7,16 @@ import { withCache } from "@/lib/cache";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-    const session = await auth();
+const session = await auth();
     if (!session?.user?.login) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const login = session.user.login;
+    const loginSchema = z.string().trim().min(1).max(100);
+    try {
+        const result = loginSchema.parse(login);
+    } catch (error) {
+        return NextResponse.json({ error: "Invalid login" }, { status: 400 });
     }
     const serverToken = await getServerSideToken(session.user.login);
     if (!serverToken) {

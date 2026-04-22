@@ -28,7 +28,7 @@ export async function PATCH(req: NextRequest) {
     // Input validation with Zod
     const result = ProfileUpdateSchema.safeParse(body);
     if (!result.success) {
-      return NextResponse.json({ error: 'Validation failed', details: result.error.errors }, { status: 400 });
+      return NextResponse.json({ error: 'Validation failed', details: result.error.format() }, { status: 400 });
     }
     const safeData = result.data;
     

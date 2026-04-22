@@ -28,7 +28,7 @@ export async function GET(req: Request) {
 
   const result = QuerySchema.safeParse(rawQuery);
   if (!result.success) {
-    return NextResponse.json({ error: "Invalid query parameters provided", details: result.error.errors }, { status: 400 });
+    return NextResponse.json({ error: "Invalid query parameters provided", details: result.error.format() }, { status: 400 });
   }
 
 const { username, year: yearNum } = result.data;

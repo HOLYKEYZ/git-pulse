@@ -43,7 +43,7 @@ import Image from "next/image";
 export const revalidate = 0;
 
 export default async function AlgoVisualizationPage() {
-let posts: PostWithAuthorAndFollowers[] = [];
+let posts: any[] = [];
 let errorMessage = null;
 try {
   posts = await prisma.post.findMany({

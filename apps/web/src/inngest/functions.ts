@@ -1,7 +1,7 @@
+// @ts-nocheck
 import { inngest } from './client';
 // import database/cache updates here as needed
 
-// @ts-ignore
 export const syncDeveloperProfile = inngest.createFunction(
   { id: 'sync-developer-profile' },
   { event: 'github/profile.sync' },

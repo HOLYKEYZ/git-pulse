@@ -5,7 +5,8 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: Request, { params }: { params: { username: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ username: string }> }) {
+    const params = await props.params;
   const session = await auth();
   if (!session?.user?.login) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

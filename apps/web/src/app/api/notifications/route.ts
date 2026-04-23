@@ -42,13 +42,19 @@ export async function PUT(req: Request) {
   try {
     const body = await req.json();
     const { notificationId } = body;
-    const parsedNotificationId = notificationSchema.parse({ id: notificationId });
+    const notificationSchema = z.object({
+      id: z.string().uuid(),
+    });
+    const parsedNotificationId = notificationSchema.safeParse({ id: notificationId });
+    if (!parsedNotificationId.success) {
+      return NextResponse.json({ error: "Invalid notification ID" }, { status: 400 });
+    }
 
-    if (parsedNotificationId.id) {
+    if (parsedNotificationId.data.id) {
       // mark specific notification as read
       await prisma.notification.updateMany({
         where: {
-          id: parsedNotificationId.id,
+          id: parsedNotificationId.data.id,
           user: { username: session.user.login } // ensure they own it
         },
         data: {
@@ -71,6 +77,9 @@ export async function PUT(req: Request) {
     }
   } catch (error) {
     console.error("Error updating notifications:", error);
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+    }
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import ComposeFeed from "./ComposeFeed";
 import PostCard, { PostProps } from "./PostCard";
 import { XIcon } from "lucide-react";
+import DOMPurify from 'dompurify';
 
 interface QuoteModalProps {
   post: PostProps;
@@ -18,6 +19,8 @@ export default function QuoteModal({ post, onClose }: QuoteModalProps) {
       document.body.style.overflow = "auto";
     };
   }, []);
+
+  const sanitizedPostContent = DOMPurify.sanitize(post.content);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
@@ -51,10 +54,9 @@ export default function QuoteModal({ post, onClose }: QuoteModalProps) {
 
           {/* The post being quoted sits beneath, wrapped in a boundary */}
           <div className="border border-git-border rounded-xl overflow-hidden opacity-90 select-none pointer-events-none shrink-0 mb-4 bg-git-bg">
-            <PostCard post={post} isNested={true} />
+            <PostCard post={{...post, content: sanitizedPostContent}} isNested={true} />
           </div>
         </div>
-        
       </div>
     </div>
   );

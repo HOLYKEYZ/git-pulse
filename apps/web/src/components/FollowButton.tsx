@@ -12,7 +12,7 @@ export default function FollowButton({ targetUsername, initialIsFollowing, class
     const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleFollow = async () => {
+const handleFollow = async () => {
         setIsLoading(true);
         try {
             const res = await fetch(`/api/users/${targetUsername}/follow`, {
@@ -22,9 +22,16 @@ export default function FollowButton({ targetUsername, initialIsFollowing, class
             if (res.ok) {
                 const data = await res.json();
                 setIsFollowing(data.action === 'followed');
+            } else {
+                throw new Error(`Failed to toggle follow: ${res.status} ${res.statusText}`);
             }
         } catch (error) {
-            console.error("Failed to toggle follow", error);
+            if (error instanceof Error) {
+                // Display user-friendly error message using toast notification
+                alert(error.message);
+            } else {
+                console.error("Failed to toggle follow", error);
+            }
         } finally {
             setIsLoading(false);
         }

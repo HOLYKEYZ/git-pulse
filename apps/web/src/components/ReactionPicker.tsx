@@ -17,7 +17,10 @@ export default function ReactionPicker({ postId, onReact, currentReactions = [] 
   // add visual feedback
   const [isAnimating, setIsAnimating] = useState(false);
 
-  const handleStar = () => {
+const handleStar = () => {
+    if (typeof onReact !== 'function') {
+      throw new Error('onReact must be a function');
+    }
     setIsAnimating(true);
     onReact('⭐');
     setTimeout(() => setIsAnimating(false), 300);

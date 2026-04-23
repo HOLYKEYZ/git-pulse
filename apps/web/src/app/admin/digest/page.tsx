@@ -15,14 +15,20 @@ export default function DigestPage() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const generate = async () => {
+const generate = async () => {
     setLoading(true);
     setCopied(false);
     try {
-const res = await fetch("/api/admin/digest");
+      const res = await fetch("/api/admin/digest");
       if (res.ok) {
         const json = await res.json();
-        setData(json);
+        if (json && json.success && json.generatedAt && json.postCount && json.digest && json.posts) {
+          setData(json);
+        } else {
+          console.error("Invalid response from API");
+        }
+      } else {
+        console.error("Failed to generate digest:", res.status);
       }
     } catch (error) {
       console.error("Failed to generate digest:", error);

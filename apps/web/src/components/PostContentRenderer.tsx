@@ -4,7 +4,15 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Link from "next/link";
 
+import { z } from 'zod';
+
+const contentSchema = z.string();
+
 export default function PostContentRenderer({ content }: { content: string }) {
+  const validatedContent = contentSchema.safeParse(content);
+  if (!validatedContent.success) {
+    throw new Error('Invalid content prop');
+  }
   // pre-process #tags and @mentions into markdown links
   const processed = content
     .replace(/(^|\s)(#[\w-]+)/g, '$1[$2]($2)')

@@ -34,6 +34,27 @@ const handleSubmit = async (e: React.FormEvent) => {
         setIsSubmitting(true);
         try {
             // Input validation and sanitization for user comments
+            const commentRules = {
+                maxLength: 1000,
+                allowedCharacters: /^[a-zA-Z0-9\s.,!?]*$/,
+                forbiddenKeywords: ['spam', 'virus'],
+            };
+            
+            if (newComment.length > commentRules.maxLength) {
+                alert('Comment is too long.');
+                return;
+            }
+            
+            if (!commentRules.allowedCharacters.test(newComment)) {
+                alert('Comment contains invalid characters.');
+                return;
+            }
+            
+            if (commentRules.forbiddenKeywords.some((keyword) => newComment.includes(keyword))) {
+                alert('Comment contains forbidden keywords.');
+                return;
+            }
+            
             const sanitizedComment = newComment.replace(/</g, '&lt;').replace(/>/g, '&gt;');
             const res = await fetch(`/api/posts/${postId}/comments`, {
                 method: 'POST',
@@ -55,7 +76,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                         timestamp: new Date().toISOString(),
                     }
                 ]);
-                setNewComment("");
+                setNewComment(");
             } else {
                 const errorMessage = await res.text();
                 console.error(`Failed to post comment: ${errorMessage}`);

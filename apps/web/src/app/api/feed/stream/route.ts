@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
         whereClause.authorId = { in: followingIds };
       }
 
-      const newPosts = await prisma.post.findMany({
+const newPosts = await prisma.post.findMany({
         where: whereClause,
         include: {
           author: { select: { username: true, githubId: true } },
@@ -60,6 +60,10 @@ export async function GET(req: NextRequest) {
         },
         orderBy: { createdAt: "desc" }
       });
+      const sanitizedPosts = newPosts.map(post => ({
+        ...post,
+        content: DOMPurify.sanitize(post.content)
+      }));
 
       lastCheckedTime = now;
 

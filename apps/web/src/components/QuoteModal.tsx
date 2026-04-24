@@ -19,7 +19,7 @@ export default function QuoteModal({ post, onClose }: QuoteModalProps) {
     };
   }, []);
 
-  return (
+return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
       {/* Click outside to close */}
       <div className="absolute inset-0" onClick={onClose} />
@@ -36,7 +36,7 @@ export default function QuoteModal({ post, onClose }: QuoteModalProps) {
             <XIcon size={18} />
           </button>
         </div>
-
+        
         {/* Scrollable Content Area */}
         <div className="flex flex-col flex-1 overflow-y-auto p-4 gap-4">
           {/* We place the ComposeFeed at the top so user types here */}
@@ -48,14 +48,22 @@ export default function QuoteModal({ post, onClose }: QuoteModalProps) {
               }} 
             />
           </div>
-
+          
           {/* The post being quoted sits beneath, wrapped in a boundary */}
           <div className="border border-git-border rounded-xl overflow-hidden opacity-90 select-none pointer-events-none shrink-0 mb-4 bg-git-bg">
-            <PostCard post={post} isNested={true} />
+            <PostCard post={sanitizePost(post)} isNested={true} />
           </div>
         </div>
         
       </div>
     </div>
   );
+
+  function sanitizePost(post: PostProps): PostProps {
+    // Basic sanitization, consider using a library like DOMPurify for more comprehensive protection
+    return {
+      ...post,
+      content: post.content.replace(/<script>.*?</script>/g, '').replace(/<.*?>/g, '')
+    }
+  }
 }

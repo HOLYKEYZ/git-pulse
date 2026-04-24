@@ -18,6 +18,7 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
     select: { content: true, author: { select: { username: true } } }
   });
   if (!post) return { title: "Post Not Found | GitPulse" };
+  if (!post.author || !post.author.username) return { title: "Post | GitPulse", description: post.content.slice(0, 160) };
   return {
     title: `${post.author.username}'s post | GitPulse`,
     description: post.content.slice(0, 160)

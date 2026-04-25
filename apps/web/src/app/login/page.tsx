@@ -1,6 +1,20 @@
 import { signIn } from "@/lib/auth"
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
+    const [error, setError] = useState(null);
+    const router = useRouter();
+
+    const handleSignIn = async () => {
+        try {
+            await signIn("github", { redirectTo: "/", callbackUrl: '/login' })
+        } catch (err) {
+            console.error(err);
+            setError('Failed to sign in. Please try again.');
+        }
+    }
+
     return (
         <div className="flex min-h-screen items-center justify-center bg-git-bg px-4 py-12 sm:px-6 lg:px-8">
             <div className="w-full max-w-md space-y-8 rounded-xl border border-git-border bg-git-card p-10 shadow-xl">
@@ -14,16 +28,13 @@ export default function LoginPage() {
                         </h2>
                     </div>
                     <p className="mt-2 text-sm text-git-muted">
-                        GitHub&apos;s Social Layer.
+                        GitHub's Social Layer.
                     </p>
                 </div>
 
                 <div className="mt-8">
                     <form
-                        action={async () => {
-                            "use server"
-                            await signIn("github", { redirectTo: "/" })
-                        }}
+                        action={handleSignIn}
                     >
                         <button
                             type="submit"
@@ -32,7 +43,7 @@ export default function LoginPage() {
                             Sign in with GitHub
                         </button>
                     </form>
-
+                    {error && <p className="mt-2 text-sm text-git-error">{error}</p>}
                     <p className="mt-6 text-center text-xs text-git-muted">
                         By signing in, you agree that GitPulse will request read-only access to your public repositories.
                     </p>

@@ -52,10 +52,14 @@ export async function PATCH(req: NextRequest) {
       })
     });
     
-    if (!response.ok) {
+if (!response.ok) {
       const errorText = await response.text();
       console.error(`[GitHub Profile API] Error updating profile:`, response.status, errorText);
-      if (response.status === 422) {
+      if (response.status === 401) {
+        return NextResponse.json({ error: 'Unauthorized. Please check your token.' }, { status: 401 });
+      } else if (response.status === 403) {
+        return NextResponse.json({ error: 'Forbidden. You do not have permission to update this profile.' }, { status: 403 });
+      } else if (response.status === 422) {
         return NextResponse.json({ error: 'Validation failed' }, { status: 422 });
       } else {
         return NextResponse.json({ error: `GitHub API responded with ${response.status}` }, { status: response.status });

@@ -14,10 +14,11 @@ const LANGUAGE_COLORS: Record<string, string> = {
 export default async function ReposPage({ params }: {params: Promise<{username: string}>;}) {
   const session = await auth();
   const resolvedParams = await params;
-  const { username } = resolvedParams;
+const { username } = resolvedParams;
+const sanitizedUsername = username.replace(/[^a-zA-Z0-9_-]/g, '');
   const token = session?.user?.login ? await getServerSideToken(session.user.login) : null;
 
-let repos: any[] = []; let hasError = false; try { repos = token ? await getGitHubAllRepos(username, token, 1, 30, "updated") : []; } catch (error) { console.error('Error fetching repositories:', error); hasError = true; }
+let repos: any[] = []; let hasError = false; try { repos = token ? await getGitHubAllRepos(sanitizedUsername, token, 1, 30, "updated") : []; } catch (error) { console.error('Error fetching repositories:', error); hasError = true; }
 
   // collect unique languages for the filter display
   const languages = [...new Set(repos.map((r) => r.language).filter(Boolean))] as string[];

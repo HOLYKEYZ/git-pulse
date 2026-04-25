@@ -21,8 +21,8 @@ export async function PUT(req: NextRequest) {
     const body = await req.json();
     const { username } = body;
 
-    if (!username || typeof username !== 'string' || username.length === 0 || !/^[a-zA-Z0-9-]+$/.test(username)) {
-      return NextResponse.json({ error: "Invalid username" }, { status: 400 });
+if (!username || typeof username !== 'string' || username.length === 0 || username.length > 39 || !/^[a-zA-Z0-9-]+$/.test(username)) {
+      return NextResponse.json({ error: "Invalid username. Username should be between 1 and 39 characters and only contain alphanumeric characters or hyphens." }, { status: 400 });
     }
 
     // Call GitHub API to follow user
@@ -66,8 +66,8 @@ export async function DELETE(req: NextRequest) {
     const url = new URL(req.url);
     const username = url.searchParams.get("username");
 
-    if (!username || typeof username !== 'string' || username.length === 0 || !/^[a-zA-Z0-9-]+$/.test(username)) {
-      return NextResponse.json({ error: "Invalid username" }, { status: 400 });
+if (!username || typeof username !== 'string' || username.length === 0 || username.length > 39 || !/^[a-zA-Z0-9-]+$/.test(username)) {
+      return NextResponse.json({ error: "Invalid username. Username should be between 1 and 39 characters and only contain alphanumeric characters or hyphens." }, { status: 400 });
     }
 
     // https://docs.github.com/en/rest/users/followers#unfollow-a-user-for-the-authenticated-user

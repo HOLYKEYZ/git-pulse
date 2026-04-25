@@ -12,6 +12,18 @@ const ProfileUpdateSchema = z.object({
   location: z.string().max(100).optional(),
   hireable: z.boolean().optional(),
   bio: z.string().max(160).optional()
+}).refine((data) => {
+  if (data.name && typeof data.name !== 'string') return false;
+  if (data.email && typeof data.email !== 'string') return false;
+  if (data.blog && typeof data.blog !== 'string') return false;
+  if (data.twitter_username && typeof data.twitter_username !== 'string') return false;
+  if (data.company && typeof data.company !== 'string') return false;
+  if (data.location && typeof data.location !== 'string') return false;
+  if (data.hireable && typeof data.hireable !== 'boolean') return false;
+  if (data.bio && typeof data.bio !== 'string') return false;
+  return true;
+}, {
+  message: 'Invalid input type'
 }).passthrough();
 
 export async function PATCH(req: NextRequest) {

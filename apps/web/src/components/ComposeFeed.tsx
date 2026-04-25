@@ -40,7 +40,7 @@ const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim() && images.length === 0 || isSubmitting) return;
 
@@ -55,7 +55,16 @@ const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
       return;
     }
 
-    const sanitizedContent = content;
+    const sanitizedContent = DOMPurify.sanitize(content);
+    const updatedPostSchema = z.object({
+      content: z.string().regex(/^[^<>]*$/),
+      images: z.array(z.string()).max(4)
+    });
+    const updatedValidation = updatedPostSchema.safeParse({ content: sanitizedContent, images });
+    if (!updatedValidation.success) {
+      alert("Invalid post content or image count.");
+      return;
+    }
 
   setIsSubmitting(true);
   try {

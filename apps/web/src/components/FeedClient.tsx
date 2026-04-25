@@ -64,32 +64,33 @@ const formattedPost = { ...data.post };
   }, []);
 
   // optimistic UI handler
-  const handlePostCreated = (rawPost: any) => {
+const handlePostCreated = (rawPost: any) => {
+    const sanitizedPost = DOMPurify.sanitize(rawPost);
     setLiveDiscover((prev) => {
-      if (prev.find((p) => p.id === rawPost.id)) return prev;
+      if (prev.find((p) => p.id === sanitizedPost.id)) return prev;
       
       const newPost: PostProps = {
-        id: rawPost.id,
-        type: rawPost.type as "standard" | "ship",
+        id: sanitizedPost.id,
+        type: sanitizedPost.type as "standard" | "ship",
         author: {
-          username: rawPost.author.username,
-          avatar: rawPost.author.avatar ?? "",
-          statusEmoji: rawPost.author.statusEmoji,
-          statusText: rawPost.author.statusText
+          username: sanitizedPost.author.username,
+          avatar: sanitizedPost.author.avatar ?? "",
+          statusEmoji: sanitizedPost.author.statusEmoji,
+          statusText: sanitizedPost.author.statusText
         },
-        content: rawPost.content,
+        content: sanitizedPost.content,
         timestamp: new Date().toISOString(),
         likes: 0,
         comments: 0,
-        repoEmbed: rawPost.repoEmbed,
-        shipDetails: rawPost.shipDetails,
-        images: rawPost.images,
-        hashtags: rawPost.hashtags,
-        repoUrl: rawPost.repoUrl,
-        score: rawPost.score ?? 0,
-        passedBadge: hasPassedBadge(rawPost.score ?? 0)
+        repoEmbed: sanitizedPost.repoEmbed,
+        shipDetails: sanitizedPost.shipDetails,
+        images: sanitizedPost.images,
+        hashtags: sanitizedPost.hashtags,
+        repoUrl: sanitizedPost.repoUrl,
+        score: sanitizedPost.score ?? 0,
+        passedBadge: hasPassedBadge(sanitizedPost.score ?? 0)
       };
-
+      
       return [newPost, ...prev];
     });
   };

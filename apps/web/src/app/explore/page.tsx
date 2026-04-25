@@ -76,7 +76,12 @@ export default async function ExplorePage() {
                                 const inputValue = e.target.value;
                                 if (inputValue) {
                                     // Basic input validation and sanitization
-                                    const sanitizedInput = inputValue.replace(/<|>/g, '').trim();
+const sanitizedInput = inputValue
+  .replace(/<|>/g, '') // Remove script tags
+  .replace(/&/g, '&amp;') // Encode ampersands
+  .replace(/</g, '&lt;') // Encode less-than sign
+  .replace(/>/g, '&gt;') // Encode greater-than sign
+  .trim();
                                     // TODO: Implement more robust validation and sanitization as needed
                                     e.target.value = sanitizedInput;
                                 }

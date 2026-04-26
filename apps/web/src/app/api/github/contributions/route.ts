@@ -34,9 +34,13 @@ export async function GET(req: Request) {
 const { username, year: yearNum } = result.data;
 
 if (typeof yearNum !== 'number' || yearNum < 2008 || yearNum > new Date().getFullYear() || !Number.isInteger(yearNum)) {
-  return NextResponse.json({ error: `Invalid year: ${yearNum}. Year must be an integer between 2008 and ${new Date().getFullYear()}.` }, { status: 400 });
+  return NextResponse.json({ error: `Invalid year: ${yearNum}. Year must be a valid integer between 2008 and ${new Date().getFullYear()}.` }, { status: 400 });
 } else if (username.length < 1 || username.length > 100) {
   return NextResponse.json({ error: 'Invalid username. Username must be between 1 and 100 characters.' }, { status: 400 });
+const date = new Date(yearNum, 0, 1);
+if (date.getFullYear() !== yearNum) {
+  return NextResponse.json({ error: `Invalid year: ${yearNum}. Year is not a valid date.` }, { status: 400 });
+}
 }
 
   const cacheKey = `${username}-${yearNum}`;

@@ -18,9 +18,20 @@ export async function getServerSideToken(username: string): Promise<string | nul
       where: { username },
       select: { accessToken: true },
     });
-    return user?.accessToken ?? null;
+    if (!user) {
+      throw new Error(`User with username '${username}' not found.`);
+    }
+    return user.accessToken;
   } catch (error) {
-    console.error('Error fetching server-side token:', error);
-    return null;
+    if (error instanceof z.ZodError) {
+      console.error('Validation error fetching server-side token:', error);
+      throw new Error('Invalid username provided.');
+    } else if (error instanceof Error) {
+      console.error('Error fetching server-side token:', error);
+      throw new Error('Failed to fetch server-side token.');
+    } else {
+      console.error('Unexpected error fetching server-side token:', error);
+      throw new Error('An unexpected error occurred.');
+    }
   }
 }

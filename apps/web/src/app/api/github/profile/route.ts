@@ -26,11 +26,12 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json();
     
     // Input validation with Zod
-    const result = ProfileUpdateSchema.safeParse(body);
-    if (!result.success) {
-      return NextResponse.json({ error: 'Validation failed', details: result.error.format() }, { status: 400 });
-    }
-    const safeData = result.data;
+const result = ProfileUpdateSchema.safeParse(body);
+if (!result.success) {
+  console.error('[GitHub Profile API] Validation error:', result.error.format());
+  return NextResponse.json({ error: 'Validation failed', details: result.error.format() }, { status: 400 });
+}
+const safeData = result.data;
     
     // https://docs.github.com/en/rest/users/users#update-the-authenticated-user
     const response = await fetch("https://api.github.com/user", {
@@ -52,15 +53,15 @@ export async function PATCH(req: NextRequest) {
       })
     });
     
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`[GitHub Profile API] Error updating profile:`, response.status, errorText);
-      if (response.status === 422) {
-        return NextResponse.json({ error: 'Validation failed' }, { status: 422 });
-      } else {
-        return NextResponse.json({ error: `GitHub API responded with ${response.status}` }, { status: response.status });
-      }
-    }
+if (!response.ok) {
+  const errorText = await response.text();
+  console.error('[GitHub Profile API] Error updating profile:', response.status, errorText);
+  if (response.status === 422) {
+    return NextResponse.json({ error: 'Validation failed', details: errorText }, { status: 422 });
+  } else {
+    return NextResponse.json({ error: `GitHub API responded with ${response.status}`, details: errorText }, { status: response.status });
+  }
+}
     
     const data = await response.json();
     return NextResponse.json({ success: true, data });

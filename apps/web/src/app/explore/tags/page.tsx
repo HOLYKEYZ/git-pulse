@@ -31,8 +31,8 @@ let result: { tag: string; count: bigint }[] = [];
         WHERE array_length("hashtags", 1) > 0
         GROUP BY tag
         ORDER BY count DESC
-        LIMIT 50
-      `;
+        LIMIT $limit
+      `, { limit: 50 };
     } catch (error) {
       console.error('Error fetching trending hashtags:', error);
     }

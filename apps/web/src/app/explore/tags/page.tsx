@@ -33,8 +33,12 @@ let result: { tag: string; count: bigint }[] = [];
         ORDER BY count DESC
         LIMIT 50
       `;
+      if (!result) {
+        throw new Error('Failed to fetch trending hashtags');
+      }
     } catch (error) {
       console.error('Error fetching trending hashtags:', error);
+      // Additional error handling or fallback can be added here
     }
     
     trending = result.map(r => [r.tag, Number(r.count)]);

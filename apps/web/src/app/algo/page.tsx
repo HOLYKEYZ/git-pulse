@@ -52,8 +52,16 @@ try {
     take: 100
   });
 } catch (error) {
-  console.error('Error fetching posts:', error);
-  errorMessage = 'Failed to load algorithm data. Please try again later.';
+  if (error instanceof Prisma.ClientError) {
+    console.error('Prisma Client Error:', error);
+    errorMessage = 'Failed to load algorithm data due to a database error. Please try again later.';
+  } else if (error instanceof Error) {
+    console.error('Unexpected Error:', error);
+    errorMessage = 'An unexpected error occurred while loading algorithm data. Please try again later.';
+  } else {
+    console.error('Unknown Error:', error);
+    errorMessage = 'An unknown error occurred while loading algorithm data. Please try again later.';
+  }
 }
 
   const scoredPosts = posts

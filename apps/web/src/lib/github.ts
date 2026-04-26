@@ -151,6 +151,22 @@ async function fetchWithAuth(endpoint: string, token: string) {
         },
         next: { revalidate: 60 }
       });
+      if (!res.ok) {
+        if (res.status === 403 || res.status === 429) {
+          console.error(`[GitHub REST] Rate Limited on ${endpoint}. Reset: ${res.headers.get('x-ratelimit-reset')}`);
+        } else if (res.status === 404) {
+          return null;
+        } else {
+          console.error(`[GitHub REST] Error ${res.status}: ${res.statusText} for ${endpoint}`);
+          throw new Error(`Error ${res.status}: ${res.statusText} for ${endpoint}`);
+        }
+      }
+      return await res.json();
+    } catch (error) {
+      console.error(`[GitHub REST] Network failure for ${endpoint}:`, error);
+      throw new Error(`Network failure for ${endpoint}: ${error.message}`);
+    }
+  });
 
       if (!res.ok) {
         if (res.status === 403 || res.status === 429) {

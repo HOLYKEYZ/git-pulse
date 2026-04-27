@@ -25,8 +25,17 @@ const stream = new ReadableStream({
     let interval: NodeJS.Timeout | undefined;
     const sendCount = async () => {
       try {
-        const unreadCount = await prisma.notification.count({
-          where: { user: { username }, read: false }
+const unreadCount = await prisma.notification.count({
+          where: {
+            user: {
+              username: {
+                equals: username,
+              },
+            },
+            read: {
+              equals: false,
+            },
+          },
         });
         const data = `data: ${JSON.stringify({ unreadCount })}\n\n`;
         controller.enqueue(new TextEncoder().encode(data));

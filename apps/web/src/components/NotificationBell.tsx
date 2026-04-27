@@ -20,6 +20,7 @@ useEffect(() => {
   let retryCount = 0;
   const maxRetries = 3;
   const retryDelay = 1000; // 1 second
+  const retryBackoffMultiplier = 2;
 
   const initializeEventSource = () => {
     try {
@@ -33,6 +34,10 @@ useEffect(() => {
           }
         } catch (error) {
           console.error('Error parsing event data:', error);
+          // Log additional context if available
+          if (eventSource) {
+            console.log('EventSource URL:', eventSource.url);
+          }
         }
       };
 
@@ -40,7 +45,8 @@ useEffect(() => {
         console.error('EventSource error:', error);
         retryCount++;
         if (retryCount < maxRetries) {
-          setTimeout(initializeEventSource, retryDelay);
+          const delay = retryDelay * Math.pow(retryBackoffMultiplier, retryCount);
+          setTimeout(initializeEventSource, delay);
         } else {
           // Handle maximum retry limit reached
           console.error('Maximum retries exceeded for EventSource connection.');
@@ -53,6 +59,8 @@ useEffect(() => {
       };
     } catch (error) {
       console.error('Error initializing EventSource:', error);
+      // Log additional context if available
+      console.log('EventSource initialization attempt:', retryCount);
     }
   };
 

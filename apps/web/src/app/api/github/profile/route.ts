@@ -26,7 +26,18 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json();
     
     // Input validation with Zod
-    const result = ProfileUpdateSchema.safeParse(body);
+const result = ProfileUpdateSchema.safeParse(body);
+if (!result.success) {
+  return NextResponse.json({ error: 'Validation failed', details: result.error.format() }, { status: 400 });
+}
+const safeData = result.data;
+// Additional validation for edge cases
+if (safeData.name && safeData.name.length > 100) {
+  return NextResponse.json({ error: 'Name is too long' }, { status: 400 });
+}
+if (safeData.bio && safeData.bio.length > 160) {
+  return NextResponse.json({ error: 'Bio is too long' }, { status: 400 });
+}
     if (!result.success) {
       return NextResponse.json({ error: 'Validation failed', details: result.error.format() }, { status: 400 });
     }

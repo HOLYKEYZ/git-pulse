@@ -49,14 +49,19 @@ try {
           };
           
           try {
-            const user = await prisma.user.upsert({
-              where: { githubId: account.providerAccountId },
-              update: userData,
-              create: {
-                githubId: account.providerAccountId,
-                ...userData
-              }
-            });
+const githubIdSchema = z.string().min(1);
+        const parsedGithubIdResult = githubIdSchema.safeParse(account.providerAccountId);
+        if (!parsedGithubIdResult.success) {
+          throw new Error('Invalid githubId');
+        }
+        const user = await prisma.user.upsert({
+          where: { githubId: parsedGithubIdResult.data },
+          update: userData,
+          create: {
+            githubId: parsedGithubIdResult.data,
+            ...userData
+          }
+        });
             token.dbId = user.id;
           } catch (error) {
             console.error("❌ [Auth] Failed to upsert user:", error);

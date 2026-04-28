@@ -11,16 +11,24 @@ export default async function StarsPage(props: { params: Promise<{ username: str
   const { username } = params;
   const token = session?.user?.login ? await getServerSideToken(session.user.login) : null;
 
-  let repos: any[] = []; 
+let repos: any[] = []; 
   let hasError = false; 
   let ghUser = null;
   
 try { 
-  if (token) {
-    ghUser = await getGitHubUser(username, token);
-    repos = await getGitHubStarredRepos(username, token, 1, 100) || [];
-  }
-} catch (error: any) {
+    if (token && typeof username === 'string' && username.length > 0) {
+      if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+        throw new Error('Invalid username');
+      }
+      ghUser = await getGitHubUser(username, token);
+      if (!ghUser) {
+        throw new Error('Failed to fetch GitHub user');
+      }
+      repos = await getGitHubStarredRepos(username, token, 1, 100) || [];
+    } else {
+      throw new Error('Token or username is invalid');
+    }
+  } catch (error: any) {
     console.error('Error fetching starred repositories:', error.message); 
     if (error.response) {
       console.error('GitHub API error:', error.response.status, error.response.statusText);

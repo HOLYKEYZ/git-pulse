@@ -28,8 +28,8 @@ if (!ownerRegex.test(owner) || !nameRegex.test(name)) {
 
   try {
     // fetch repo data from github to build context for the ai
-    const repoRes = await fetch(
-      `https://api.github.com/repos/${owner}/${name}`,
+const repoRes = await fetch(
+      `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}`,
       {
         headers: {
           Authorization: `Bearer ${serverToken}`,

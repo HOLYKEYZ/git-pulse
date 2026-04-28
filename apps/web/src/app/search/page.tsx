@@ -66,6 +66,8 @@ const fetchResults = async () => {
           setIsLoading(false);
         }
       };
+        }
+      };
 
   fetchResults();
 }, [debouncedQuery]);

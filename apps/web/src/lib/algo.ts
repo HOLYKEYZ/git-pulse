@@ -1,3 +1,10 @@
+/**
+ * algorithm for gitpulse; ("devs like u", "active 2day", "upcoming devs/repos")
+ */
+
+
+// ─── types ───────────────────────────────────────────────────────────────────
+
 export interface ScoreFactors {
   language: string | null;
   stars: number;
@@ -6,7 +13,7 @@ export interface ScoreFactors {
   hasDescription: boolean;
   authorFollowers?: number;
   daysSincePost: number;
-  // algorithm v2 — user-specified weights
+  // algorithmv2 — user-specified weights
   commitCount?: number;       // total commits in repo (or by author)
   pushConsistency?: number;   // ratio of active weeks out of last 52 (0-1)
 }
@@ -132,7 +139,7 @@ export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDeta
       // heavily penalize huge accounts who post repos with low activity
       breakdown.followerBias = factors.commitCount === 0 ? -50 : -20;
     } else if (factors.authorFollowers < 100) {
-      breakdown.followerBias = 15; // boost small creators
+      breakdown.followerBias = 15; // boost small accounts
     }
   }
   score += breakdown.followerBias;

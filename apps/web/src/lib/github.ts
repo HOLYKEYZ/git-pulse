@@ -151,28 +151,12 @@ async function fetchWithAuth(endpoint: string, token: string) {
         },
         next: { revalidate: 60 }
       });
-      if (!res.ok) {
-        if (res.status === 403 || res.status === 429) {
-          console.error(`[GitHub REST] Rate Limited on ${endpoint}. Reset: ${res.headers.get('x-ratelimit-reset')}`);
-        } else if (res.status === 404) {
-          return null;
-        } else {
-          console.error(`[GitHub REST] Error ${res.status}: ${res.statusText} for ${endpoint}`);
-          throw new Error(`Error ${res.status}: ${res.statusText} for ${endpoint}`);
-        }
-      }
-      return await res.json();
-    } catch (error) {
-      console.error(`[GitHub REST] Network failure for ${endpoint}:`, error);
-      throw new Error(`Network failure for ${endpoint}: ${error.message}`);
-    }
-  });
 
       if (!res.ok) {
         if (res.status === 403 || res.status === 429) {
           console.error(`[GitHub REST] Rate Limited on ${endpoint}. Reset: ${res.headers.get('x-ratelimit-reset')}`);
         } else if (res.status === 404) {
-           return null;
+          return null;
         } else {
           console.error(`[GitHub REST] Error ${res.status}: ${res.statusText} for ${endpoint}`);
         }
@@ -256,9 +240,9 @@ async function batchGraphQL<T>(
       const query = `
         query {
           ${chunk.map((item, i) => {
-            const globalIdx = chunkIdx * chunkSize + i;
-            return buildFragment(item, globalIdx);
-          }).join('\n')}
+        const globalIdx = chunkIdx * chunkSize + i;
+        return buildFragment(item, globalIdx);
+      }).join('\n')}
         }
       `;
       return fetchGraphQL(query, {}, token);
@@ -297,7 +281,7 @@ export async function getGitHubRepos(username: string, token: string, limit = 6)
 }
 
 /**
- * fetch all repos with pagination support for the full repos page
+ * fetch all repos with pagination support for full repos page
  */
 export async function getGitHubAllRepos(
   username: string,
@@ -323,7 +307,7 @@ export async function getGitHubReceivedEvents(username: string, token: string): 
 
 /**
  * fetch the profile readme as pre-rendered html from the special {username}/{username} repo.
- * uses github's html media type so we get rendered markup, not raw markdown.
+ * uses github's html media type so we get rendered markup, not raw markdown(to get as is).
  */
 export async function getGitHubReadme(username: string, token: string): Promise<string | null> {
   const cacheKey = `readme-html:${token.slice(-10)}:${username}`;
@@ -353,7 +337,7 @@ export async function getGitHubReadme(username: string, token: string): Promise<
 }
 
 /**
- * Scrape actual GitHub trending repos
+ * scrape github trending repos
  */
 export async function getGitHubTrendingRepos(token: string, limit = 5): Promise<any[]> {
   try {
@@ -369,25 +353,25 @@ export async function getGitHubTrendingRepos(token: string, limit = 5): Promise<
       console.error("Failed to fetch trending page", res.status);
       return [];
     }
-    
+
     const html = await res.text();
     const cheerio = require('cheerio');
     const $ = cheerio.load(html);
-    
+
     const repos: any[] = [];
     $('article.Box-row').each((i: number, el: any) => {
       if (i >= limit) return false;
-      
+
       const titleEl = $(el).find('h2.h3 a');
       const href = titleEl.attr('href') || '';
-      const fullName = href.substring(1); 
-      
+      const fullName = href.substring(1);
+
       const description = $(el).find('p.col-9').text().replace(/\s+/g, ' ').trim();
       const language = $(el).find('[itemprop="programmingLanguage"]').text().trim();
-      
+
       const starsText = $(el).find('a[href$="/stargazers"]').text().trim().replace(/,/g, '');
       const stargazers_count = parseInt(starsText) || 0;
-      
+
       repos.push({
         id: fullName,
         html_url: `https://github.com${href}`,
@@ -397,7 +381,7 @@ export async function getGitHubTrendingRepos(token: string, limit = 5): Promise<
         stargazers_count
       });
     });
-    
+
     return repos;
   } catch (err) {
     console.error("Error scraping GitHub Trending:", err);
@@ -406,7 +390,7 @@ export async function getGitHubTrendingRepos(token: string, limit = 5): Promise<
 }
 
 /**
- * scrape github.com/trending/developers for real trending devs
+ * scrape github.com/trending/developers for trending devs
  */
 export async function getGitHubTrendingDevelopers(token: string, limit = 5): Promise<any[]> {
   try {
@@ -422,26 +406,26 @@ export async function getGitHubTrendingDevelopers(token: string, limit = 5): Pro
       console.error("Failed to fetch trending developers page", res.status);
       return [];
     }
-    
+
     const html = await res.text();
     const cheerio = require('cheerio');
     const $ = cheerio.load(html);
-    
+
     const devs: any[] = [];
     $('article.Box-row').each((i: number, el: any) => {
       if (i >= limit) return false;
-      
+
       const usernameEl = $(el).find('h1.h3 a');
       const href = usernameEl.attr('href') || '';
       const username = href.replace(/^\//, '').trim();
       const avatar = $(el).find('img').attr('src') || '';
       const name = usernameEl.text().replace(/\s+/g, ' ').trim() || username;
-      
-      // popular repo
+
+      // popular repo(s)
       const repoEl = $(el).find('h1.h4 a');
       const repoName = repoEl.text().trim();
       const repoDesc = $(el).find('span.f6').text().trim();
-      
+
       devs.push({
         id: username,
         username,
@@ -452,7 +436,7 @@ export async function getGitHubTrendingDevelopers(token: string, limit = 5): Pro
         html_url: `https://github.com/${username}`,
       });
     });
-    
+
     return devs;
   } catch (err) {
     console.error("Error scraping GitHub Trending Developers:", err);
@@ -531,20 +515,20 @@ export async function getUpcomingGitHubProjects(token: string, limit = 5): Promi
 
 /**
  * fetch suggested users
- * V3: Strictly prioritizes commit volume over follower count. Fetches a pool,
+ * v3: strictly prioritizes commit volume over follower count. fetches a pool,
  * evaluates exact contributions via GraphQL, and securely sorts by highest volume.
  */
 export async function getSuggestedGitHubUsers(token: string, language?: string, limit = 5): Promise<any[]> {
   // query a broad pool of devs (followers > 5 to skip empty bot accounts)
   const q = language ? `language:${language} followers:>5 type:user` : `followers:>5 type:user`;
-  
+
   // randomize page to guarantee fresh recommendations on load
   const randomPage = Math.floor(Math.random() * 25) + 1;
   const usersRes = await fetchWithAuth(
     `/search/users?q=${q}&per_page=20&page=${randomPage}`,
     token
   );
-  
+
   const items = usersRes?.items || [];
   if (items.length === 0) return [];
 
@@ -559,7 +543,7 @@ export async function getSuggestedGitHubUsers(token: string, language?: string, 
             totalContributions: contrib.totalContributions
           };
         }
-      } catch {}
+      } catch { }
       return null;
     })
   );
@@ -590,7 +574,7 @@ export async function getTopReposByDailyCommits(token: string, limit = 5): Promi
   const todayIso = todayStart.toISOString();
   const dateStr = todayIso.split('T')[0];
 
-  // Step 1: three parallel sources for a diverse pool
+  // step 1: three parallel sources for a diverse pool
   const randomPage1 = Math.floor(Math.random() * 5) + 1;
   const randomPage2 = Math.floor(Math.random() * 5) + 1;
 
@@ -621,7 +605,7 @@ export async function getTopReposByDailyCommits(token: string, limit = 5): Promi
     }
   }
 
-  // Step 2: pre-filter — cheap, no API call
+  // step 2: pre-filter — cheap, no API call
   const cleanItems = allItems.filter(r =>
     !r.fork &&
     r.description && r.description.trim().length >= 15 &&
@@ -657,7 +641,7 @@ export async function getTopReposByDailyCommits(token: string, limit = 5): Promi
     return { ...repo, commitsToday };
   });
 
-  // Step 4: filter >= 8, < 200, sort desc
+  // step 4: filter >= 8, < 200, sort desc
   return verifiedRepos
     .filter(r => r.commitsToday >= 8 && r.commitsToday < 200)
     .sort((a, b) => b.commitsToday - a.commitsToday)
@@ -674,11 +658,11 @@ export async function getTopDevsByDailyCommits(token: string, limit = 5): Promis
   todayStart.setUTCHours(0, 0, 0, 0);
   const todayIso = todayStart.toISOString();
 
-  // step 1: fetch public event stream — people pushing code right now
+  // step 1: fetch public event stream (people pushing code right now)
   const eventsRes = await fetchWithAuth(`/events?per_page=100`, token);
   const allEvents = Array.isArray(eventsRes) ? eventsRes : [];
 
-  // Step 2: count push events per actor — frequency signals highest activity
+  // step 2: count push events per actor — frequency signals highest activity
   const pushCounts = new Map<string, { login: string; avatar_url: string; count: number }>();
   for (const event of allEvents) {
     if (event.type === 'PushEvent' && event.actor?.login) {
@@ -696,10 +680,10 @@ export async function getTopDevsByDailyCommits(token: string, limit = 5): Promis
     }
   }
 
-  // Step 3: sort by push event frequency, take top 25 for GraphQL verification
+  // step 3: sort by push event frequency, take top 35 for GraphQL verification
   const userList = Array.from(pushCounts.values())
     .sort((a, b) => b.count - a.count)
-    .slice(0, 25);
+    .slice(0, 35);
 
   if (userList.length === 0) return [];
 
@@ -736,7 +720,7 @@ export async function getTopDevsByDailyCommits(token: string, limit = 5): Promis
     };
   });
 
-  // Step 5: filter >= 5 commits, < 200 (bot threshold), sort desc
+  // step 5: filter >= 5 commits, < 200 (bot threshold), sort desc
   return activeDevs
     .filter(d => d.totalContributions >= 5 && d.totalContributions < 200)
     .sort((a, b) => b.totalContributions - a.totalContributions)
@@ -832,7 +816,7 @@ export async function getGitHubStarredRepos(username: string, token: string, pag
  */
 export async function getDevelopersLikeYou(username: string, token: string, limit = 5): Promise<any[]> {
   try {
-    // Step 1: build MY profile
+    // step 1: build MY profile
     const baseQuery = `
       query($login: String!) {
         user(login: $login) {
@@ -882,7 +866,7 @@ export async function getDevelopersLikeYou(username: string, token: string, limi
     const repoRangeLow = Math.max(1, myRepoCount - 8);
     const repoRangeHigh = myRepoCount + 25;
 
-    // Step 2: 3 parallel searches, one per language — NO follower range
+    // step 2: 3 parallel searches, one per language — NO follower range
     const searchPromises = top3Languages.map((lang, idx) => {
       const perPage = idx === 0 ? 15 : 10;
       return fetchWithAuth(
@@ -935,7 +919,7 @@ export async function getDevelopersLikeYou(username: string, token: string, limi
     );
     if (!candRes || Object.keys(candRes).length === 0) return [];
 
-    // Step 4: score with multi-signal distance
+    // step 4: score with multi-signal distance
     const scoredDevs: any[] = [];
     for (let i = 0; i < topCandidates.length; i++) {
       const data = candRes[`user${i}`];
@@ -972,11 +956,11 @@ export async function getDevelopersLikeYou(username: string, token: string, limi
       const followerDiff = Math.abs(myFollowers - candFollowers) / Math.max(myFollowers, candFollowers, 1);
 
       const distance =
-        (1 - langSim)    * 3.5  // language most important
+        (1 - langSim) * 3.5  // language most important
         + commitRateDiff * 2.5  // commit velocity next
-        + repoCountDiff  * 1.0  // scale of work
-        + avgStarsDiff   * 0.3  // stars 
-        + followerDiff   * 1.5; // followers weight;
+        + repoCountDiff * 1.0  // scale of work
+        + avgStarsDiff * 0.3  // stars 
+        + followerDiff * 1.5; // followers weight;
 
       // find actual shared languages for display
       const sharedLangs = top3Languages
@@ -1001,7 +985,7 @@ export async function getDevelopersLikeYou(username: string, token: string, limi
       });
     }
 
-    // Step 5: sort by distance, achievement bonus for top items
+    // step 5: sort by distance, achievement bonus for top items
     scoredDevs.sort((a, b) => a.distance - b.distance);
     const topItems = scoredDevs.slice(0, limit);
 
@@ -1036,14 +1020,14 @@ export async function getTopReposToStar(token: string, limit = 5): Promise<any[]
     `/search/repositories?q=stars:>10000&sort=stars&order=desc&per_page=20&page=${randomPage}`,
     token
   );
-  
+
   const items = reposRes?.items || [];
   // shuffle them slightly returning top limit
   return items.sort(() => 0.5 - Math.random()).slice(0, limit);
 }
 
 /**
- * fetch user's received events (timeline of people they follow)
+ * fetch user's received events (the tl on gh)
  */
 export async function getGitHubTimelineEvents(username: string, token: string, limit = 50): Promise<any[]> {
   try {
@@ -1098,7 +1082,7 @@ query($username: String!) {
 }`;
 
 /**
- * fetch real contribution data (365-day calendar) via graphql
+ * fetch contribution data (365-day calendar) via graphql
  */
 export async function getContributionData(username: string, token: string): Promise<ContributionData | null> {
   const data = await fetchGraphQL(CONTRIBUTION_QUERY, { username }, token);
@@ -1116,7 +1100,7 @@ export async function getContributionData(username: string, token: string): Prom
 export async function getContributionDataForYear(username: string, token: string, year: number): Promise<ContributionData | null> {
   const from = `${year}-01-01T00:00:00Z`;
   const to = `${year}-12-31T23:59:59Z`;
-  
+
   const query = `
   query($username: String!, $from: DateTime!, $to: DateTime!) {
     user(login: $username) {
@@ -1135,7 +1119,7 @@ export async function getContributionDataForYear(username: string, token: string
       }
     }
   }`;
-  
+
   const data = await fetchGraphQL(query, { username, from, to }, token);
   if (!data?.user?.contributionsCollection?.contributionCalendar) {
     return null;
@@ -1189,7 +1173,7 @@ export async function getContributionActivity(username: string, token: string): 
     const firstDayOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
     console.log("[contribution-activity] month:", currentMonthLabel, "from:", firstDayOfMonth);
 
-      const query = `
+    const query = `
         query($login: String!, $from: DateTime!) {
           user(login: $login) {
             contributionsCollection(from: $from) {
@@ -1226,122 +1210,122 @@ export async function getContributionActivity(username: string, token: string): 
         }
       `;
 
-      const res = await fetch("https://api.github.com/graphql", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ query, variables: { login: username, from: firstDayOfMonth } }),
-        next: { revalidate: 3600 }
-      });
+    const res = await fetch("https://api.github.com/graphql", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ query, variables: { login: username, from: firstDayOfMonth } }),
+      next: { revalidate: 3600 }
+    });
 
-      if (!res.ok) {
-        console.error("[contribution-activity] graphql fetch failed", res.status, await res.text());
-        return [];
+    if (!res.ok) {
+      console.error("[contribution-activity] graphql fetch failed", res.status, await res.text());
+      return [];
+    }
+
+    const json = await res.json();
+    if (json.errors || !json.data?.user?.contributionsCollection) {
+      console.error("[contribution-activity] graphql response error:", JSON.stringify(json.errors || json, null, 2));
+      return [];
+    }
+
+    const collection = json.data.user.contributionsCollection;
+
+    const monthData: MonthlyActivity = {
+      month: currentMonthLabel,
+      commits: 0,
+      commitRepos: [],
+      totalPrsOpened: 0,
+      totalPrRepos: 0,
+      prsOpened: [],
+      totalIssuesOpened: 0,
+      totalIssueRepos: 0,
+      issuesOpened: [],
+      totalReposCreated: 0,
+      reposCreated: [],
+      totalPrReviews: 0,
+      totalReviewRepos: 0,
+      prReviews: [],
+      issueComments: []
+    };
+
+    for (const edge of collection.commitContributionsByRepository || []) {
+      if (!edge?.repository?.nameWithOwner) continue;
+      const repoName = edge.repository.nameWithOwner;
+      const count = edge.contributions?.totalCount || 0;
+      monthData.commits += count;
+      monthData.commitRepos.push({ name: repoName, count });
+    }
+    monthData.commitRepos.sort((a, b) => b.count - a.count);
+
+    for (const node of collection.repositoryContributions?.nodes || []) {
+      if (node?.repository?.nameWithOwner) {
+        monthData.reposCreated.push(node.repository.nameWithOwner);
       }
+    }
+    monthData.totalReposCreated = monthData.reposCreated.length;
 
-      const json = await res.json();
-      if (json.errors || !json.data?.user?.contributionsCollection) {
-        console.error("[contribution-activity] graphql response error:", JSON.stringify(json.errors || json, null, 2));
-        return [];
+    for (const edge of collection.pullRequestContributionsByRepository || []) {
+      if (!edge?.repository?.nameWithOwner) continue;
+      const repoName = edge.repository.nameWithOwner;
+      const totalPrs = edge.contributions?.totalCount || 0;
+      if (totalPrs > 0) {
+        monthData.totalPrsOpened += totalPrs;
+        monthData.totalPrRepos += 1;
       }
-
-      const collection = json.data.user.contributionsCollection;
-      
-      const monthData: MonthlyActivity = {
-        month: currentMonthLabel,
-        commits: 0,
-        commitRepos: [],
-        totalPrsOpened: 0,
-        totalPrRepos: 0,
-        prsOpened: [],
-        totalIssuesOpened: 0,
-        totalIssueRepos: 0,
-        issuesOpened: [],
-        totalReposCreated: 0,
-        reposCreated: [],
-        totalPrReviews: 0,
-        totalReviewRepos: 0,
-        prReviews: [],
-        issueComments: []
-      };
-
-      for (const edge of collection.commitContributionsByRepository || []) {
-        if (!edge?.repository?.nameWithOwner) continue;
-        const repoName = edge.repository.nameWithOwner;
-        const count = edge.contributions?.totalCount || 0;
-        monthData.commits += count;
-        monthData.commitRepos.push({ name: repoName, count });
+      for (const prNode of edge.contributions?.nodes || []) {
+        const pr = prNode?.pullRequest;
+        if (!pr) continue;
+        monthData.prsOpened.push({
+          title: pr.title || `PR #${pr.number}`,
+          url: pr.url || `https://github.com/${repoName}/pull/${pr.number}`,
+          number: pr.number,
+          repo: repoName
+        });
       }
-      monthData.commitRepos.sort((a, b) => b.count - a.count);
+    }
 
-      for (const node of collection.repositoryContributions?.nodes || []) {
-        if (node?.repository?.nameWithOwner) {
-          monthData.reposCreated.push(node.repository.nameWithOwner);
-        }
+    for (const edge of collection.issueContributionsByRepository || []) {
+      if (!edge?.repository?.nameWithOwner) continue;
+      const repoName = edge.repository.nameWithOwner;
+      const totalIssues = edge.contributions?.totalCount || 0;
+      if (totalIssues > 0) {
+        monthData.totalIssuesOpened += totalIssues;
+        monthData.totalIssueRepos += 1;
       }
-      monthData.totalReposCreated = monthData.reposCreated.length;
+      for (const issueNode of edge.contributions?.nodes || []) {
+        const issue = issueNode?.issue;
+        if (!issue) continue;
+        monthData.issuesOpened.push({
+          title: issue.title || `Issue #${issue.number}`,
+          url: issue.url || `https://github.com/${repoName}/issues/${issue.number}`,
+          number: issue.number,
+          repo: repoName
+        });
+      }
+    }
 
-      for (const edge of collection.pullRequestContributionsByRepository || []) {
-        if (!edge?.repository?.nameWithOwner) continue;
-        const repoName = edge.repository.nameWithOwner;
-        const totalPrs = edge.contributions?.totalCount || 0;
-        if (totalPrs > 0) {
-          monthData.totalPrsOpened += totalPrs;
-          monthData.totalPrRepos += 1;
-        }
-        for (const prNode of edge.contributions?.nodes || []) {
-          const pr = prNode?.pullRequest;
-          if (!pr) continue;
-          monthData.prsOpened.push({
-            title: pr.title || `PR #${pr.number}`,
-            url: pr.url || `https://github.com/${repoName}/pull/${pr.number}`,
-            number: pr.number,
-            repo: repoName
-          });
-        }
+    for (const edge of collection.pullRequestReviewContributionsByRepository || []) {
+      if (!edge?.repository?.nameWithOwner) continue;
+      const repoName = edge.repository.nameWithOwner;
+      const totalReviews = edge.contributions?.totalCount || 0;
+      if (totalReviews > 0) {
+        monthData.totalPrReviews += totalReviews;
+        monthData.totalReviewRepos += 1;
       }
-
-      for (const edge of collection.issueContributionsByRepository || []) {
-        if (!edge?.repository?.nameWithOwner) continue;
-        const repoName = edge.repository.nameWithOwner;
-        const totalIssues = edge.contributions?.totalCount || 0;
-        if (totalIssues > 0) {
-          monthData.totalIssuesOpened += totalIssues;
-          monthData.totalIssueRepos += 1;
-        }
-        for (const issueNode of edge.contributions?.nodes || []) {
-          const issue = issueNode?.issue;
-          if (!issue) continue;
-          monthData.issuesOpened.push({
-            title: issue.title || `Issue #${issue.number}`,
-            url: issue.url || `https://github.com/${repoName}/issues/${issue.number}`,
-            number: issue.number,
-            repo: repoName
-          });
-        }
+      for (const reviewNode of edge.contributions?.nodes || []) {
+        const pr = reviewNode?.pullRequest;
+        if (!pr) continue;
+        monthData.prReviews.push({
+          title: pr.title || `PR #${pr.number}`,
+          url: pr.url || `https://github.com/${repoName}/pull/${pr.number}`,
+          number: pr.number,
+          repo: repoName
+        });
       }
-
-      for (const edge of collection.pullRequestReviewContributionsByRepository || []) {
-        if (!edge?.repository?.nameWithOwner) continue;
-        const repoName = edge.repository.nameWithOwner;
-        const totalReviews = edge.contributions?.totalCount || 0;
-        if (totalReviews > 0) {
-          monthData.totalPrReviews += totalReviews;
-          monthData.totalReviewRepos += 1;
-        }
-        for (const reviewNode of edge.contributions?.nodes || []) {
-          const pr = reviewNode?.pullRequest;
-          if (!pr) continue;
-          monthData.prReviews.push({
-            title: pr.title || `PR #${pr.number}`,
-            url: pr.url || `https://github.com/${repoName}/pull/${pr.number}`,
-            number: pr.number,
-            repo: repoName
-          });
-        }
-      }
+    }
 
     return [monthData];
   } catch (e) {
@@ -1370,7 +1354,7 @@ export async function getGitHubFollowing(username: string, token: string): Promi
   return users || [];
 }
 
-// ─── user achievements scraper ───────────────────────────────────────────
+// ─── user achievements scraper ──────────────────────────────────────────
 
 export interface UserAchievement {
   name: string;
@@ -1567,4 +1551,4 @@ export async function getRepoConsistency(owner: string, repo: string, token: str
       return 0;
     }
   });
-}
+}

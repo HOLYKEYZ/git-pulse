@@ -1,4 +1,4 @@
-# GitPulse
+# gitPulse
 
 > a developer-first social platform built on top of github. share updates, ship releases, and discover trending projects — all in one place.
 

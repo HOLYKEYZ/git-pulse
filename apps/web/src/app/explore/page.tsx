@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { getServerSideToken } from "@/lib/serverToken";
 import TrendingCard from "@/components/TrendingCard";
 import ToggleSidebarCard from "@/components/ToggleSidebarCard";
-import { 
+import {
   getGitHubTrendingRepos, getGitHubTrendingDevelopers,
   getUpcomingGitHubProjects, getUpcomingGitHubDevs,
   getTopReposByDailyCommits, getTopDevsByDailyCommits,
@@ -61,34 +61,32 @@ export default async function ExplorePage() {
     <div className="flex flex-col w-full min-h-screen pb-12">
       <div className="sticky top-0 z-10 bg-git-bg/80 backdrop-blur-md border-b border-git-border px-6 py-4">
         <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold text-git-text shrink-0 mr-2">Explore</h1>
-            
-            {/* Search Bar Implementation aligned next to explore */}
-            <div className="flex-1 max-w-md">
-                    <form action="/search" method="GET" className="relative group w-full">
-                        <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true" width="18" height="18" className="absolute left-3 top-1/2 -translate-y-1/2 text-git-muted group-focus-within:text-git-accent transition-colors"><path d="M10.25 2.75a7.5 7.5 0 1 0 5.105 12.984l5.242 5.243a.748.748 0 0 0 1.058-1.058l-5.243-5.242A7.5 7.5 0 1 0 10.25 2.75Zm-6 7.5a6 6 0 1 1 12 0 6 6 0 0 1-12 0Z"></path></svg>
-                        <input 
-                            type="text" 
-                            name="q"
-                            placeholder="Search posts, users, and repos..." 
-                            className="w-full bg-git-card border border-git-border rounded-full py-2 pl-10 pr-4 text-[14px] text-git-text placeholder:text-git-muted outline-none focus:border-git-accent focus:bg-git-bg transition-colors"
-                            onChange={(e) => {
-                                const inputValue = e.target.value;
-                                if (inputValue) {
-                                    // Basic input validation and sanitization
-const sanitizedInput = inputValue
-  .replace(/<|>/g, '') // Remove script tags
-  .replace(/&/g, '&amp;') // Encode ampersands
-  .replace(/</g, '&lt;') // Encode less-than sign
-  .replace(/>/g, '&gt;') // Encode greater-than sign
-  .trim();
-                                    // TODO: Implement more robust validation and sanitization as needed
-                                    e.target.value = sanitizedInput;
-                                }
-                            }}
-                        />
-                    </form>
-            </div>
+          <h1 className="text-xl font-bold text-git-text shrink-0 mr-2">Explore</h1>
+
+          {/* Search Bar Implementation aligned next to explore */}
+          <div className="flex-1 max-w-md">
+            <form action="/search" method="GET" className="relative group w-full">
+              <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true" width="18" height="18" className="absolute left-3 top-1/2 -translate-y-1/2 text-git-muted group-focus-within:text-git-accent transition-colors"><path d="M10.25 2.75a7.5 7.5 0 1 0 5.105 12.984l5.242 5.243a.748.748 0 0 0 1.058-1.058l-5.243-5.242A7.5 7.5 0 1 0 10.25 2.75Zm-6 7.5a6 6 0 1 1 12 0 6 6 0 0 1-12 0Z"></path></svg>
+              <input
+                type="text"
+                name="q"
+                placeholder="Search posts, users, and repos..."
+                className="w-full bg-git-card border border-git-border rounded-full py-2 pl-10 pr-4 text-[14px] text-git-text placeholder:text-git-muted outline-none focus:border-git-accent focus:bg-git-bg transition-colors"
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  if (inputValue) {
+                    // logically sound sanitization: encode instead of redundant replacements
+                    const sanitizedInput = inputValue
+                      .replace(/&/g, '&amp;')
+                      .replace(/</g, '&lt;')
+                      .replace(/>/g, '&gt;')
+                      .trim();
+                    e.target.value = sanitizedInput;
+                  }
+                }}
+              />
+            </form>
+          </div>
         </div>
 
         <div className="flex gap-4 mt-4">
@@ -100,62 +98,62 @@ const sanitizedInput = inputValue
           </Link>
         </div>
       </div>
-      
+
       <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         <TrendingCard repos={trendingRepos} devs={trendingDevs} isExplorePage={true} />
-        
+
         <div className="flex flex-col gap-6">
-            {session?.user && developersLikeYou.length > 0 && (
-                <ToggleSidebarCard
-                    title="Developers Like You"
-                    tab1="Matches"
-                    tab2="Ecosystem"
-                    items1={developersLikeYou}
-                    items2={[]}
-                    type1="dev"
-                    type2="dev"
-                    hideCommitCount={true}
-                    emptyMessage1="No matching developers found."
-                    emptyMessage2="Ecosystem peers will appear here soon."
-                />
-            )}
-
+          {session?.user && developersLikeYou.length > 0 && (
             <ToggleSidebarCard
-                title="Explore"
-                tab1="Who to follow"
-                tab2="What to star"
-                items1={suggestedUsers}
-                items2={suggestedRepos}
-                type1="dev"
-                type2="repo"
-                emptyMessage1="No suggested users found."
-                emptyMessage2="No repos to star today."
-            />
-
-            <ToggleSidebarCard
-              title="Upcoming Data"
-              tab1="Projects"
-              tab2="Devs"
-              items1={upcomingProjects}
-              items2={upcomingDevs}
-              type1="repo"
+              title="Developers Like You"
+              tab1="Matches"
+              tab2="Ecosystem"
+              items1={developersLikeYou}
+              items2={[]}
+              type1="dev"
               type2="dev"
               hideCommitCount={true}
-              emptyMessage1="No active upcoming projects found."
-              emptyMessage2="No fast-growing devs found."
+              emptyMessage1="No matching developers found."
+              emptyMessage2="Ecosystem peers will appear here soon."
             />
+          )}
 
-            <ToggleSidebarCard
-              title="Most Active Today"
-              tab1="Repos"
-              tab2="Devs"
-              items1={activeProjects}
-              items2={activeDevs}
-              type1="repo"
-              type2="dev"
-              emptyMessage1="No heavily pushed repos found."
-              emptyMessage2="No highly active devs found today."
-            />
+          <ToggleSidebarCard
+            title="Explore"
+            tab1="Who to follow"
+            tab2="What to star"
+            items1={suggestedUsers}
+            items2={suggestedRepos}
+            type1="dev"
+            type2="repo"
+            emptyMessage1="No suggested users found."
+            emptyMessage2="No repos to star today."
+          />
+
+          <ToggleSidebarCard
+            title="Upcoming Data"
+            tab1="Projects"
+            tab2="Devs"
+            items1={upcomingProjects}
+            items2={upcomingDevs}
+            type1="repo"
+            type2="dev"
+            hideCommitCount={true}
+            emptyMessage1="No active upcoming projects found."
+            emptyMessage2="No upcoming devs found."
+          />
+
+          <ToggleSidebarCard
+            title="Most Active Today"
+            tab1="Repos"
+            tab2="Devs"
+            items1={activeProjects}
+            items2={activeDevs}
+            type1="repo"
+            type2="dev"
+            emptyMessage1="No highly pushed repos found."
+            emptyMessage2="No highly active devs found today."
+          />
         </div>
       </div>
     </div>

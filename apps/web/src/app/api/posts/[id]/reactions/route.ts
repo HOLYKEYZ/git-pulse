@@ -11,9 +11,8 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  try {
+try {
     const { id: postId } = params;
-    
     // basic cuid validation (starts with c, alphanumeric, typical length 24-30)
     const cuidRegex = /^c[a-z0-9]{20,32}$/i;
     if (!postId || !cuidRegex.test(postId)) {
@@ -43,36 +42,54 @@ try {
     }
 
     // check if reaction already exists
-    const existingReaction = await prisma.reaction.findUnique({
-      where: {
-        postId_userId_emoji: {
-          postId,
-          userId: user.id,
-          emoji
+    let existingReaction;
+    try {
+      existingReaction = await prisma.reaction.findUnique({
+        where: {
+          postId_userId_emoji: {
+            postId,
+            userId: user.id,
+            emoji
+          }
         }
-      }
-    });
+      });
+    } catch (error) {
+      console.error("Error finding reaction:", error);
+      return NextResponse.json({ error: "Failed to find reaction" }, { status: 500 });
+    }
 
     if (existingReaction) {
       // toggle off: delete it
-      await prisma.reaction.delete({
-        where: { id: existingReaction.id }
-      });
+      try {
+        await prisma.reaction.delete({
+          where: { id: existingReaction.id }
+        });
+      } catch (error) {
+        console.error("Error deleting reaction:", error);
+        return NextResponse.json({ error: "Failed to delete reaction" }, { status: 500 });
+      }
       return NextResponse.json({ success: true, action: "removed" });
     }
 
     // toggle on: create it
-    const reaction = await prisma.reaction.create({
-      data: {
-        emoji,
-        postId,
-userId: user.id
-      }
-    });
+    let reaction;
+    try {
+      reaction = await prisma.reaction.create({
+        data: {
+          emoji,
+          postId,
+          userId: user.id
+        }
+      });
+    } catch (error) {
+      console.error("Error creating reaction:", error);
+      return NextResponse.json({ error: "Failed to create reaction" }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true, action: "added", reaction });
   } catch (error) {
     console.error("Error toggling reaction:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
   }
 }

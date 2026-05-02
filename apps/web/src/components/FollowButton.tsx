@@ -12,9 +12,12 @@ export default function FollowButton({ targetUsername, initialIsFollowing, class
     const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleFollow = async () => {
+const handleFollow = async () => {
         setIsLoading(true);
         try {
+            if (!targetUsername || typeof targetUsername !== 'string') {
+                throw new Error('Invalid target username');
+            }
             const res = await fetch(`/api/users/${targetUsername}/follow`, {
                 method: 'POST',
             });

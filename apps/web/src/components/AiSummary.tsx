@@ -15,8 +15,8 @@ export default function AiSummary({ owner, repoName }: AiSummaryProps) {
     const [visible, setVisible] = useState(false);
 
 const validateInput = (owner: string, repoName: string) => {
-  const ownerRegex = /^[a-zA-Z0-9-]+$/;
-  const repoNameRegex = /^[a-zA-Z0-9-]+$/;
+  const ownerRegex = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,38}[a-zA-Z0-9])?$/;
+  const repoNameRegex = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/;
   return ownerRegex.test(owner) && repoNameRegex.test(repoName);
 };
 
@@ -25,10 +25,10 @@ const fetchPitch = async () => {
     setVisible(!visible);
     return;
   }
-  if (!validateInput(owner, repoName)) {
-    setPitch('Invalid owner or repository name');
-    return;
-  }
+if (!validateInput(owner, repoName)) {
+  setPitch('Invalid owner or repository name. Please check that the owner and repository name are valid GitHub usernames and repository names.');
+  return;
+}
   setLoading(true);
   setVisible(true);
   try {

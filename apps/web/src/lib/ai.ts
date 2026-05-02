@@ -95,8 +95,27 @@ ${repo.readmeExcerpt ? `README excerpt: ${repo.readmeExcerpt.slice(0, 500)}` : "
 
 Write exactly 2 sentences. The first sentence should explain WHAT the project does in plain language. The second sentence should explain WHY a developer should care (unique value prop). Be concise, technical but accessible, and avoid generic praise. Do NOT use markdown or emoji.`;
 
-  const result = await model.generateContent(prompt);
-  const text = result.response.text().trim();
+let attempts = 0;
+const maxAttempts = 3;
+const backoffDelay = 500;
+let result;
+let text;
+while (attempts < maxAttempts) {
+  try {
+    result = await model.generateContent(prompt);
+    text = result.response.text().trim();
+    break;
+  } catch (error) {
+    attempts++;
+    if (attempts < maxAttempts) {
+      console.error(`[AI] Gemini failed (attempt ${attempts}/${maxAttempts}), retrying in ${backoffDelay}ms:`);
+      await new Promise(resolve => setTimeout(resolve, backoffDelay));
+    } else {
+      console.error(`[AI] Gemini failed after ${maxAttempts} attempts:`);
+      throw error;
+    }
+  }
+}
 
   // sanity check — if the model returns something too long or weird, fall back
   if (text.length > 400 || text.length < 20) {

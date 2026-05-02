@@ -22,7 +22,12 @@ export default function LoginPage() {
                     <form
                         action={async () => {
                             "use server"
-                            await signIn("github", { redirectTo: "/" })
+const githubRedirectUri = "/";
+if (githubRedirectUri && typeof githubRedirectUri === 'string') {
+  await signIn("github", { redirectTo: githubRedirectUri })
+} else {
+  console.error('Invalid redirect URI');
+}
                         }}
                     >
                         <button

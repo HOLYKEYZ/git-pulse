@@ -23,7 +23,7 @@ interface RepoContext {
  * results are cached for 24 hours per repo.
  */
 export async function generateRepoPitch(repo: RepoContext): Promise<string> {
-  if (!repo ||
+if (!repo ||
     !repo.name ||
     !repo.owner ||
     repo.stars == null ||
@@ -55,6 +55,9 @@ export async function generateRepoPitch(repo: RepoContext): Promise<string> {
   }
   if (repo.topics.length === 0) {
     throw new Error('At least one topic is required');
+  }
+  if (repo.description && repo.description.length > 200) {
+    throw new Error('Repository description cannot be longer than 200 characters');
   }
   const cacheKey = `ai-pitch:${repo.owner}/${repo.name}`;
 

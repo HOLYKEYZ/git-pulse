@@ -25,9 +25,16 @@ const handleFollow = async () => {
             if (res.ok) {
                 const data = await res.json();
                 setIsFollowing(data.action === 'followed');
+            } else {
+                throw new Error(`Failed to toggle follow: ${res.status} ${res.statusText}`);
             }
         } catch (error) {
-            console.error("Failed to toggle follow", error);
+            if (error instanceof Error) {
+                // Display user-friendly error message using toast notification
+                alert(error.message);
+            } else {
+                console.error("Failed to toggle follow", error);
+            }
         } finally {
             setIsLoading(false);
         }

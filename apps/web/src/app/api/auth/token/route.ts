@@ -12,11 +12,15 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const session = await auth();
-    if (!session?.user?.login) {
+    if (!session || !session.user || !session.user.login) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const username = session.user.login;
+    if (typeof username !== 'string' || username.length === 0) {
+      throw new Error('Invalid username');
+    }
     const user = await prisma.user.findUnique({
-      where: { username: session.user.login },
+      where: { username },
       select: { apiKey: true }
     });
     if (!user) {
@@ -45,16 +49,23 @@ export async function GET() {
 export async function POST() {
   try {
     const session = await auth();
-    if (!session?.user?.login) {
+    if (!session || !session.user || !session.user.login) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const username = session.user.login;
+    if (typeof username !== 'string' || username.length === 0) {
+      throw new Error('Invalid username');
+    }
     const rawKey = `gp_${crypto.randomBytes(32).toString('hex')}`;
-    if (rawKey.length < 32) {
-      throw new Error('Generated API key is too short');
+    if (typeof rawKey !== 'string' || rawKey.length < 32) {
+      throw new Error('Generated API key is invalid');
     }
     const hashedKey = await hashApiKey(rawKey);
+    if (!hashedKey) {
+      throw new Error('Failed to hash API key');
+    }
     await prisma.user.update({
-      where: { username: session.user.login },
+      where: { username },
       data: { apiKey: hashedKey }
     });
     return NextResponse.json({
@@ -74,18 +85,25 @@ export async function POST() {
 export async function DELETE() {
   try {
     const session = await auth();
-    if (!session?.user?.login) {
+    if (!session || !session.user || !session.user.login) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const username = session.user.login;
+    if (typeof username !== 'string' || username.length === 0) {
+      throw new Error('Invalid username');
+    }
     const user = await prisma.user.findUnique({
-      where: { username: session.user.login },
+      where: { username },
       select: { apiKey: true }
     });
-    if (!user || !user.apiKey) {
+    if (!user) {
+      throw new Error('User not found');
+    }
+    if (!user.apiKey) {
       return NextResponse.json({ error: "No API key to revoke" }, { status: 400 });
     }
     await prisma.user.update({
-      where: { username: session.user.login },
+      where: { username },
       data: { apiKey: null }
     });
     return NextResponse.json({ success: true, message: "API key revoked." });

@@ -34,7 +34,7 @@ export default function rateLimit(config?: RateLimitConfig) {
 
       // redis-based rate limiting for distributed environments
       const key = `ratelimit:${token}`;
-      try {
+try {
         const currentCount = await redis.incr(key);
         if (currentCount === 1) {
           await redis.expire(key, windowSecs);
@@ -48,9 +48,29 @@ export default function rateLimit(config?: RateLimitConfig) {
         if (err instanceof Error && err.message === 'Rate limit exceeded') {
           throw err;
         }
-        // redis is unavailable — fail open with a warning rather than crashing routes
-        console.error('Redis rate limit service error (failing open):', err);
-        return true;
+        console.error('Redis connection error:', err);
+        // Implement a retry mechanism for transient Redis connection issues
+        let retries = 0;
+        const maxRetries = 3;
+        while (retries < maxRetries) {
+          try {
+            await new Promise(resolve => setTimeout(resolve, 500)); // Wait for 500ms before retrying
+            const currentCount = await redis.incr(key);
+            if (currentCount === 1) {
+              await redis.expire(key, windowSecs);
+            }
+            if (currentCount <= limit) {
+              return true;
+            } else {
+              throw new Error('Rate limit exceeded');
+            }
+          } catch (err) {
+            retries++;
+            if (retries === maxRetries) {
+              throw new Error('Failed to connect to Redis after ' + maxRetries + ' retries');
+            }
+          }
+        }
       }
     },
   };

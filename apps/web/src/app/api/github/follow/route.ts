@@ -21,13 +21,13 @@ export async function PUT(req: NextRequest) {
     const body = await req.json();
     const { username } = body;
 
-    if (!username || typeof username !== 'string' || username.length === 0 || !/^[a-zA-Z0-9-]+$/.test(username)) {
+if (!username || typeof username !== 'string' || username.length === 0 || !/^[a-zA-Z0-9-]+$/.test(username) || username.includes('<') || username.includes('>') || username.includes(';') || username.includes('--')) {
       return NextResponse.json({ error: "Invalid username" }, { status: 400 });
     }
 
     // Call GitHub API to follow user
     // https://docs.github.com/en/rest/users/followers#follow-a-user-for-the-authenticated-user
-    const response = await fetch(`https://api.github.com/user/following/${username}`, {
+const response = await fetch(`https://api.github.com/user/following/${encodeURIComponent(username)}`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -63,7 +63,8 @@ export async function DELETE(req: NextRequest) {
     }
 
     // Handle unfollow via query params for DELETE
-    const url = new URL(req.url);
+const url = new URL(req.url);
+const username = url.searchParams.get('username')?.trim() || '';
     const username = url.searchParams.get("username");
 
     if (!username || typeof username !== 'string' || username.length === 0 || !/^[a-zA-Z0-9-]+$/.test(username)) {

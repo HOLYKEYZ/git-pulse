@@ -2,8 +2,13 @@ import { signOut } from "@/lib/auth";
 import Link from "next/link";
 
 const handleSignOutAction = async () => {
-  "use server";
-  await signOut({ redirectTo: "/" });
+  try {
+    "use server";
+    await signOut({ redirectTo: "/" });
+  } catch (error) {
+    console.error('Error signing out:', error);
+    // Display a user-friendly error message
+  }
 };
 
 export default function SignOutPage() {

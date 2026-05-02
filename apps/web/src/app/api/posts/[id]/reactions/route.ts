@@ -21,11 +21,17 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
     }
 
     const body = await req.json();
-    const { emoji } = body;
-
-    const allowedEmojis = /^[\p{Emoji}\w:]+$/u;
-    if (!emoji || typeof emoji !== 'string' || !allowedEmojis.test(emoji) || emoji.length > 10) {
-      return NextResponse.json({ error: "Valid emoji string is required" }, { status: 400 });
+const { emoji } = body;
+const emojiSchema = z.string().trim().min(1).max(10);
+const allowedEmojis = /^[\p{Emoji}\w:]+$/u;
+try {
+  const result = emojiSchema.parse(emoji);
+  if (!allowedEmojis.test(result)) {
+    throw new Error('Invalid emoji');
+  }
+} catch (error) {
+  return NextResponse.json({ error: "Valid emoji string is required" }, { status: 400 });
+}
     }
 
     const user = await prisma.user.findUnique({

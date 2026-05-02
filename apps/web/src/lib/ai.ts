@@ -33,7 +33,11 @@ export async function generateRepoPitch(repo: RepoContext): Promise<string> {
     typeof repo.owner !== 'string' ||
     typeof repo.stars !== 'number' ||
     typeof repo.forks !== 'number' ||
-    !Array.isArray(repo.topics)
+    !Array.isArray(repo.topics) ||
+    !repo.language ||
+    typeof repo.language !== 'string' ||
+    !repo.description ||
+    typeof repo.description !== 'string'
   ) {
     throw new Error('Invalid repository context');
   }
@@ -41,8 +45,9 @@ export async function generateRepoPitch(repo: RepoContext): Promise<string> {
   repo.name = repo.name.trim();
   repo.owner = repo.owner.trim();
   repo.description = repo.description ? repo.description.trim() : '';
-  if (repo.name.length === 0 || repo.owner.length === 0) {
-    throw new Error('Repository name or owner cannot be empty');
+  repo.language = repo.language ? repo.language.trim() : '';
+  if (repo.name.length === 0 || repo.owner.length === 0 || repo.language.length === 0) {
+    throw new Error('Repository name, owner, or language cannot be empty');
   }
   // Additional validation for repo properties
   if (repo.stars < 0 || repo.forks < 0) {

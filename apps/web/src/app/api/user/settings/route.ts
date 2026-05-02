@@ -9,13 +9,13 @@ export async function GET() {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { username: session.user.login },
-    select: {
-      showActivity: true,
-      showContributions: true,
-    },
-  });
+const user = await prisma.user.findUnique({
+  where: { username: { equals: session.user.login } },
+  select: {
+    showActivity: true,
+    showContributions: true,
+  },
+});
 
   if (!user) {
     return NextResponse.json({ error: "user not found" }, { status: 404 });
@@ -46,14 +46,14 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: "no valid fields to update" }, { status: 400 });
   }
 
-  const updated = await prisma.user.update({
-    where: { username: session.user.login },
-    data,
-    select: {
-      showActivity: true,
-      showContributions: true,
-    },
-  });
+const updated = await prisma.user.update({
+  where: { username: { equals: session.user.login } },
+  data,
+  select: {
+    showActivity: true,
+    showContributions: true,
+  },
+});
 
   return NextResponse.json(updated);
 }
@@ -65,7 +65,7 @@ export async function DELETE() {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const userRecord = await prisma.user.findUnique({ where: { id: session.user.id }, select: { username: true } });
+const userRecord = await prisma.user.findUnique({ where: { id: { equals: session.user.id } }, select: { username: true } });
   if (!userRecord || userRecord.username !== session.user.login) {
     return NextResponse.json({ error: "unauthorized to delete this account" }, { status: 403 });
   }

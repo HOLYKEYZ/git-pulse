@@ -36,10 +36,17 @@ if (!validateInput(owner, repoName)) {
     if (res.ok) {
       const data = await res.json();
       setPitch(data.pitch);
+    } else if (res.status === 404) {
+      setPitch('Repository not found');
+    } else if (res.status === 500) {
+      setPitch('Internal server error');
     } else {
       setPitch(SUMMARY_ERROR_MESSAGE);
     }
-  } catch {
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error fetching pitch:', error.message);
+    }
     setPitch(SUMMARY_ERROR_MESSAGE);
   } finally {
     setLoading(false);

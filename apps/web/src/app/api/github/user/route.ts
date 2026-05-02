@@ -96,6 +96,10 @@ const payload: Record<string, string> = {};
                 payload[key] = value;
             }
         }
+        // Additional validation to ensure payload is not empty
+        if (Object.keys(payload).length === 0) {
+            return NextResponse.json({ error: 'No valid fields provided for update' }, { status: 400 });
+        }
 
         const res = await fetch("https://api.github.com/user", {
             method: "PATCH",

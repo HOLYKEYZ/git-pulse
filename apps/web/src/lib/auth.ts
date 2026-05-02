@@ -39,7 +39,7 @@ try {
           }
           const validProfile = parsedProfileResult.data;
           
-          const userData: any = {
+const userData: any = {
               username: validProfile.login,
               name: validProfile.name ?? null,
               email: validProfile.email ?? null,
@@ -47,6 +47,20 @@ try {
               bio: validProfile.bio ?? null,
               accessToken: account.access_token ?? null
           };
+          try {
+            const user = await prisma.user.upsert({
+              where: { githubId: account.providerAccountId },
+              update: userData,
+              create: {
+                githubId: account.providerAccountId,
+                ...userData
+              }
+            });
+            token.dbId = user.id;
+          } catch (error) {
+            console.error("❌ [Auth] Failed to upsert user:", error);
+            throw new Error('Failed to upsert user');
+          }
           
           try {
 const githubIdSchema = z.string().min(1);
@@ -73,7 +87,8 @@ const githubIdSchema = z.string().min(1);
         if (!parsedGithubIdResult.success) {
           throw new Error('Invalid githubId');
         }
-        const user = await prisma.user.upsert({
+        try {
+          const user = await prisma.user.upsert({
             where: { githubId: parsedGithubIdResult.data },
             update: userData,
             create: {
@@ -82,6 +97,10 @@ const githubIdSchema = z.string().min(1);
             }
           });
           token.dbId = user.id;
+        } catch (error) {
+          console.error("❌ [Auth] Failed to upsert user:", error);
+          throw new Error('Failed to upsert user');
+        }
         } catch (error) {
           console.error("❌ [Auth] Failed to parse profile:", error);
           // Additional error handling logic can be added here, such as notifying the user or retrying the operation

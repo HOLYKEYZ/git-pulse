@@ -15,13 +15,7 @@ import { Suspense } from "react";
 import { SidebarSkeleton } from "./Skeletons";
 
 async function TrendingSection({ token }: { token: string }) {
-  const schema = Joi.object().keys({
-    token: Joi.string().required()
-  });
-  const { error } = schema.validate({ token });
-  if (error) {
-    throw new Error('Invalid input');
-  }
+  if (!token) throw new Error('Invalid input');
   const [repos, devs] = await Promise.all([
     getGitHubTrendingRepos(token, 5),
     getGitHubTrendingDevelopers(token, 5)
@@ -30,13 +24,7 @@ async function TrendingSection({ token }: { token: string }) {
 }
 
 async function UpcomingSection({ token }: { token: string }) {
-  const schema = Joi.object().keys({
-    token: Joi.string().required()
-  });
-  const { error } = schema.validate({ token });
-  if (error) {
-    throw new Error('Invalid input');
-  }
+  if (!token) throw new Error('Invalid input');
   const [projects, devs] = await Promise.all([
     getUpcomingGitHubProjects(token, 5),
     getUpcomingGitHubDevs(token, 5)
@@ -56,16 +44,9 @@ async function UpcomingSection({ token }: { token: string }) {
     />
   );
 }
-}
 
 async function ActiveTodaySection({ token }: { token: string }) {
-  const schema = Joi.object().keys({
-    token: Joi.string().required()
-  });
-  const { error } = schema.validate({ token });
-  if (error) {
-    throw new Error('Invalid input');
-  }
+  if (!token) throw new Error('Invalid input');
   const [projects, devs] = await Promise.all([
     getTopReposByDailyCommits(token, 5),
     getTopDevsByDailyCommits(token, 5)
@@ -87,14 +68,7 @@ async function ActiveTodaySection({ token }: { token: string }) {
 }
 
 async function DevelopersLikeYouSection({ token, login }: { token: string; login: string }) {
-  const schema = Joi.object().keys({
-    token: Joi.string().required(),
-    login: Joi.string().required()
-  });
-  const { error } = schema.validate({ token, login });
-  if (error) {
-    throw new Error('Invalid input');
-  }
+  if (!token || !login) throw new Error('Invalid input');
   const devs = await getDevelopersLikeYou(login, token, 10);
   if (devs.length === 0) return null;
   return (
@@ -114,13 +88,7 @@ async function DevelopersLikeYouSection({ token, login }: { token: string; login
 }
 
 async function ExploreSection({ token }: { token: string }) {
-  const schema = Joi.object().keys({
-    token: Joi.string().required()
-  });
-  const { error } = schema.validate({ token });
-  if (error) {
-    throw new Error('Invalid input');
-  }
+  if (!token) throw new Error('Invalid input');
   const [users, repos] = await Promise.all([
     getSuggestedGitHubUsers(token, undefined, 5),
     getTopReposToStar(token, 5)

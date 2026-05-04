@@ -65,7 +65,6 @@ export async function DELETE(req: NextRequest) {
     // Handle unfollow via query params for DELETE
 const url = new URL(req.url);
 const username = url.searchParams.get('username')?.trim() || '';
-    const username = url.searchParams.get("username");
 
     if (!username || typeof username !== 'string' || username.length === 0 || !/^[a-zA-Z0-9-]+$/.test(username)) {
       return NextResponse.json({ error: "Invalid username" }, { status: 400 });

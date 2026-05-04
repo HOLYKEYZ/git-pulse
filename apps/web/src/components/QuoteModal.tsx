@@ -63,7 +63,7 @@ return (
     // Basic sanitization, consider using a library like DOMPurify for more comprehensive protection
     return {
       ...post,
-      content: post.content.replace(/<script>.*?</script>/g, '').replace(/<.*?>/g, '')
+      content: post.content.replace(/<script>.*?<\/script>/g, '').replace(/<.*?>/g, '')
     }
   }
 }

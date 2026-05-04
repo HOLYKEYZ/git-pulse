@@ -20,17 +20,11 @@ try {
     }
 
     const body = await req.json();
-const { emoji } = body;
-const emojiSchema = z.string().trim().min(1).max(10);
-const allowedEmojis = /^[\p{Emoji}\w:]+$/u;
-try {
-  const result = emojiSchema.parse(emoji);
-  if (!allowedEmojis.test(result)) {
-    throw new Error('Invalid emoji');
-  }
-} catch (error) {
-  return NextResponse.json({ error: "Valid emoji string is required" }, { status: 400 });
-}
+    const { emoji } = body;
+    const allowedEmojis = /^[\p{Emoji}\w:]+$/u;
+    const emojiStr = typeof emoji === 'string' ? emoji.trim() : '';
+    if (!emojiStr || emojiStr.length > 10 || !allowedEmojis.test(emojiStr)) {
+        return NextResponse.json({ error: "Valid emoji string is required" }, { status: 400 });
     }
 
     const user = await prisma.user.findUnique({
@@ -90,6 +84,5 @@ try {
   } catch (error) {
     console.error("Error toggling reaction:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-  }
   }
 }

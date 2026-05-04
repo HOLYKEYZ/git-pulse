@@ -50,11 +50,6 @@ if (safeData.name && safeData.name.length > 100) {
 if (safeData.bio && safeData.bio.length > 160) {
   return NextResponse.json({ error: 'Bio is too long' }, { status: 400 });
 }
-    if (!result.success) {
-      return NextResponse.json({ error: 'Validation failed', details: result.error.format() }, { status: 400 });
-    }
-    const safeData = result.data;
-    
     // https://docs.github.com/en/rest/users/users#update-the-authenticated-user
     const response = await fetch("https://api.github.com/user", {
       method: "PATCH",

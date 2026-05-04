@@ -39,7 +39,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     if (version.length > 50) { alert("Version tag exceeds 50 limits"); return; }
     if (changelog.length > 2000) { alert("Changelog exceeds 2000 character limits"); return; }
 
-    const sanitizedChangelog = DOMPurify.sanitize(changelog);
+    const sanitizedChangelog = changelog;
     setIsSubmitting(true);
     try {
       const res = await fetch('/api/posts', {

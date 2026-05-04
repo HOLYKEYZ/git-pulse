@@ -32,10 +32,7 @@ const { content, parentId } = body;
 if (!content || content.length > 1000) {
     return NextResponse.json({ error: "Content is required" }, { status: 400 });
 }
-const sanitizedContent = DOMPurify.sanitize(content);
-if (sanitizedContent !== content) {
-    return NextResponse.json({ error: "Invalid content" }, { status: 400 });
-}
+
 
         const user = await prisma.user.findUnique({
             where: { username: session.user.login },

@@ -14,7 +14,7 @@ import { notFound } from "next/navigation";
 export async function generateMetadata(props: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const params = await props.params;
 const post = await prisma.post.findUnique({
-    where: { id: parseInt(params.id, 10) },
+    where: { id: params.id },
     select: { content: true, author: { select: { username: true } } }
   });
   if (!post) return { title: "Post Not Found | GitPulse" };
@@ -40,7 +40,7 @@ export default async function PostPage(props: { params: Promise<{ id: string }> 
   if (!post) notFound();
 
 const dbComments = await prisma.comment.findMany({
-    where: { postId: parseInt(post.id, 10), parentId: null },
+    where: { postId: post.id, parentId: null },
     include: { author: true },
     orderBy: { createdAt: 'asc' }
   });

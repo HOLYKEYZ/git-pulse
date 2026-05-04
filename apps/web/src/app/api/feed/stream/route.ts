@@ -60,11 +60,6 @@ const newPosts = await prisma.post.findMany({
         },
         orderBy: { createdAt: "desc" }
       });
-      const sanitizedPosts = newPosts.map(post => ({
-        ...post,
-        content: DOMPurify.sanitize(post.content)
-      }));
-
       lastCheckedTime = now;
 
       if (newPosts.length > 0) {

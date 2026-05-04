@@ -65,7 +65,7 @@ const formattedPost = { ...data.post };
 
   // optimistic UI handler
 const handlePostCreated = (rawPost: any) => {
-    const sanitizedPost = DOMPurify.sanitize(rawPost);
+    const sanitizedPost = rawPost;
     setLiveDiscover((prev) => {
       if (prev.find((p) => p.id === sanitizedPost.id)) return prev;
       

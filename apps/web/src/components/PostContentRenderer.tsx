@@ -14,10 +14,9 @@ export default function PostContentRenderer({ content }: { content: string }) {
     throw new Error('Invalid content prop');
   }
   // pre-process #tags and @mentions into markdown links
-const DOMPurify = require('dompurify');
-const processed = DOMPurify.sanitize(content
+  const processed = content
     .replace(/(^|\s)(#[\w-]+)/g, '$1[$2]($2)')
-    .replace(/(^|\s)(@[\w-]+)/g, '$1[$2]($2)'));
+    .replace(/(^|\s)(@[\w-]+)/g, '$1[$2]($2)');
 
   return (
     <div className="text-git-text text-base leading-relaxed mb-4 break-words whitespace-pre-wrap markdown-body" style={{ background: 'transparent', padding: 0 }}>

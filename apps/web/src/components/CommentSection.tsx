@@ -26,32 +26,20 @@ export default function CommentSection({ postId, initialComments = [] }: Comment
     const [comments, setComments] = useState<Comment[]>(initialComments);
     const [newComment, setNewComment] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState(false);
 
-const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newComment.trim() || isSubmitting) return;
         
         setIsSubmitting(true);
+        setError(null);
+        setSuccess(false);
+
         try {
-            // Input validation and sanitization for user comments
-            const commentRules = {
-                maxLength: 1000,
-                allowedCharacters: /^[a-zA-Z0-9\s.,!?]*$/,
-                forbiddenKeywords: ['spam', 'virus'],
-            };
-            
-            if (newComment.length > commentRules.maxLength) {
-                alert('Comment is too long.');
-                return;
-            }
-            
-            if (!commentRules.allowedCharacters.test(newComment)) {
-                alert('Comment contains invalid characters.');
-                return;
-            }
-            
-            if (commentRules.forbiddenKeywords.some((keyword) => newComment.includes(keyword))) {
-                alert('Comment contains forbidden keywords.');
+            if (newComment.length > 1000) {
+                setError('Comment is too long.');
                 return;
             }
             
@@ -76,23 +64,16 @@ const handleSubmit = async (e: React.FormEvent) => {
                         timestamp: new Date().toISOString(),
                     }
                 ]);
-                setNewComment(");
+                setNewComment("");
+                setSuccess(true);
+                setTimeout(() => setSuccess(false), 3000);
             } else {
-                const errorMessage = await res.text();
-                console.error(`Failed to post comment: ${errorMessage}`);
-                // Display error message to the user
-                alert(`Failed to post comment: ${errorMessage}`);
+                const errorData = await res.json().catch(() => ({ error: 'Failed to post comment' }));
+                setError(errorData.error || 'Failed to post comment');
             }
-        } catch (error) {
-            if (error instanceof Error) {
-                console.error(`Failed to post comment: ${error.message}`);
-                // Display error message to the user
-                alert(`Failed to post comment: ${error.message}`);
-            } else {
-                console.error('Failed to post comment: Unknown error');
-                // Display error message to the user
-                alert('Failed to post comment: Unknown error');
-            }
+        } catch (err) {
+            console.error('Comment submission error:', err);
+            setError('An unexpected error occurred.');
         } finally {
             setIsSubmitting(false);
         }
@@ -131,21 +112,25 @@ const handleSubmit = async (e: React.FormEvent) => {
             ))}
         </div>
 
-            <form onSubmit={handleSubmit} className="flex gap-2 mt-4">
-                <input
-                    type="text"
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    placeholder="Add a comment..."
-                    className="flex-1 bg-git-bg border border-git-border rounded-md px-3 py-1.5 text-sm text-git-text focus:outline-none focus:ring-1 focus:ring-git-border transition-all"
-                />
-                <button
-                    type="submit"
-                    disabled={isSubmitting || !newComment.trim()}
-                    className="px-4 py-1.5 bg-git-card border border-git-border rounded-md text-xs font-semibold text-git-text hover:bg-git-bg disabled:opacity-50 transition-colors"
-                >
-                    {isSubmitting ? '...' : 'Post'}
-                </button>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-2 mt-4">
+                {error && <p className="text-[10px] text-red-500 ml-1">{error}</p>}
+                {success && <p className="text-[10px] text-git-green ml-1">Comment posted!</p>}
+                <div className="flex gap-2">
+                    <input
+                        type="text"
+                        value={newComment}
+                        onChange={(e) => {setNewComment(e.target.value); if(error) setError(null);}}
+                        placeholder="Add a comment..."
+                        className="flex-1 bg-git-bg border border-git-border rounded-md px-3 py-1.5 text-sm text-git-text focus:outline-none focus:ring-1 focus:ring-git-border transition-all"
+                    />
+                    <button
+                        type="submit"
+                        disabled={isSubmitting || !newComment.trim()}
+                        className="px-4 py-1.5 bg-git-card border border-git-border rounded-md text-xs font-semibold text-git-text hover:bg-git-bg disabled:opacity-50 transition-colors"
+                    >
+                        {isSubmitting ? '...' : 'Post'}
+                    </button>
+                </div>
             </form>
         </div>
     );

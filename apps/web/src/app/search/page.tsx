@@ -48,9 +48,7 @@ useEffect(() => {
 const fetchResults = async () => {
         setIsLoading(true);
         try {
-          // Implement whitelist validation for search queries
-          const validQuery = debouncedQuery.replace(/[^a-zA-Z0-9\s]/g, '');
-          const res = await fetch(`/api/search?q=${encodeURIComponent(validQuery)}`);
+          const res = await fetch(`/api/search?q=${encodeURIComponent(debouncedQuery)}`);
           if (res.ok) {
             const data = await res.json();
             setResults(data);
@@ -62,15 +60,13 @@ const fetchResults = async () => {
           }
         } catch (err) {
           console.error("Search failed:", err);
+          setIsLoading(false);
         } finally {
           setIsLoading(false);
         }
       };
-        }
-      };
-
-  fetchResults();
-}, [debouncedQuery]);
+      fetchResults();
+    }, [debouncedQuery]);
 
   if (!query) {
     return (

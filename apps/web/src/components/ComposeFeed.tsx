@@ -55,9 +55,8 @@ const handleSubmit = async (e: React.FormEvent) => {
       return;
     }
 
-    const sanitizedContent = DOMPurify.sanitize(content);
     const updatedPostSchema = z.object({
-      content: z.string().regex(/^[^<>]*$/),
+      content: z.string(),
       images: z.array(z.string()).max(4)
     });
     const updatedValidation = updatedPostSchema.safeParse({ content: sanitizedContent, images });

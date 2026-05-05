@@ -57,7 +57,10 @@ export default async function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const session = await auth();
+    const session = await auth().catch((error) => {
+        console.error("[Auth] Failed to resolve layout session:", error);
+        return null;
+    });
 
     return (
         <html lang="en" data-theme="github">

@@ -1,46 +1,40 @@
-import NextAuth from "next-auth"
-import { authConfig } from "@/lib/auth.config"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server";
 
-const { auth } = NextAuth(authConfig);
-const PUBLIC_ROUTES = ['/', '/explore', '/login', '/signout'];
+const PUBLIC_ROUTES = ["/", "/explore", "/login", "/signout"];
 
-export default auth((req) => {
-  // basic security validation on the URI to prevent anomalous length injections or null bytes
-  if (req.nextUrl.pathname.includes('\0') || req.nextUrl.pathname.length > 2000) {
-    return new NextResponse('Invalid URI', { status: 400 });
-  }
-    const isLoggedIn = !!req.auth;
-    const pathname = req.nextUrl.pathname;
-    const isAuthPage = pathname.startsWith('/login');
-    const isPublicRoute = PUBLIC_ROUTES.some(route =>
-        route === '/' ? pathname === '/' : pathname.startsWith(route)
-    );
-    const isAdminRoute = pathname.startsWith('/admin');
-    const isAlgoRoute = pathname.startsWith('/algo');
-
-    // if logged in and trying to access login page, redirect to home
-    if (isAuthPage && isLoggedIn) {
-        return NextResponse.redirect(new URL('/', req.nextUrl));
-    }
-
-    // allow public routes for everyone
-    if (isPublicRoute) {
-        return null;
-    }
-
-    // redirect unauthenticated users to login for protected routes
-    if (!isLoggedIn) {
-        return NextResponse.redirect(new URL('/login', req.nextUrl));
-    }
-
-    // admin routes require authentication (admin role check happens in the api/page)
-    // algo route requires authentication
-
-    return null;
-})
-
-export const config = {
-    matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\.jpg$|.*\\.png$|.*\\.svg$|.*\\.webp$|.*\\.gif$|.*\\.ico$|manifest\\.json).*)'],
+function hasSessionCookie(req: NextRequest) {
+  return Boolean(
+    req.cookies.get("authjs.session-token") ||
+    req.cookies.get("__Secure-authjs.session-token") ||
+    req.cookies.get("next-auth.session-token") ||
+    req.cookies.get("__Secure-next-auth.session-token")
+  );
 }
 
+export default function middleware(req: NextRequest) {
+  const pathname = req.nextUrl.pathname;
+
+  if (pathname.includes("\0") || pathname.length > 2000) {
+    return new NextResponse("Invalid URI", { status: 400 });
+  }
+
+  const isPublicRoute = PUBLIC_ROUTES.some((route) =>
+    route === "/" ? pathname === "/" : pathname.startsWith(route)
+  );
+
+  if (isPublicRoute) {
+    return NextResponse.next();
+  }
+
+  if (!hasSessionCookie(req)) {
+    return NextResponse.redirect(new URL("/login", req.nextUrl));
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.jpg$|.*\\.png$|.*\\.svg$|.*\\.webp$|.*\\.gif$|.*\\.ico$|manifest\\.json).*)",
+  ],
+};

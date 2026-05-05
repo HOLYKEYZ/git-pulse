@@ -17,7 +17,10 @@ export const metadata: Metadata = {
 };
 
 export default async function ExplorePage() {
-  const session = await auth();
+  const session = await auth().catch((error) => {
+    console.error("[Auth] Failed to resolve explore session:", error);
+    return null;
+  });
   const token = session?.user?.login ? (await getServerSideToken(session.user.login) || "") : "";
 
   let trendingRepos: any[] = [];

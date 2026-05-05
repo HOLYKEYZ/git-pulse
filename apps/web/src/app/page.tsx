@@ -229,7 +229,10 @@ function mapPrismaPostToProps(p: {
 }
 
 export default async function HomePage() {
-  const session = await auth();
+  const session = await auth().catch((error) => {
+    console.error("[Auth] Failed to resolve home session:", error);
+    return null;
+  });
 
   // unauthenticated users get the welcome landing page
   if (!session) {

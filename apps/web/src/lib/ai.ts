@@ -106,11 +106,10 @@ Write exactly 2 sentences. The first sentence should explain WHAT the project do
 let attempts = 0;
 const maxAttempts = 3;
 const backoffDelay = 500;
-let result;
-let text;
+let text = "";
 while (attempts < maxAttempts) {
   try {
-    result = await model.generateContent(prompt);
+    const result = await model.generateContent(prompt);
     text = result.response.text().trim();
     break;
   } catch (error) {

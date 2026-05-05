@@ -70,12 +70,9 @@ function RobotHead() {
     const leftEyeRef = useRef<THREE.Mesh>(null);
     const rightEyeRef = useRef<THREE.Mesh>(null);
 
-    const { mouse, viewport } = useThree();
+    const { mouse } = useThree();
 
     useFrame((state) => {
-        if (!groupRef.current) return;
-        // Limit frame rate to 30 FPS for better performance
-        if (state.clock.getElapsedTime() % (1 / 30) < (1 / 60)) return;
         if (!groupRef.current) return;
 
         // 1. Mouse tracking: map normalized mouse coordinate over head rotation
@@ -410,25 +407,10 @@ export default function WelcomeHero() {
             </nav>
 
             {/* --- 1. hero section --- */}
-            <section className="relative w-full min-h-[92dvh] pt-24 pb-16 flex items-center overflow-hidden border-b border-[#30363D]">
-                <div className="absolute inset-0 hidden md:block opacity-70">
-                    <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
-                        <ambientLight intensity={0.5} />
-                        <directionalLight position={[10, 10, 5]} intensity={1.5} />
-                        <pointLight position={[-10, -10, -5]} intensity={0.5} />
-                        <Suspense fallback={null}>
-                            <group position={[1.8, -0.1, 0]} scale={1.35}>
-                                <RobotHead />
-                            </group>
-                        </Suspense>
-                    </Canvas>
-                </div>
-
-                <div className="absolute inset-0 bg-[linear-gradient(90deg,#0D1117_0%,rgba(13,17,23,0.96)_38%,rgba(13,17,23,0.62)_68%,rgba(13,17,23,0.9)_100%)] pointer-events-none" />
-
-                <div className="max-w-[1280px] mx-auto w-full px-4 md:px-6 lg:px-10 relative z-10">
+            <section className="relative w-full min-h-[92dvh] pt-24 pb-12 md:pt-16 md:pb-0 flex items-center overflow-hidden border-b border-[#30363D]">
+                <div className="max-w-[1280px] mx-auto w-full px-4 md:px-6 lg:px-10 flex flex-col lg:flex-row items-center gap-8 lg:gap-16 relative z-10">
                     <motion.div
-                        className="max-w-xl"
+                        className="flex-1 max-w-xl"
                         variants={staggerContainer}
                         initial="hidden"
                         animate="visible"
@@ -460,6 +442,22 @@ export default function WelcomeHero() {
                                 <span className="sm:hidden">get started</span>
                             </Button>
                         </motion.div>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 1, delay: 0.5 }}
+                        className="flex-1 w-full h-[400px] lg:h-[600px] order-first lg:order-last cursor-crosshair hidden md:block"
+                    >
+                        <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+                            <ambientLight intensity={0.5} />
+                            <directionalLight position={[10, 10, 5]} intensity={1.5} />
+                            <pointLight position={[-10, -10, -5]} intensity={0.5} />
+                            <Suspense fallback={null}>
+                                <RobotHead />
+                            </Suspense>
+                        </Canvas>
                     </motion.div>
                 </div>
             </section>

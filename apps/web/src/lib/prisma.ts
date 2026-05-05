@@ -7,16 +7,9 @@ const globalForPrisma = globalThis as unknown as {
 const createPrismaClient = () => {
   return new PrismaClient({
     url: process.env.DATABASE_URL,
-    rejectOnNotFound: true,
   });
 };
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
-prisma.$use(async (params, next) => {
-  if (params.model === 'User' && params.action === 'findUnique') {
-    params.where = { ...params.where, username: { equals: params.where.username } };
-  }
-  return next(params);
-});
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;

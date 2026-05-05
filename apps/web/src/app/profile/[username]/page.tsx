@@ -77,7 +77,7 @@ export default async function ProfilePage(props: {params: Promise<{username: str
 
   // fetch user from prisma for status and privacy
 const dbProfileUser = await prisma.user.findUnique({
-  where: { username: { equals: username } },
+  where: { username },
   select: { statusEmoji: true, statusText: true, showContributions: true, showActivity: true }
 });
 

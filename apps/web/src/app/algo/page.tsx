@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { Prisma } from '@prisma/client';
 
 type PostWithAuthorAndFollowers = {
   id: number;
@@ -52,10 +51,7 @@ try {
     take: 100
   });
 } catch (error) {
-  if (error instanceof Prisma.ClientError) {
-    console.error('Prisma Client Error:', error);
-    errorMessage = 'Failed to load algorithm data due to a database error. Please try again later.';
-  } else if (error instanceof Error) {
+  if (error instanceof Error) {
     console.error('Unexpected Error:', error);
     errorMessage = 'An unexpected error occurred while loading algorithm data. Please try again later.';
   } else {

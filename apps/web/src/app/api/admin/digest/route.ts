@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { calculatePostScore } from "@/lib/algo";
 import { auth } from '@/lib/auth';
 import { z } from 'zod';
 
 export const dynamic = "force-dynamic";
+
+type DigestPost = Prisma.PostGetPayload<{
+  include: {
+    author: { select: { username: true; avatar: true } };
+    _count: { select: { comments: true; reactions: true } };
+  };
+}>;
 
 /**
  * weekly digest generator
@@ -48,7 +56,7 @@ const oneWeekAgo = new Date(Date.now() - ONE_WEEK_IN_MILLISECONDS);
     });
 
     // score each post
-    const scoredPosts = posts.map((p) => {
+    const scoredPosts = posts.map((p: DigestPost) => {
       let score = 0;
       if (p.repoEmbed) {
         const r = p.repoEmbed as Record<string, any>;

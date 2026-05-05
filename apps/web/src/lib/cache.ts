@@ -5,12 +5,20 @@ const globalForRedis = global as unknown as {
   redis: Redis | undefined;
 };
 
-export const redis = globalForRedis.redis ?? new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL || '',
-  token: process.env.UPSTASH_REDIS_REST_TOKEN || '',
-});
+export function getRedis(): Redis | null {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-if (process.env.NODE_ENV !== 'production') globalForRedis.redis = redis;
+  if (!url || !token) {
+    return null;
+  }
+
+  if (!globalForRedis.redis) {
+    globalForRedis.redis = new Redis({ url, token });
+  }
+
+  return globalForRedis.redis;
+}
 
 /**
  * Distributed wrapper to cache async function results across all serverless nodes.
@@ -27,7 +35,8 @@ export async function withCache<T>(key: string, fn: () => Promise<T>, ttl?: numb
   }
 
   // If Redis is not configured, fall back to executing without caching
-  if (!process.env.UPSTASH_REDIS_REST_URL) {
+  const redis = getRedis();
+  if (!redis) {
     return fn();
   }
 

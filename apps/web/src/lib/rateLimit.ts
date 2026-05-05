@@ -1,4 +1,4 @@
-import { redis } from './cache';
+import { getRedis } from './cache';
 
 // in-memory fallback for environments without redis
 const inMemoryStore = new Map<string, { count: number; resetAt: number }>();
@@ -15,7 +15,8 @@ export default function rateLimit(config?: RateLimitConfig) {
   return {
     check: async (limit: number, token: string) => {
       // if redis is not configured, use in-memory fallback (single-instance only)
-      if (!process.env.UPSTASH_REDIS_REST_URL) {
+      const redis = getRedis();
+      if (!redis) {
         const now = Date.now();
         const entry = inMemoryStore.get(token);
 

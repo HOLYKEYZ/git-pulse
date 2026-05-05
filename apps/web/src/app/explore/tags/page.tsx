@@ -24,21 +24,22 @@ if (trending) {
   if (!trending || now - cacheTime > CACHE_TTL) {
     // database-level aggregation using postgresql unnest to avoid fetching all posts into memory
 let result: { tag: string; count: bigint }[] = [];
-    try {
-      result = await prisma.$queryRaw`
-        SELECT LOWER(unnest("hashtags")) AS tag, COUNT(*) AS count
-        FROM "Post"
-        WHERE array_length("hashtags", 1) > 0
-        GROUP BY tag
-        ORDER BY count DESC
-        LIMIT 50
-      `;
-      if (!result) {
-        throw new Error('Failed to fetch trending hashtags');
+    if (process.env.DATABASE_URL) {
+      try {
+        result = await prisma.$queryRaw`
+          SELECT LOWER(unnest("hashtags")) AS tag, COUNT(*) AS count
+          FROM "Post"
+          WHERE array_length("hashtags", 1) > 0
+          GROUP BY tag
+          ORDER BY count DESC
+          LIMIT 50
+        `;
+        if (!result) {
+          throw new Error('Failed to fetch trending hashtags');
+        }
+      } catch (error) {
+        console.error('Error fetching trending hashtags:', error);
       }
-    } catch (error) {
-      console.error('Error fetching trending hashtags:', error);
-      // Additional error handling or fallback can be added here
     }
     
     trending = result.map(r => [r.tag, Number(r.count)]);

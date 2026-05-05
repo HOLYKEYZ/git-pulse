@@ -18,6 +18,7 @@ export const viewport: Viewport = {
 
 
 export const metadata: Metadata = {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://git-pulse.vercel.app"),
     title: {
         default: "GitPulse | GitHub's Social Layer",
         template: "%s | GitPulse",

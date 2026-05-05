@@ -60,7 +60,7 @@ export default function EditProfilePage(props: { params: Promise<{ username: str
             }
         };
         load();
-    }, []);
+    }, [router, username]);
 
 const handleSave = async () => {
         // confirmation before modifying live github profile

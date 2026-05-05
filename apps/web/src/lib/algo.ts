@@ -40,7 +40,7 @@ export interface PostScoreDetail {
  */
 export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDetail {
   if (!factors) {
-    throw new Error('Input factors cannot be null or undefined');
+    return { score: 0, breakdown: { language: 0, stars: 0, forks: 0, completeness: 0, commitVolume: 0, pushConsistency: 0, recentActivity: 0, followerBias: 0, penalty: 0, decayMultiplier: 1 } };
   }
   let score = 0;
   const breakdown = {
@@ -55,21 +55,10 @@ export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDeta
     penalty: 0,
     decayMultiplier: 1,
   };
-  if (factors.language && typeof factors.language !== 'string') {
-    throw new Error('Language must be a string');
-  }
-  if (typeof factors.stars !== 'number' || Number.isNaN(factors.stars) || factors.stars < 0) {
-    throw new Error('Stars must be a non-negative number');
-  }
-  if (typeof factors.forks !== 'number' || Number.isNaN(factors.forks) || factors.forks < 0) {
-    throw new Error('Forks must be a non-negative number');
-  }
-  if (typeof factors.daysSincePush !== 'number' || Number.isNaN(factors.daysSincePush) || factors.daysSincePush < 0) {
-    throw new Error('daysSincePush must be a non-negative number');
-  }
-  if (typeof factors.daysSincePost !== 'number' || Number.isNaN(factors.daysSincePost) || factors.daysSincePost < 0) {
-    throw new Error('daysSincePost must be a non-negative number');
-  }
+  const safeStars = (typeof factors.stars !== 'number' || Number.isNaN(factors.stars) || factors.stars < 0) ? 0 : factors.stars;
+  const safeForks = (typeof factors.forks !== 'number' || Number.isNaN(factors.forks) || factors.forks < 0) ? 0 : factors.forks;
+  const safeDaysSincePush = (typeof factors.daysSincePush !== 'number' || Number.isNaN(factors.daysSincePush) || factors.daysSincePush < 0) ? 1 : factors.daysSincePush;
+  const safeDaysSincePost = (typeof factors.daysSincePost !== 'number' || Number.isNaN(factors.daysSincePost) || factors.daysSincePost < 0) ? 1 : factors.daysSincePost;
 
   // 1. tech stack novelty
   const noveltyLanguages = ["Rust", "Zig", "Elixir", "Go", "Gleam", "Ocaml", "Haskell", "F#", "HolyC",];
@@ -85,18 +74,18 @@ export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDeta
   score += breakdown.language;
 
   // 2. stars (reduced max weight to prevent pure popularity dominance)
-  if (factors.stars >= 20 && factors.stars <= 1000) {
-    const normalizedStar = Math.min(factors.stars, 1000);
+  if (safeStars >= 20 && safeStars <= 1000) {
+    const normalizedStar = Math.min(safeStars, 1000);
     breakdown.stars = 10 + Math.min(normalizedStar * 0.02, 20); // max 30 pts
-  } else if (factors.stars > 1000) {
+  } else if (safeStars > 1000) {
     breakdown.stars = 15; // diminishing returns
-  } else if (factors.stars > 0) {
-    breakdown.stars = factors.stars * 0.3;
+  } else if (safeStars > 0) {
+    breakdown.stars = safeStars * 0.3;
   }
   score += breakdown.stars;
 
   // 3. forks
-  breakdown.forks = Math.min(factors.forks * 1.0, 15);
+  breakdown.forks = Math.min(safeForks * 1.0, 15);
   score += breakdown.forks;
 
   // 4. completeness
@@ -123,30 +112,24 @@ export function calculatePostScoreDetailed(factors: ScoreFactors): PostScoreDeta
     score += breakdown.pushConsistency;
   }
 
-  // 7. recent activity
-  if (factors.daysSincePush <= 7) {
-    breakdown.recentActivity = 20;
-  } else if (factors.daysSincePush <= 30) {
-    breakdown.recentActivity = 10;
-  } else if (factors.daysSincePush > 365) {
-    breakdown.recentActivity = -30; // stronger penalty for dead projects
-  }
+  // 7. push recency
+  if (safeDaysSincePush <= 1) breakdown.recentActivity = 15;
+  else if (safeDaysSincePush <= 3) breakdown.recentActivity = 10;
+  else if (safeDaysSincePush <= 7) breakdown.recentActivity = 5;
+  else if (safeDaysSincePush > 30) breakdown.recentActivity = -5; // stale push penalty
   score += breakdown.recentActivity;
 
-  // 8. follower bias ("anti-clout" mechanic)
-  if (factors.authorFollowers !== undefined) {
-    if (factors.authorFollowers > 1000) {
-      // heavily penalize huge accounts who post repos with low activity
-      breakdown.followerBias = factors.commitCount === 0 ? -50 : -20;
-    } else if (factors.authorFollowers < 100) {
-      breakdown.followerBias = 15; // boost small accounts
-    }
+  // 8. author follower bias mitigation
+  if (factors.authorFollowers && factors.authorFollowers > 1000) {
+    breakdown.followerBias = -10; // offset algorithmic bias for huge accounts
+  } else if (factors.authorFollowers !== undefined && factors.authorFollowers < 50) {
+    breakdown.followerBias = +10; // boost new/small creators
   }
   score += breakdown.followerBias;
 
-  // 9. time decay
-  const decayFactor = Math.pow(Math.max(factors.daysSincePost, 1), 1.2);
-  breakdown.decayMultiplier = 1 / decayFactor;
+  // 9. post age decay (time since the post was made)
+  const decayFactor = 1 + (safeDaysSincePost * 0.1); // -10% per day
+  breakdown.decayMultiplier = decayFactor;
 
   const finalScore = Math.max(score / decayFactor, 0);
 

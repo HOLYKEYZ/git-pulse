@@ -28,14 +28,13 @@ function isBot(login: string): boolean {
  * keep meaningful events: prs, issues, releases, new repos, big pushes.
  */
 function isWorthShowing(event: GitHubEvent): boolean {
-  // Validate and sanitize event data
-  const validatedEvent = validateAndSanitizeEvent(event);
-  if (!validatedEvent) return false;
+  if (!event || !event.actor || !event.actor.login) return false;
+  if (!event.payload) return false;
   
   // filter bots first
-  if (isBot(validatedEvent.actor.login)) return false;
+  if (isBot(event.actor.login)) return false;
   
-  switch (validatedEvent.type) {
+  switch (event.type) {
     case "PullRequestEvent":{
         if (event.payload.action === "opened") return true;
         const comments = (event.payload.pull_request as any)?.comments ?? 0;
@@ -65,19 +64,15 @@ function mapEventToPost(event: GitHubEvent): PostProps | null {
   if (!event || !event.repo || !event.actor || !event.created_at) return null;
   const repoUrl = `https://github.com/${event.repo.name}`;
   
-  // Validate and sanitize event data
-  const validatedEvent = validateAndSanitizeEvent(event);
-  if (!validatedEvent) return null;
-  
   const basePost = {
-    id: validatedEvent.id,
+    id: event.id,
     isExternalEvent: true,
     externalUrl: repoUrl,
     author: {
-      username: validatedEvent.actor.login,
-      avatar: validatedEvent.actor.avatar_url
+      username: event.actor.login,
+      avatar: event.actor.avatar_url
     },
-    timestamp: new Date(validatedEvent.created_at).toISOString(),
+    timestamp: new Date(event.created_at).toISOString(),
     likes: 0,
     comments: 0
   };
@@ -89,9 +84,11 @@ function mapEventToPost(event: GitHubEvent): PostProps | null {
 
   const trendingTag = isTrending ? "\n\n#trending" : "";
 
-switch (event.type) {
+  if (!event.payload) return null;
+
+  switch (event.type) {
     case "PushEvent":
-      if (!event.payload || !event.payload.commits) return null;
+      if (!event.payload.commits) return null;
       return {
         ...basePost,
         type: "standard",

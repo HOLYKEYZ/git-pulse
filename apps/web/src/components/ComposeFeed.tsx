@@ -59,7 +59,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       content: z.string(),
       images: z.array(z.string()).max(4)
     });
-    const updatedValidation = updatedPostSchema.safeParse({ content: sanitizedContent, images });
+    const updatedValidation = updatedPostSchema.safeParse({ content, images });
     if (!updatedValidation.success) {
       alert("Invalid post content or image count.");
       return;
@@ -70,7 +70,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     const res = await fetch('/api/posts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: sanitizedContent, type: 'standard', images, repostOfId: quotedPostId })
+      body: JSON.stringify({ content, type: 'standard', images, repostOfId: quotedPostId })
     });
 
     if (res.ok) {

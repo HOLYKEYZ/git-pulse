@@ -237,7 +237,7 @@ const handleReact = async (emoji: string) => {
             }}>
             
             {/* simple pre-processor for #tags and @mentions to turn them into markdown links if not already */}
-            {post.content.replace(/(^|\s)(#[\w-]+)/g, '$1[$2]($2)').replace(/(^|\s)(@[\w-]+)/g, '$1[$2]($2)')}
+            {(post.content || '').replace(/(^|\s)(#[\w-]+)/g, '$1[$2]($2)').replace(/(^|\s)(@[\w-]+)/g, '$1[$2]($2)')}
           </ReactMarkdown>
         </div>
 

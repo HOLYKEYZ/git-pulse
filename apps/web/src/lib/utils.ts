@@ -1,14 +1,11 @@
 export function getRelativeTime(date: Date | string | number | null | undefined): string {
     if (date === null || date === undefined) {
-        throw new Error('Date cannot be null or undefined');
+        return 'just now';
     }
     try {
         const time = new Date(date).getTime();
         if (isNaN(time)) {
-            throw new Error('Invalid date provided');
-        }
-        if (time <= 0) {
-            throw new Error('Date must be a positive number');
+            return 'just now';
         }
         const now = Date.now();
         const diffInSeconds = Math.max(0, Math.floor((now - time) / 1000));
@@ -26,7 +23,7 @@ export function getRelativeTime(date: Date | string | number | null | undefined)
         const diffInYears = Math.floor(diffInDays / 365);
         return `${diffInYears}y ago`;
     } catch (error) {
-        throw new Error(`Error calculating relative time: ${error.message}`);
+        return 'just now';
     }
 }
 

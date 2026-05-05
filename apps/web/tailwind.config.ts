@@ -9,6 +9,15 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        premium: {
+          bg: '#050505',
+          surface: '#0a0a0a',
+          border: '#1a1a1a',
+          accent: '#10b981', // emerald-500
+          'accent-glow': 'rgba(16, 185, 129, 0.15)',
+          muted: '#737373',
+          text: '#f5f5f5',
+        },
         contribution: {
             none: '#161b22',
             'first-quartile': '#0e4429',
@@ -104,21 +113,18 @@ const config: Config = {
       },
       fontFamily: {
         sans: [
+          "Geist",
+          "Outfit",
           "-apple-system",
           "BlinkMacSystemFont",
           '"Segoe UI"',
-          "Noto Sans",
-          "Helvetica",
-          "Arial",
+          "Roboto",
           "sans-serif",
-          '"Apple Color Emoji"',
-          '"Segoe UI Emoji"',
         ],
         mono: [
+          "Geist Mono",
           '"SFMono-Regular"',
           "Consolas",
-          '"Liberation Mono"',
-          "Menlo",
           "monospace",
         ],
       },

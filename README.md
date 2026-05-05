@@ -103,7 +103,7 @@ git-pulse/
 gitpulse provides a programmatic api for creating posts. generate an api key in **settings → api & integrations**, then:
 
 ```bash
-curl -X POST https://git-pulse.vercel.app/api/posts \
+curl -X POST https://gitpulsefeed.vercel.app/api/posts \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"content": "hello from the api!", "type": "standard"}'
@@ -124,7 +124,7 @@ jobs:
     steps:
       - uses: fjogeleit/http-request-action@v1
         with:
-          url: "https://git-pulse.vercel.app/api/posts"
+  url: "https://gitpulsefeed.vercel.app/api/posts"
           method: "POST"
           customHeaders: '{"Authorization": "Bearer ${{ secrets.GITPULSE_TOKEN }}"}'
           data: '{"content": "shipped ${{ github.event.release.tag_name }}!", "type": "standard"}'

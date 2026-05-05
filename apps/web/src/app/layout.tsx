@@ -18,7 +18,7 @@ export const viewport: Viewport = {
 
 
 export const metadata: Metadata = {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://git-pulse.vercel.app"),
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://gitpulsefeed.vercel.app"),
     title: {
         default: "GitPulse | GitHub's Social Layer",
         template: "%s | GitPulse",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: "GitPulse",
         description: "GitHub's Social Layer",
-        url: "https://git-pulse.vercel.app",
+        url: "https://gitpulsefeed.vercel.app",
         siteName: "GitPulse",
         images: [
             {

@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Post release to GitPulse
         run: |
-          curl -X POST https://git-pulse.vercel.app/api/posts \\
+curl -X POST https://gitpulsefeed.vercel.app/api/posts \\
             -H "Authorization: Bearer \${{ secrets.GITPULSE_TOKEN }}" \\
             -H "Content-Type: application/json" \\
             -d '{

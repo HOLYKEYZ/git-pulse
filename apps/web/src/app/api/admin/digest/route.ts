@@ -115,7 +115,7 @@ score = SCORE_DIVISOR / Math.pow(daysSincePost, SCORE_POWER);
     });
 
     threadLines.push(
-      `\nDiscover more on GitPulse → https://git-pulse.vercel.app\n#github #opensource #buildinpublic`
+      `\nDiscover more on GitPulse -> https://gitpulsefeed.vercel.app\n#github #opensource #buildinpublic`
     );
 
     const digest = threadLines.join("\n");

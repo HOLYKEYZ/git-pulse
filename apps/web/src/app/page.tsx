@@ -235,7 +235,7 @@ export default async function HomePage() {
   });
 
   // unauthenticated users get the welcome landing page
-  if (!session) {
+  if (!session?.user?.login) {
     return <WelcomeHero />;
   }
 

@@ -62,11 +62,13 @@ export default async function RootLayout({
         return null;
     });
 
+    const isSignedIn = Boolean(session?.user?.login);
+
     return (
         <html lang="en" data-theme="github">
             <body className="antialiased min-h-screen bg-git-bg text-git-text overflow-x-hidden font-sans">
                 <ThemeProvider>
-                    {session ? (
+                    {isSignedIn ? (
                         <>
                             <div className="mx-auto w-full max-w-[1300px] pb-20 lg:pb-0">
                                 <div className="flex justify-center w-full">

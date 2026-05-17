@@ -18,13 +18,12 @@ export default async function Sidebar() {
                 {/* logo */}
                 <div className="py-4">
                     <Link href="/" className="inline-flex items-center justify-center hover:opacity-80 transition-opacity">
-                        <Image 
+                        <img 
                             src="/logo.png" 
                             alt="GitPulse" 
-                            width={80} 
-                            height={80} 
+                            width="80" 
+                            height="80" 
                             className="rounded-xl"
-                            priority
                         />
                     </Link>
                 </div>

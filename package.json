@@ -10,10 +10,12 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "isomorphic-dompurify": "^3.9.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@netlify/plugin-nextjs": "^5.7.4"
+    "@netlify/plugin-nextjs": "^5.7.4",
+    "@types/bcryptjs": "^3.0.0"
   }
 }

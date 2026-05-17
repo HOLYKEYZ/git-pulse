@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import { authConfig } from "./auth.config";
 import { prisma } from "./prisma";
+import { comparePassword } from "./password";
 import { z } from "zod";
 
 const ProfileSchema = z.object({
@@ -16,11 +17,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   callbacks: {
     ...authConfig.callbacks,
-    async jwt({ token, account, profile, user, isNewUser }: any) {
+    async jwt({ token, account, profile, user, isNewUser, credentials }: any) {
       if (authConfig.callbacks.jwt) {
         token = await authConfig.callbacks.jwt({ token, account, profile, user, isNewUser });
       }
 
+      // Handle GitHub OAuth
       if (account && profile) {
         token.accessToken = account.access_token as string;
         token.githubId = account.providerAccountId;
@@ -58,7 +60,36 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
       }
 
-      return token;
+      // Handle Credentials (email/password)
+      if (credentials && account?.provider === "credentials") {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { email: credentials.email },
+          });
+
+          if (!dbUser || !dbUser.password) {
+            console.error("[Auth] User not found or has no password");
+            throw new Error("Invalid credentials");
+          }
+
+          const passwordMatch = await comparePassword(credentials.password, dbUser.password);
+          if (!passwordMatch) {
+            console.error("[Auth] Password mismatch for user:", credentials.email);
+            throw new Error("Invalid credentials");
+          }
+
+          token.dbId = dbUser.id;
+          token.email = dbUser.email;
+        } catch (error) {
+          console.error("[Auth] Credentials authentication failed:", error);
+          throw new Error("Authentication failed");
+        }
+      }
+
+      // Handle user data from callback (already authenticated user)
+      if (user && !account) {
+        token.dbId = (user as any).id;
+        token.email = (user as any).email;
     },
   },
 });

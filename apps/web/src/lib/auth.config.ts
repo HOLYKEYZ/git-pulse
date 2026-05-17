@@ -1,4 +1,5 @@
 import GitHub from "next-auth/providers/github";
+import Credentials from "next-auth/providers/credentials";
 import type { NextAuthConfig } from "next-auth";
 
 export const authConfig = {
@@ -11,6 +12,18 @@ export const authConfig = {
           scope: "user user:email public_repo user:follow",
           prompt: "select_account",
         },
+      },
+    }),
+    Credentials({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        // This will be handled in auth.ts during the callback
+        // Just return null here - we'll validate in the jwt callback
+        return null;
       },
     }),
   ],

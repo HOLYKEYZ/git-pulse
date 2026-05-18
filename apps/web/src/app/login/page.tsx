@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { signIn } from 'next-auth/react';
 
 export default function LoginPage() {
     return (
@@ -21,20 +21,12 @@ export default function LoginPage() {
                 </div>
 
                 <div className="mt-8">
-                    <form
-                        action={async () => {
-                            'use server';
-                            const { signIn: authSignIn } = await import('@/lib/auth');
-                            await authSignIn('github', { redirectTo: '/' });
-                        }}
+                    <button
+                        onClick={() => signIn('github', { callbackUrl: '/' })}
+                        className="flex w-full justify-center rounded-md bg-git-green px-3 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#2ea043] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-colors"
                     >
-                        <button
-                            type="submit"
-                            className="flex w-full justify-center rounded-md bg-git-green px-3 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#2ea043] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-colors"
-                        >
-                            Sign in with GitHub
-                        </button>
-                    </form>
+                        Sign in with GitHub
+                    </button>
 
                     <p className="mt-6 text-center text-xs text-git-muted">
                         By signing in, you agree that GitPulse will request read-only access to your public repositories.

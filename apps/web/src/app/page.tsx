@@ -155,20 +155,22 @@ function mapPrismaPostToProps(p: {
   images?: string[];
   hashtags?: string[];
   repoUrl?: string | null;
-  author: {username: string;avatar: string | null; statusEmoji?: string | null; statusText?: string | null;};
+  author: {username: string | null;avatar: string | null; statusEmoji?: string | null; statusText?: string | null;};
   _count: {comments: number;reactions: number;};
   repostOf?: any;
 }): PostProps {
+  const authorUsername = p.author.username ?? "unknown";
+
   // if this is a repost, explicitly distinguish between Quote Repost and standard Reposts
   if (p.repostOf) {
-    const isQuoteRepost = p.content !== `Reposted by @${p.author.username}`;
+    const isQuoteRepost = p.content !== `Reposted by @${authorUsername}`;
     
     // For standard unedited reposts, map purely the target passing along metadata
     if (!isQuoteRepost) {
       return {
         ...mapPrismaPostToProps(p.repostOf),
         isRepost: true,
-        repostedBy: p.author.username,
+        repostedBy: authorUsername,
         // Keep the original post ID for the link, not the repost ID
       };
     }
@@ -208,7 +210,7 @@ function mapPrismaPostToProps(p: {
     id: p.id,
     type: p.type as "standard" | "ship",
     author: {
-      username: p.author.username,
+      username: authorUsername,
       avatar: p.author.avatar ?? "",
       statusEmoji: p.author.statusEmoji,
       statusText: p.author.statusText
@@ -224,7 +226,7 @@ function mapPrismaPostToProps(p: {
     repoUrl: p.repoUrl,
     score,
     passedBadge: hasPassedBadge(score),
-    quotedPost: p.repostOf && p.content !== `Reposted by @${p.author.username}` ? mapPrismaPostToProps(p.repostOf) : undefined
+    quotedPost: p.repostOf && p.content !== `Reposted by @${authorUsername}` ? mapPrismaPostToProps(p.repostOf) : undefined
   };
 }
 

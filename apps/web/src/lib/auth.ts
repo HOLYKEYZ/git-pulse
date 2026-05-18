@@ -45,18 +45,35 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         };
 
         try {
-          const dbUser = await prisma.user.upsert({
-            where: { githubId },
-            update: userData,
-            create: {
-              githubId,
-              ...userData,
-            },
-          });
+          const existingUser = validProfile.email
+            ? await prisma.user.findUnique({ where: { email: validProfile.email } })
+            : null;
+          const dbUser = existingUser
+            ? await prisma.user.update({
+                where: { id: existingUser.id },
+                data: {
+                  githubId,
+                  username: validProfile.login,
+                  name: userData.name ?? existingUser.name,
+                  avatar: userData.avatar,
+                  bio: userData.bio,
+                  accessToken: userData.accessToken,
+                },
+              })
+            : await prisma.user.upsert({
+                where: { githubId },
+                update: userData,
+                create: {
+                  githubId,
+                  ...userData,
+                },
+              });
           token.dbId = dbUser.id;
+          token.login = dbUser.username ?? token.login;
+          token.githubId = dbUser.githubId ?? token.githubId;
         } catch (error) {
           console.error("[Auth] Failed to upsert user:", error);
-          throw new Error("Failed to upsert user");
+          return token;
         }
       }
 

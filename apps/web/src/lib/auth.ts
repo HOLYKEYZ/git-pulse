@@ -90,6 +90,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user && !account) {
         token.dbId = (user as any).id;
         token.email = (user as any).email;
+      }
     },
   },
 });

@@ -25,6 +25,10 @@ export const metadata: Metadata = {
     },
     description: "The social network for developers. Share your ships, engage with your network, and pulse with the heartbeat of GitHub.",
     manifest: "/manifest.json",
+    icons: {
+        icon: "/icon.png",
+        apple: "/apple-icon.png",
+    },
     openGraph: {
         title: "GitPulse",
         description: "GitHub's Social Layer",

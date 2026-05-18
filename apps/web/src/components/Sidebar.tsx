@@ -18,12 +18,10 @@ export default async function Sidebar() {
                 {/* logo */}
                 <div className="py-4">
                     <Link href="/" className="inline-flex items-center justify-center hover:opacity-80 transition-opacity">
-                        <img 
-                            src="/logo.png" 
-                            alt="GitPulse" 
-                            width="80" 
-                            height="80" 
-                            className="rounded-xl"
+                        <img
+                            src="/logo.png"
+                            alt="GitPulse"
+                            className="rounded-xl w-20 h-20 object-contain"
                         />
                     </Link>
                 </div>
@@ -88,13 +86,13 @@ export default async function Sidebar() {
                 {/* connect github button for users without github */}
                 {session?.user && !session.user.githubId && (
                     <div className="mt-4 px-2 mb-4">
-                        <Link 
-                            href="/api/auth/signin?provider=github" 
+                        <a
+                            href="/api/auth/signin/github"
                             className="w-full bg-[#24292e] hover:bg-[#1b1f23] text-white rounded-full py-3 px-4 font-semibold text-sm shadow-sm transition-colors flex items-center justify-center gap-2"
                         >
                             <MarkGithubIcon size={18} />
                             Connect GitHub
-                        </Link>
+                        </a>
                     </div>
                 )}
 

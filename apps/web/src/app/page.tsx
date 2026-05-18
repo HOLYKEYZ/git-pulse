@@ -289,7 +289,7 @@ export default async function HomePage(props: { searchParams?: Promise<Record<st
   let followingPosts: PostProps[] = [];
   if (session?.user?.login) {
     const dbUser = await prisma.user.findUnique({
-      where: { username: session.user.login },
+      where: session.user.id ? { id: session.user.id } : { username: session.user.login },
       select: { id: true }
     });
     if (dbUser) {
@@ -327,15 +327,19 @@ export default async function HomePage(props: { searchParams?: Promise<Record<st
   // activity: real github events, bot-filtered, from followed users
   // ═══════════════════════════════════════════════════════════════════════
   let activityPosts: PostProps[] = [];
-  if (session?.user?.login) {
-    const token = await getServerSideToken(session.user.login);
-    if (token) {
-      const events = await getGitHubReceivedEvents(session.user.login, token);
-      activityPosts = events.
-      filter(isWorthShowing).
-      map(mapEventToPost).
-      filter((p): p is PostProps => p !== null).
-      slice(0, 20);
+  if (session?.user?.login && session.user.githubId) {
+    try {
+      const token = await getServerSideToken(session.user.login);
+      if (token) {
+        const events = await getGitHubReceivedEvents(session.user.login, token);
+        activityPosts = events.
+        filter(isWorthShowing).
+        map(mapEventToPost).
+        filter((p): p is PostProps => p !== null).
+        slice(0, 20);
+      }
+    } catch (error) {
+      console.error("[HomePage] Failed to load GitHub activity:", error);
     }
   }
 

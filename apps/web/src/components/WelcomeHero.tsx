@@ -399,7 +399,7 @@ export default function WelcomeHero() {
                 style={{ backgroundImage: 'url(/hero.png)' }}
             />
             {/* Nav */}
-            <nav className="fixed top-0 w-full z-50 bg-[#0D1117]/80 backdrop-blur-md border-b border-[#30363D] h-16 flex items-center justify-between px-4 md:px-6 lg:px-10">
+            <nav className="fixed top-0 w-full z-50 bg-[#0D1117]/80 backdrop-blur-md border-b border-[#30363D] min-h-20 flex items-center justify-between px-4 md:px-6 lg:px-10">
                 <div className="flex items-center gap-3">
                     <Image src="/logo.png" alt="GitPulse" width={72} height={72} className="h-[72px] w-[72px] rounded-2xl object-contain" priority />
                     <span className="font-semibold text-xl tracking-tight">GitPulse</span>

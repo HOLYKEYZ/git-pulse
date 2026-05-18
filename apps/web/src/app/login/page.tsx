@@ -1,61 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signIn } from 'next-auth/react';
 
 export default function LoginPage() {
-    const router = useRouter();
-    const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-    });
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [useEmailPassword, setUseEmailPassword] = useState(false);
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setError('');
-        setLoading(true);
-
-        if (!formData.email || !formData.password) {
-            setError('Please fill in all fields');
-            setLoading(false);
-            return;
-        }
-
-        try {
-            const result = await signIn('credentials', {
-                email: formData.email,
-                password: formData.password,
-                redirect: false,
-            });
-
-            if (result?.error) {
-                setError('Invalid email or password');
-                setLoading(false);
-                return;
-            }
-
-            router.push('/');
-        } catch (err) {
-            console.error('Login error:', err);
-            setError('An unexpected error occurred');
-            setLoading(false);
-        }
-    };
-
-    const handleGitHubSignIn = async () => {
-        await signIn('github', { redirectTo: '/' });
-    };
-
     return (
         <div className="flex min-h-screen items-center justify-center bg-git-bg px-4 py-12 sm:px-6 lg:px-8">
             <div className="w-full max-w-md space-y-8 rounded-xl border border-git-border bg-git-card p-10 shadow-xl">
@@ -73,127 +20,26 @@ export default function LoginPage() {
                     </p>
                 </div>
 
-                {!useEmailPassword ? (
-                    <>
-                        <div className="mt-8">
-                            <form
-                                action={async () => {
-                                    'use server';
-                                    const { signIn: authSignIn } = await import('@/lib/auth');
-                                    await authSignIn('github', { redirectTo: '/' });
-                                }}
-                            >
-                                <button
-                                    type="submit"
-                                    className="flex w-full justify-center rounded-md bg-git-green px-3 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#2ea043] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-colors"
-                                >
-                                    Sign in with GitHub
-                                </button>
-                            </form>
-
-                            <p className="mt-6 text-center text-xs text-git-muted">
-                                By signing in, you agree that GitPulse will request read-only access to your public repositories.
-                            </p>
-
-                            <div className="relative mt-6">
-                                <div className="absolute inset-0 flex items-center">
-                                    <div className="w-full border-t border-git-border"></div>
-                                </div>
-                                <div className="relative flex justify-center text-sm">
-                                    <span className="bg-git-card px-2 text-git-muted">or</span>
-                                </div>
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={() => setUseEmailPassword(true)}
-                                className="mt-6 w-full rounded-md border border-git-border px-3 py-3 text-sm font-semibold text-git-text shadow-sm hover:bg-git-border/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-colors"
-                            >
-                                Sign in with Email
-                            </button>
-
-                            <div className="mt-6 text-center">
-                                <p className="text-sm text-git-muted">
-                                    Don&apos;t have an account?{' '}
-                                    <Link href="/signup" className="font-medium text-git-green hover:text-[#2ea043]">
-                                        Sign up
-                                    </Link>
-                                </p>
-                            </div>
-                        </div>
-                    </>
-                ) : (
-                    <>
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            {error && (
-                                <div className="rounded-md bg-red-50 dark:bg-red-950/20 p-3 border border-red-200 dark:border-red-900/50">
-                                    <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
-                                </div>
-                            )}
-
-                            <div>
-                                <label htmlFor="email" className="block text-sm font-medium text-git-text">
-                                    Email address
-                                </label>
-                                <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    className="mt-2 block w-full rounded-md border border-git-border bg-git-bg px-3 py-2 text-git-text placeholder-git-muted focus:border-git-green focus:outline-none focus:ring-2 focus:ring-git-green/20"
-                                    placeholder="you@example.com"
-                                    disabled={loading}
-                                />
-                            </div>
-
-                            <div>
-                                <label htmlFor="password" className="block text-sm font-medium text-git-text">
-                                    Password
-                                </label>
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    className="mt-2 block w-full rounded-md border border-git-border bg-git-bg px-3 py-2 text-git-text placeholder-git-muted focus:border-git-green focus:outline-none focus:ring-2 focus:ring-git-green/20"
-                                    placeholder="••••••••"
-                                    disabled={loading}
-                                />
-                            </div>
-
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full rounded-md bg-git-green px-3 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#2ea043] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {loading ? 'Signing in...' : 'Sign in'}
-                            </button>
-                        </form>
-
+                <div className="mt-8">
+                    <form
+                        action={async () => {
+                            'use server';
+                            const { signIn: authSignIn } = await import('@/lib/auth');
+                            await authSignIn('github', { redirectTo: '/' });
+                        }}
+                    >
                         <button
-                            type="button"
-                            onClick={() => {
-                                setUseEmailPassword(false);
-                                setError('');
-                                setFormData({ email: '', password: '' });
-                            }}
-                            className="w-full rounded-md border border-git-border px-3 py-3 text-sm font-semibold text-git-text shadow-sm hover:bg-git-border/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-colors"
+                            type="submit"
+                            className="flex w-full justify-center rounded-md bg-git-green px-3 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#2ea043] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-colors"
                         >
-                            Back to GitHub
+                            Sign in with GitHub
                         </button>
+                    </form>
 
-                        <div className="text-center">
-                            <p className="text-sm text-git-muted">
-                                Don&apos;t have an account?{' '}
-                                <Link href="/signup" className="font-medium text-git-green hover:text-[#2ea043]">
-                                    Sign up
-                                </Link>
-                            </p>
-                        </div>
-                    </>
-                )}
+                    <p className="mt-6 text-center text-xs text-git-muted">
+                        By signing in, you agree that GitPulse will request read-only access to your public repositories.
+                    </p>
+                </div>
             </div>
         </div>
     );

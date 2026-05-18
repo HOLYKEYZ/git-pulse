@@ -63,6 +63,8 @@ export default async function PostPage(props: { params: Promise<{ id: string }> 
 
   if (!post) notFound();
 
+  const authorUsername = post.author.username ?? "unknown";
+
 const dbComments = await prisma.comment.findMany({
     where: { postId: post.id, parentId: null },
     include: { author: true },
@@ -72,7 +74,7 @@ const dbComments = await prisma.comment.findMany({
   const initialComments = dbComments.map((c: any) => ({
     id: c.id,
     content: c.content,
-    author: { username: c.author.username, avatar: c.author.avatar || '/icon.png' },
+    author: { username: c.author.username ?? "unknown", avatar: c.author.avatar || '/icon.png' },
     timestamp: c.createdAt.toISOString()
   }));
 
@@ -88,20 +90,20 @@ const dbComments = await prisma.comment.findMany({
       <div className="px-4 py-5 border-b border-git-border">
         {/* author info */}
         <div className="flex items-center gap-3 mb-4">
-          <Link href={`/profile/${post.author.username}`}>
+          <Link href={`/profile/${authorUsername}`}>
             <Image
               src={post.author.avatar || "/icon.png"}
-              alt={post.author.username}
+              alt={authorUsername}
               width={48}
               height={48}
               className="rounded-full border border-git-border"
             />
           </Link>
           <div className="flex flex-col">
-            <Link href={`/profile/${post.author.username}`} className="font-bold text-git-text hover:text-git-accent transition-colors text-[15px]">
-              {post.author.name || post.author.username}
+            <Link href={`/profile/${authorUsername}`} className="font-bold text-git-text hover:text-git-accent transition-colors text-[15px]">
+              {post.author.name || authorUsername}
             </Link>
-            <span className="text-[13px] text-git-muted">@{post.author.username}</span>
+            <span className="text-[13px] text-git-muted">@{authorUsername}</span>
           </div>
         </div>
 

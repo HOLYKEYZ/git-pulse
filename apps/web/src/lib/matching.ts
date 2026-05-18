@@ -140,11 +140,14 @@ export async function findSimilarDevs(
     });
 
     const matches: CollabMatch[] = [];
+    const usernames = users
+      .map((u) => u.username)
+      .filter((username): username is string => Boolean(username));
 
     // Fetch all posts for all users in one query
     const allPosts = await prisma.post.findMany({
       where: {
-        author: { username: { in: users.map((u) => u.username) } }
+        author: { username: { in: usernames } }
       },
       select: {
         id: true,
@@ -158,6 +161,7 @@ export async function findSimilarDevs(
     // Group posts by user
     const postsByUser: Record<string, any[]> = {};
     allPosts.forEach((post) => {
+      if (!post.author.username) return;
       if (!postsByUser[post.author.username]) {
         postsByUser[post.author.username] = [];
       }
@@ -165,6 +169,7 @@ export async function findSimilarDevs(
     });
 
     for (const user of users) {
+      if (!user.username) continue;
       const posts = postsByUser[user.username] || [];
 
       // build a lightweight stack from their post repo embeds

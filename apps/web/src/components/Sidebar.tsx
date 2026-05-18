@@ -86,13 +86,13 @@ export default async function Sidebar() {
                 {/* connect github button for users without github */}
                 {session?.user && !session.user.githubId && (
                     <div className="mt-4 px-2 mb-4">
-                        <a
+                        <Link
                             href="/api/auth/signin/github"
                             className="w-full bg-[#24292e] hover:bg-[#1b1f23] text-white rounded-full py-3 px-4 font-semibold text-sm shadow-sm transition-colors flex items-center justify-center gap-2"
                         >
                             <MarkGithubIcon size={18} />
                             Connect GitHub
-                        </a>
+                        </Link>
                     </div>
                 )}
 

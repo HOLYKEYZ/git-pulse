@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useTheme } from "@/components/ThemeProvider";
 
 const ACTION_YAML = `name: Post to GitPulse
@@ -201,12 +202,12 @@ export default function SettingsPage() {
                                     <span className="text-sm font-medium text-git-text">GitHub</span>
                                     <span className="text-xs text-git-muted">sync your repos and activity</span>
                                 </div>
-                                <a
-                                    href="/api/auth/signin?provider=github"
+                                <Link
+                                    href="/api/auth/signin/github"
                                     className="text-xs px-3 py-1.5 rounded-md bg-git-accent text-white font-medium hover:opacity-90 transition-opacity"
                                 >
                                     Connect GitHub
-                                </a>
+                                </Link>
                             </div>
                         </div>
                     </div>

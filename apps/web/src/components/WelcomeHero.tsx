@@ -404,7 +404,7 @@ export default function WelcomeHero() {
                     <span className="font-semibold text-xl tracking-tight">GitPulse</span>
                 </div>
                 <div className="flex items-center gap-4">
-                    <a href="/login" className="text-sm font-medium hover:text-[#1F6FEB] transition-colors">sign in</a>
+                    <Link href="/login" className="text-sm font-medium hover:text-[#1F6FEB] transition-colors">sign in</Link>
                     <Button href="/login" variant="primary">sign up</Button>
                 </div>
             </nav>

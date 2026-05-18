@@ -11,6 +11,7 @@ import RightSidebar from "@/components/RightSidebar";
 import WelcomeHero from "@/components/WelcomeHero";
 import { Suspense } from "react";
 import { SidebarSkeleton } from "@/components/Skeletons";
+import { redirect } from "next/navigation";
 
 // known bot patterns to filter out
 const BOT_PATTERNS = [
@@ -230,7 +231,17 @@ function mapPrismaPostToProps(p: {
   };
 }
 
-export default async function HomePage() {
+export default async function HomePage(props: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
+  const searchParams = await props.searchParams;
+  const oauthCode = searchParams?.code;
+  const oauthState = searchParams?.state;
+
+  if (typeof oauthCode === "string") {
+    const callbackSearchParams = new URLSearchParams({ code: oauthCode });
+    if (typeof oauthState === "string") callbackSearchParams.set("state", oauthState);
+    redirect(`/api/auth/callback/github?${callbackSearchParams.toString()}`);
+  }
+
   const session = await auth().catch((error) => {
     console.error("[Auth] Failed to resolve home session:", error);
     return null;

@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect, Suspense } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
@@ -400,7 +401,7 @@ export default function WelcomeHero() {
             {/* Nav */}
             <nav className="fixed top-0 w-full z-50 bg-[#0D1117]/80 backdrop-blur-md border-b border-[#30363D] h-16 flex items-center justify-between px-4 md:px-6 lg:px-10">
                 <div className="flex items-center gap-3">
-                    <img src="/logo.png" alt="GitPulse" className="rounded-xl w-12 h-12 object-contain" />
+                    <Image src="/logo.png" alt="GitPulse" width={64} height={64} className="rounded-2xl" priority />
                     <span className="font-semibold text-xl tracking-tight">GitPulse</span>
                 </div>
                 <div className="flex items-center gap-4">

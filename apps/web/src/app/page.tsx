@@ -257,51 +257,10 @@ export default async function HomePage(props: { searchParams?: Promise<Record<st
   // ═══════════════════════════════════════════════════════════════════════
   let discoverPosts: PostProps[] = [];
   if (session?.user?.login) {
-    // fetch a larger pool to score
-    const posts = await prisma.post.findMany({
-      include: { 
-        author: true, 
-        _count: { select: { comments: true, reactions: true } },
-        repostOf: {
-          include: {
-            author: true,
-            _count: { select: { comments: true, reactions: true } },
-            repostOf: {
-              include: {
-                author: true,
-                _count: { select: { comments: true, reactions: true } }
-              }
-            }
-          }
-        }
-      },
-      orderBy: { createdAt: "desc" },
-      take: 100
-    });
-    const mapped = posts.map(mapPrismaPostToProps);
-    // sort by algo score descending, then take top 30
-    discoverPosts = mapped.sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 30);
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // following: posts from people you follow + your own posts
-  // ═══════════════════════════════════════════════════════════════════════
-  let followingPosts: PostProps[] = [];
-  if (session?.user?.login) {
-    const dbUser = await prisma.user.findUnique({
-      where: session.user.id ? { id: session.user.id } : { username: session.user.login },
-      select: { id: true }
-    });
-    if (dbUser) {
-      const followedIds = await prisma.follow.findMany({
-        where: { followerId: dbUser.id },
-        select: { followingId: true }
-      });
-      const ids = [dbUser.id, ...followedIds.map((f) => f.followingId)];
-      const filteredPosts = await prisma.post.findMany({
-        where: { authorId: { in: ids } },
-        include: { 
-          author: true, 
+    try {
+      const posts = await prisma.post.findMany({
+        include: {
+          author: true,
           _count: { select: { comments: true, reactions: true } },
           repostOf: {
             include: {
@@ -317,9 +276,56 @@ export default async function HomePage(props: { searchParams?: Promise<Record<st
           }
         },
         orderBy: { createdAt: "desc" },
-        take: 20
+        take: 100
       });
-      followingPosts = filteredPosts.map(mapPrismaPostToProps);
+      const mapped = posts.map(mapPrismaPostToProps);
+      discoverPosts = mapped.sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 30);
+    } catch (error) {
+      console.error("[HomePage] Failed to load discover posts:", error);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // following: posts from people you follow + your own posts
+  // ═══════════════════════════════════════════════════════════════════════
+  let followingPosts: PostProps[] = [];
+  if (session?.user?.login) {
+    try {
+      const dbUser = await prisma.user.findUnique({
+        where: session.user.id ? { id: session.user.id } : { username: session.user.login },
+        select: { id: true }
+      });
+      if (dbUser) {
+        const followedIds = await prisma.follow.findMany({
+          where: { followerId: dbUser.id },
+          select: { followingId: true }
+        });
+        const ids = [dbUser.id, ...followedIds.map((f) => f.followingId)];
+        const filteredPosts = await prisma.post.findMany({
+          where: { authorId: { in: ids } },
+          include: {
+            author: true,
+            _count: { select: { comments: true, reactions: true } },
+            repostOf: {
+              include: {
+                author: true,
+                _count: { select: { comments: true, reactions: true } },
+                repostOf: {
+                  include: {
+                    author: true,
+                    _count: { select: { comments: true, reactions: true } }
+                  }
+                }
+              }
+            }
+          },
+          orderBy: { createdAt: "desc" },
+          take: 20
+        });
+        followingPosts = filteredPosts.map(mapPrismaPostToProps);
+      }
+    } catch (error) {
+      console.error("[HomePage] Failed to load following posts:", error);
     }
   }
 

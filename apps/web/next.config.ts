@@ -28,6 +28,15 @@ const nextConfig: NextConfig = {
     async headers() {
         return [
             {
+                source: '/:icon(logo|icon|apple-icon).png',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'no-store, max-age=0'
+                    }
+                ],
+            },
+            {
                 source: '/:path*',
                 headers: [
                     {
@@ -59,6 +68,15 @@ const nextConfig: NextConfig = {
                         value: 'camera=(), microphone=(), geolocation=()'
                     }
                 ],
+            },
+        ];
+    },
+    async redirects() {
+        return [
+            {
+                source: '/favicon.ico',
+                destination: '/logo.png',
+                permanent: false,
             },
         ];
     },

@@ -7,10 +7,7 @@ import { type PostProps } from "@/components/PostCard";
 import { calculatePostScore } from "@/lib/algo";
 import { hasPassedBadge } from "@/lib/badges";
 import { getRelativeTime } from "@/lib/utils";
-import RightSidebar from "@/components/RightSidebar";
 import WelcomeHero from "@/components/WelcomeHero";
-import { Suspense } from "react";
-import { SidebarSkeleton } from "@/components/Skeletons";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
@@ -362,10 +359,6 @@ export default async function HomePage(props: { searchParams?: Promise<Record<st
           userAvatar={session?.user?.image ?? ""} />
         
             </div>
-            {/* right sidebar — async, wrapped in suspense */}
-            <Suspense fallback={<div className="hidden w-[350px] shrink-0 lg:block"><SidebarSkeleton /></div>}>
-                <RightSidebar />
-            </Suspense>
         </div>);
   } catch (error) {
     console.error("[HomePage] Fatal error rendering home:", error);

@@ -2,7 +2,7 @@ import { auth, signOut } from "@/lib/auth";
 import Image from "next/image";
 import Link from "next/link";
 import NotificationBell from "./NotificationBell";
-import { MarkGithubIcon, HomeIcon, PersonIcon, GearIcon, TelescopeIcon, PulseIcon } from "@primer/octicons-react";
+import { HomeIcon, PersonIcon, GearIcon, TelescopeIcon, PulseIcon } from "@primer/octicons-react";
 
 export default async function Sidebar() {
     let session = null;
@@ -16,14 +16,14 @@ export default async function Sidebar() {
         <aside className="hidden w-[275px] shrink-0 xl:block relative">
             <nav className="fixed w-[275px] top-0 flex flex-col h-screen px-4 pb-4">
                 {/* logo */}
-                <div className="py-4">
-                    <Link href="/" className="inline-flex items-center justify-center hover:opacity-80 transition-opacity">
+                <div className="py-5 min-h-[180px] flex items-center">
+                    <Link href="/" className="inline-flex items-center justify-center hover:opacity-80 transition-opacity overflow-visible">
                         <Image
                             src="/logo.png"
                             alt="GitPulse"
-                            width={128}
-                            height={128}
-                            className="h-32 w-32 rounded-2xl object-contain"
+                            width={192}
+                            height={192}
+                            className="h-40 w-40 scale-125 origin-left rounded-2xl object-contain"
                             priority
                         />
                     </Link>
@@ -85,19 +85,6 @@ export default async function Sidebar() {
                         </div>
                     )}
                 </div>
-
-                {/* connect github button for users without github */}
-                {session?.user && !session.user.githubId && (
-                    <div className="mt-4 px-2 mb-4">
-                        <Link
-                            href="/api/auth/signin/github"
-                            className="w-full bg-[#24292e] hover:bg-[#1b1f23] text-white rounded-full py-3 px-4 font-semibold text-sm shadow-sm transition-colors flex items-center justify-center gap-2"
-                        >
-                            <MarkGithubIcon size={18} />
-                            Connect GitHub
-                        </Link>
-                    </div>
-                )}
 
                 {/* user card pill */}
                 {session?.user && (

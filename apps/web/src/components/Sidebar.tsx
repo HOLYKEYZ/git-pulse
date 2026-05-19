@@ -21,9 +21,9 @@ export default async function Sidebar() {
                         <Image
                             src="/logo.png"
                             alt="GitPulse"
-                            width={176}
-                            height={176}
-                            className="h-36 w-36 scale-110 origin-left rounded-2xl object-contain"
+                            width={160}
+                            height={160}
+                            className="h-32 w-32 scale-110 origin-left rounded-2xl object-contain"
                             priority
                         />
                     </Link>
@@ -91,17 +91,13 @@ export default async function Sidebar() {
                     <div className="mt-auto mb-2 relative group w-full pr-4">
                         <div className="flex items-center justify-between p-3 rounded-full hover:bg-git-hover transition-colors cursor-pointer w-full mx-2">
                             <div className="flex items-center gap-3 overflow-hidden">
-                                {session.user.image ? (
-                                    <Image
-                                        src={session.user.image}
-                                        alt={session.user.login || "User"}
-                                        width={40}
-                                        height={40}
-                                        className="rounded-full flex-shrink-0"
-                                    />
-                                ) : (
-                                    <div className="w-10 h-10 rounded-full bg-git-border flex-shrink-0" />
-                                )}
+                                <Image
+                                    src={session.user.image || "/default-avatar.svg"}
+                                    alt={session.user.login || "User"}
+                                    width={40}
+                                    height={40}
+                                    className="rounded-full flex-shrink-0"
+                                />
                                 <div className="flex flex-col min-w-0 flex-1">
                                     <span className="text-[15px] font-bold text-git-text truncate leading-tight">
                                         {session.user.name || session.user.login}

@@ -163,20 +163,16 @@ function mapPrismaPostToProps(p: {
 }): PostProps {
   const authorUsername = p.author.name ?? p.author.username ?? p.author.email?.split("@")[0] ?? "unknown";
 
-  // if this is a repost, explicitly distinguish between Quote Repost and standard Reposts
   if (p.repostOf) {
-    const isQuoteRepost = p.content !== `Reposted by @${authorUsername}`;
+    const isQuoteRepost = !p.content.startsWith("Reposted by @");
     
-    // For standard unedited reposts, map purely the target passing along metadata
     if (!isQuoteRepost) {
       return {
         ...mapPrismaPostToProps(p.repostOf),
         isRepost: true,
         repostedBy: authorUsername,
-        // Keep the original post ID for the link, not the repost ID
       };
     }
-    // For Quote Reposts, continue execution but attach `quotedPost` recursively
   }
 
   let score = 0;
@@ -213,7 +209,7 @@ function mapPrismaPostToProps(p: {
     type: p.type as "standard" | "ship",
     author: {
       username: authorUsername,
-      avatar: p.author.avatar ?? "/default-avatar.png",
+      avatar: p.author.avatar || "/default-avatar.svg",
       statusEmoji: p.author.statusEmoji,
       statusText: p.author.statusText
     },
@@ -228,12 +224,11 @@ function mapPrismaPostToProps(p: {
     repoUrl: p.repoUrl,
     score,
     passedBadge: hasPassedBadge(score),
-    quotedPost: p.repostOf && p.content !== `Reposted by @${authorUsername}` ? mapPrismaPostToProps(p.repostOf) : undefined
+    quotedPost: p.repostOf && !p.content.startsWith("Reposted by @") ? mapPrismaPostToProps(p.repostOf) : undefined
   };
 }
 
 export default async function HomePage(props: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
-  try {
   const searchParams = await props.searchParams;
   const oauthCode = searchParams?.code;
   const oauthState = searchParams?.state;
@@ -243,6 +238,8 @@ export default async function HomePage(props: { searchParams?: Promise<Record<st
     if (typeof oauthState === "string") callbackSearchParams.set("state", oauthState);
     redirect(`/api/auth/callback/github?${callbackSearchParams.toString()}`);
   }
+
+  try {
 
   const session = await auth().catch((error) => {
     console.error("[Auth] Failed to resolve home session:", error);
@@ -281,7 +278,8 @@ export default async function HomePage(props: { searchParams?: Promise<Record<st
         take: 100
       });
       const mapped = posts.map(mapPrismaPostToProps);
-      discoverPosts = mapped.sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 30);
+      const deduped = Array.from(new Map(mapped.map((post) => [post.id, post])).values());
+      discoverPosts = deduped.sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 30);
     } catch (error) {
       console.error("[HomePage] Failed to load discover posts:", error);
     }
@@ -324,7 +322,8 @@ export default async function HomePage(props: { searchParams?: Promise<Record<st
           orderBy: { createdAt: "desc" },
           take: 20
         });
-        followingPosts = filteredPosts.map(mapPrismaPostToProps);
+        const mapped = filteredPosts.map(mapPrismaPostToProps);
+        followingPosts = Array.from(new Map(mapped.map((post) => [post.id, post])).values());
       }
     } catch (error) {
       console.error("[HomePage] Failed to load following posts:", error);

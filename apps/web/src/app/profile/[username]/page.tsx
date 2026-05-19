@@ -61,21 +61,48 @@ async function getGitHubStatus(username: string, token: string): Promise<{ emoji
 
 export default async function ProfilePage(props: {params: Promise<{username: string}>}) {
     const params = await props.params;
-  const session = await auth();
+  const session = await auth().catch((error) => {
+    console.error("[Profile] Failed to resolve session:", error);
+    return null;
+  });
   const { username } = params;
-  const token = session?.user?.login ? await getServerSideToken(session.user.login) : null;
+  const token = session?.user?.login
+    ? await getServerSideToken(session.user.login).catch((error) => {
+        console.error("[Profile] Failed to resolve GitHub token:", error);
+        return null;
+      })
+    : null;
   const isOwnProfile = session?.user?.login === username;
+
+  if (!token) {
+    return (
+      <div className="w-full max-w-[720px] mx-auto p-8 animate-fade-in">
+        <div className="rounded-2xl border border-git-border bg-git-card p-8 text-center">
+          <h1 className="text-2xl font-bold text-git-text">Connect GitHub to view profiles</h1>
+          <p className="mt-3 text-sm leading-6 text-git-muted">
+            GitHub profile data, repositories, README cards, contributions, and activity require a connected GitHub account.
+          </p>
+          <Link
+            href="/api/auth/signin/github?callbackUrl=/"
+            className="mt-6 inline-flex rounded-full bg-git-green px-5 py-2 text-sm font-semibold text-white hover:bg-git-green-hover transition-colors"
+          >
+            Connect GitHub
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   // parallel data fetching — all at once for speed
   const [ghUser, ghRepos, readme, contributions, pinnedRepos, activity, userStats, githubStatus] = await Promise.all([
-    token ? getGitHubUser(username, token as string) : null,
-    token ? getGitHubRepos(username, token as string, 6) : [],
-    token ? getGitHubReadme(username, token as string) : null,
-    token ? getContributionData(username, token as string) : null,
-    token ? getGitHubPinnedRepos(username, token as string) : [],
-    token ? getContributionActivity(username, token as string) : [],
-    token ? getUserStats(username, token as string) : null,
-    token ? getGitHubStatus(username, token as string) : null
+    getGitHubUser(username, token),
+    getGitHubRepos(username, token, 6),
+    getGitHubReadme(username, token),
+    getContributionData(username, token),
+    getGitHubPinnedRepos(username, token),
+    getContributionActivity(username, token),
+    getUserStats(username, token),
+    getGitHubStatus(username, token)
   ]);
 
   if (ghUser) {

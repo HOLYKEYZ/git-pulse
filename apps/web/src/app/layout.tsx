@@ -27,10 +27,11 @@ export const metadata: Metadata = {
     manifest: "/manifest.json",
     icons: {
         icon: [
+            { url: "/favicon.ico", sizes: "64x64" },
             { url: "/icon.png", sizes: "32x32", type: "image/png" },
             { url: "/icon.png", sizes: "192x192", type: "image/png" },
         ],
-        shortcut: "/icon.png",
+        shortcut: "/favicon.ico",
         apple: "/icon.png",
     },
     openGraph: {

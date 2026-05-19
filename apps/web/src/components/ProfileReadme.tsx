@@ -52,8 +52,33 @@ const resolveAndProxyGithubImageUrl = (originalUrl: string, username: string) =>
             // 2. Proxy image URLs to handle CORS and relative path resolution
             $('img').each((_, el) => {
                 let src = $(el).attr('src');
+                const alt = ($(el).attr('alt') || '').trim().toLowerCase();
+                const title = ($(el).attr('title') || '').trim().toLowerCase();
+                const width = Number($(el).attr('width') || 0);
+                const height = Number($(el).attr('height') || 0);
+                const looksLikeBadge = Boolean(src && (
+                  src.includes('shields.io') ||
+                  src.includes('skillicons.dev') ||
+                  src.includes('devicon') ||
+                  src.includes('badge')
+                ));
+
+                if (
+                  alt === 'c' ||
+                  alt === 'c++' ||
+                  alt.length <= 1 ||
+                  title === 'c' ||
+                  title === 'c++' ||
+                  (looksLikeBadge && (alt.length <= 3 || title.length <= 3)) ||
+                  (width > 0 && width <= 24) ||
+                  (height > 0 && height <= 24)
+                ) {
+                  $(el).remove();
+                  return;
+                }
+
                 if (src && !src.startsWith('data:')) {
-                    $(el).attr('src', resolveAndProxyGithubImageUrl(src, username));
+                  $(el).attr('src', resolveAndProxyGithubImageUrl(src, username));
                 }
             });
 

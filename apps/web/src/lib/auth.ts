@@ -47,7 +47,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         try {
           const existingUser = validProfile.email
             ? await prisma.user.findUnique({ where: { email: validProfile.email } })
-            : null;
+            : await prisma.user.findUnique({ where: { username: validProfile.login } });
           const dbUser = existingUser
             ? await prisma.user.update({
                 where: { id: existingUser.id },

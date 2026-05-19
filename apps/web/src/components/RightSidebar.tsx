@@ -110,10 +110,37 @@ async function ExploreSection({ token }: { token: string }) {
 }
 
 export default async function RightSidebar() {
-  const session = await auth();
-  const token = session?.user?.login ? await getServerSideToken(session.user.login) : null;
+  const session = await auth().catch((error) => {
+    console.error("[RightSidebar] Failed to resolve session:", error);
+    return null;
+  });
+  const token = session?.user?.login
+    ? await getServerSideToken(session.user.login).catch((error) => {
+        console.error("[RightSidebar] Failed to resolve GitHub token:", error);
+        return null;
+      })
+    : null;
 
-  if (!token) return null;
+  if (!token) {
+    return (
+      <aside className="hidden w-[350px] shrink-0 lg:block">
+        <div className="sticky top-0 pt-3 flex flex-col gap-4">
+          <div className="rounded-2xl border border-git-border bg-git-card p-5">
+            <h2 className="text-base font-bold text-git-text">Unlock GitHub insights</h2>
+            <p className="mt-2 text-sm text-git-muted">
+              Connect GitHub to see trending repos, developers like you, active projects, and personalized suggestions here.
+            </p>
+            <Link
+              href="/api/auth/signin/github?callbackUrl=/"
+              className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-git-green px-4 py-2 text-sm font-semibold text-white hover:bg-git-green-hover transition-colors"
+            >
+              Connect GitHub
+            </Link>
+          </div>
+        </div>
+      </aside>
+    );
+  }
 
   return (
     <aside className="hidden w-[350px] shrink-0 lg:block">

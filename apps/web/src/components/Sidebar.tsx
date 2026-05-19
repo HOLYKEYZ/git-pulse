@@ -21,9 +21,9 @@ export default async function Sidebar() {
                         <Image
                             src="/logo.png"
                             alt="GitPulse"
-                            width={192}
-                            height={192}
-                            className="h-40 w-40 scale-125 origin-left rounded-2xl object-contain"
+                            width={176}
+                            height={176}
+                            className="h-36 w-36 scale-110 origin-left rounded-2xl object-contain"
                             priority
                         />
                     </Link>

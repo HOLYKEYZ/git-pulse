@@ -7,6 +7,9 @@ import { type PostProps } from "@/components/PostCard";
 import { calculatePostScore } from "@/lib/algo";
 import { hasPassedBadge } from "@/lib/badges";
 import { getRelativeTime } from "@/lib/utils";
+import RightSidebar from "@/components/RightSidebar";
+import { Suspense } from "react";
+import { SidebarSkeleton } from "@/components/Skeletons";
 import WelcomeHero from "@/components/WelcomeHero";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -154,11 +157,11 @@ function mapPrismaPostToProps(p: {
   images?: string[];
   hashtags?: string[];
   repoUrl?: string | null;
-  author: {username: string | null;avatar: string | null; statusEmoji?: string | null; statusText?: string | null;};
+  author: {username: string | null;name?: string | null;email?: string | null;avatar: string | null; statusEmoji?: string | null; statusText?: string | null;};
   _count: {comments: number;reactions: number;};
   repostOf?: any;
 }): PostProps {
-  const authorUsername = p.author.username ?? "unknown";
+  const authorUsername = p.author.name ?? p.author.username ?? p.author.email?.split("@")[0] ?? "unknown";
 
   // if this is a repost, explicitly distinguish between Quote Repost and standard Reposts
   if (p.repostOf) {
@@ -210,7 +213,7 @@ function mapPrismaPostToProps(p: {
     type: p.type as "standard" | "ship",
     author: {
       username: authorUsername,
-      avatar: p.author.avatar ?? "",
+      avatar: p.author.avatar ?? "/default-avatar.png",
       statusEmoji: p.author.statusEmoji,
       statusText: p.author.statusText
     },
@@ -359,6 +362,9 @@ export default async function HomePage(props: { searchParams?: Promise<Record<st
           userAvatar={session?.user?.image ?? ""} />
         
             </div>
+            <Suspense fallback={<div className="hidden w-[350px] shrink-0 lg:block"><SidebarSkeleton /></div>}>
+                <RightSidebar />
+            </Suspense>
         </div>);
   } catch (error) {
     console.error("[HomePage] Fatal error rendering home:", error);

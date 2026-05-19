@@ -12,6 +12,7 @@ import WelcomeHero from "@/components/WelcomeHero";
 import { Suspense } from "react";
 import { SidebarSkeleton } from "@/components/Skeletons";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 // known bot patterns to filter out
 const BOT_PATTERNS = [
@@ -232,6 +233,7 @@ function mapPrismaPostToProps(p: {
 }
 
 export default async function HomePage(props: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
+  try {
   const searchParams = await props.searchParams;
   const oauthCode = searchParams?.code;
   const oauthState = searchParams?.state;
@@ -365,5 +367,18 @@ export default async function HomePage(props: { searchParams?: Promise<Record<st
                 <RightSidebar />
             </Suspense>
         </div>);
-
+  } catch (error) {
+    console.error("[HomePage] Fatal error rendering home:", error);
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#0D1117] text-white px-4">
+        <div className="max-w-md w-full text-center space-y-4">
+          <h1 className="text-2xl font-bold">Unable to load feed</h1>
+          <p className="text-gray-400">Something went wrong while loading your feed. Please refresh or try again later.</p>
+          <Link href="/" className="inline-block mt-4 px-4 py-2 bg-[#238636] hover:bg-[#2ea043] rounded-md text-sm font-medium transition-colors">
+            Refresh
+          </Link>
+        </div>
+      </div>
+    );
+  }
 }

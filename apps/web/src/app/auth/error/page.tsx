@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
 
 const errorMessages: Record<string, string> = {
   Configuration: "GitHub sign-in is not configured correctly on the server. Please try email sign-in while we fix the GitHub settings.",
@@ -11,6 +13,11 @@ export default async function AuthErrorPage({
 }: {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const session = await auth().catch(() => null);
+  if (session?.user) {
+    redirect("/");
+  }
+
   const params = await searchParams;
   const error = typeof params?.error === "string" ? params.error : "Unknown";
   const message = errorMessages[error] ?? "Something went wrong during sign-in. Please try again.";

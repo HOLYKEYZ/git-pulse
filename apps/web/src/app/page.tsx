@@ -228,6 +228,24 @@ function mapPrismaPostToProps(p: {
   };
 }
 
+function mergeRepostHeaders(posts: PostProps[]) {
+  const byId = new Map<string, PostProps>();
+
+  for (const post of posts) {
+    const existing = byId.get(post.id);
+    if (!existing) {
+      byId.set(post.id, post);
+      continue;
+    }
+
+    if (post.isRepost && post.repostedBy && !existing.isRepost) {
+      byId.set(post.id, { ...existing, isRepost: true, repostedBy: post.repostedBy, timestamp: post.timestamp });
+    }
+  }
+
+  return Array.from(byId.values());
+}
+
 export default async function HomePage(props: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
   const searchParams = await props.searchParams;
   const oauthCode = searchParams?.code;
@@ -278,7 +296,7 @@ export default async function HomePage(props: { searchParams?: Promise<Record<st
         take: 100
       });
       const mapped = posts.map(mapPrismaPostToProps);
-      const deduped = Array.from(new Map(mapped.map((post) => [post.id, post])).values());
+      const deduped = mergeRepostHeaders(mapped);
       discoverPosts = deduped.sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 30);
     } catch (error) {
       console.error("[HomePage] Failed to load discover posts:", error);
@@ -323,7 +341,7 @@ export default async function HomePage(props: { searchParams?: Promise<Record<st
           take: 20
         });
         const mapped = filteredPosts.map(mapPrismaPostToProps);
-        followingPosts = Array.from(new Map(mapped.map((post) => [post.id, post])).values());
+        followingPosts = mergeRepostHeaders(mapped);
       }
     } catch (error) {
       console.error("[HomePage] Failed to load following posts:", error);

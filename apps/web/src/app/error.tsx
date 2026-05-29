@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function ErrorPage({
   error,
@@ -9,6 +10,8 @@ export default function ErrorPage({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const router = useRouter();
+
   useEffect(() => {
     console.error("[GlobalError]", error);
   }, [error]);
@@ -23,12 +26,20 @@ export default function ErrorPage({
         {error?.digest && (
           <p className="text-xs text-gray-500 font-mono">Digest: {error.digest}</p>
         )}
-        <button
-          onClick={reset}
-          className="mt-4 px-4 py-2 bg-[#238636] hover:bg-[#2ea043] rounded-md text-sm font-medium transition-colors"
-        >
-          Try again
-        </button>
+        <div className="flex justify-center gap-3 mt-4">
+          <button
+            onClick={reset}
+            className="px-4 py-2 bg-[#238636] hover:bg-[#2ea043] rounded-md text-sm font-medium transition-colors"
+          >
+            Try again
+          </button>
+          <button
+            onClick={() => router.push("/")}
+            className="px-4 py-2 bg-[#30363d] hover:bg-[#484f58] rounded-md text-sm font-medium transition-colors"
+          >
+            Go Home
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -92,6 +92,9 @@ const handleYearChange = async (year: number | null) => {
     let lastMonth = -1;
 
     weeks.forEach((week, weekIndex) => {
+        // Guard: skip weeks with no contribution days to avoid undefined access
+        if (!week.contributionDays || week.contributionDays.length === 0) return;
+
         const firstContributionDay = week.contributionDays.find((day) => {
             const date = new Date(day.date);
             return date.getDate() >= 1 && date.getDate() <= 7;

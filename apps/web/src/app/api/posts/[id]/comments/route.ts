@@ -26,6 +26,12 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
 
     try {
 const { id: postId } = params;
+
+const post = await prisma.post.findUnique({ where: { id: postId } });
+if (!post) {
+    return NextResponse.json({ error: "Post not found" }, { status: 404 });
+}
+
 const body = await req.json();
 const { content, parentId } = body;
 

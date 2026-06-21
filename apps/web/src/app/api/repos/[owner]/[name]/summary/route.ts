@@ -20,8 +20,8 @@ export async function GET(
   }
 
 const { owner, name } = params;
-const ownerRegex = /^[a-zA-Z0-9-]+$/;
-const nameRegex = /^[a-zA-Z0-9-]+$/;
+const ownerRegex = /^[a-zA-Z0-9-._]+$/;
+const nameRegex = /^[a-zA-Z0-9-._]+$/;
 if (!ownerRegex.test(owner) || !nameRegex.test(name)) {
   return NextResponse.json({ error: 'Invalid repository owner or name' }, { status: 400 });
 }
@@ -51,7 +51,7 @@ const repoRes = await fetch(
     let readmeExcerpt: string | undefined;
     try {
       const readmeRes = await fetch(
-        `https://api.github.com/repos/${owner}/${name}/readme`,
+        `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}/readme`,
         {
           headers: {
           Authorization: `Bearer ${serverToken}`,

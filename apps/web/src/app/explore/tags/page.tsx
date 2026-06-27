@@ -4,7 +4,8 @@ import { Metadata } from "next";
 
 
 // simple in-memory cache to avoid re-querying on every request
-let cachedTags: any = null;
+type TagCount = [string, number];
+let cachedTags: TagCount[] | null = null;
 let cacheTime = 0;
 const CACHE_TTL = 300000; // 5 minutes
 
@@ -16,14 +17,10 @@ export const metadata: Metadata = {
 export default async function TagsPage() {
   // aggregate trending hashtags using database-level query
   const now = Date.now();
-let trending = cachedTags;
-if (trending) {
-  // Basic validation for trending tags
-  trending = trending.filter((tag: any) => typeof tag[0] === 'string' && typeof tag[1] === 'number');
-}
+  let trending = cachedTags;
   if (!trending || now - cacheTime > CACHE_TTL) {
     // database-level aggregation using postgresql unnest to avoid fetching all posts into memory
-let result: { tag: string; count: bigint }[] = [];
+    let result: { tag: string; count: bigint }[] = [];
     if (process.env.DATABASE_URL) {
       try {
         result = await prisma.$queryRaw`
@@ -37,14 +34,16 @@ let result: { tag: string; count: bigint }[] = [];
         if (!result) {
           throw new Error('Failed to fetch trending hashtags');
         }
+        trending = result.map(r => [r.tag, Number(r.count)]);
+        cachedTags = trending;
+        cacheTime = now;
       } catch (error) {
         console.error('Error fetching trending hashtags:', error);
       }
     }
-    
-    trending = result.map(r => [r.tag, Number(r.count)]);
-    cachedTags = trending;
-    cacheTime = now;
+    if (!trending) {
+      trending = [];
+    }
   }
 
   return (

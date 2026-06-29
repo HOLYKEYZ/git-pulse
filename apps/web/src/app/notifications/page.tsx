@@ -47,12 +47,6 @@ try {
             orderBy: { createdAt: "desc" },
             take: 50,
         });
-
-        // mark all unread as read on page load
-        await prisma.notification.updateMany({
-            where: { user: { username: session.user.login }, read: false },
-            data: { read: true },
-        });
     } catch (err: unknown) {
         if (err instanceof Error && 'code' in err && err.code === 'P2025') {
             console.error("[Notifications] DB Error: Prisma client error", err);
